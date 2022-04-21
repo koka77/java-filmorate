@@ -28,17 +28,17 @@ public class User {
     @Pattern(regexp = "\\S+")
     private String login;
 
-    private String nicName;
+    private String name;
 
     @PastOrPresent
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private LocalDate birthday;
 
-    public User(int id, @Valid String email, @Valid String login, String nicName, LocalDate birthday) {
+    public User(int id, @Valid String email, @Valid String login, String name, LocalDate birthday) {
         this.id = id;
         this.email = email;
         this.login = login;
-        this.nicName = nicName.isEmpty() || nicName.isBlank() ? login : nicName;
+        this.name = name.isEmpty() || name.isBlank() ? login : name;
         this.birthday = birthday;
     }
 }

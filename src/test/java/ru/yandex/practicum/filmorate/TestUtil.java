@@ -19,6 +19,7 @@ public class TestUtil {
             LocalDate.of(2021, 10, 10), Duration.ofMinutes(160));
     public static Film invalidFilm1 = new Film(1, "invalidFilm1", "invalidFilm1 description",
             LocalDate.of(1894, 10, 1), Duration.ofMinutes(120));
+
     public static User validUser1 = new User(1, "validUser1@mail.ru", "login", "validUser1",
             LocalDate.of(1981, 5, 16));
     public static User validUser2 = new User(2, "validUser2@mail.ru", "login", "validUser2",

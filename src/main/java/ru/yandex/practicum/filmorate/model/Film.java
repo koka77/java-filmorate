@@ -32,5 +32,5 @@ public class Film {
     private LocalDate releaseDate;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING)
-    private Duration filmDuration;
+    private Duration duration;
 }

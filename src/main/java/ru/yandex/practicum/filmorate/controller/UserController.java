@@ -18,25 +18,33 @@ import java.util.stream.Collectors;
 @RequestMapping("/users")
 public class UserController {
 
+    //поскольку мы храним юзеров прямо в контроллере, учет ID делаем тут же.
+    private static Integer currentMaxId = 0;
     private final Map<Integer, User> users = new HashMap<>();
 
-    @PostMapping("/user")
+    @PostMapping
     public User createUser(@Valid @RequestBody User user) {
 
-        users.put(user.getId(), user);
+        user.setId(currentMaxId++);
+        users.put(currentMaxId, user);
         log.info("createUser: {}", user);
         return user;
     }
 
-    @PutMapping("/user")
+    @PutMapping
     public User updateUser(@Valid @RequestBody User user) {
 
-        users.put(user.getId(), user);
-        log.info("updateUser: {}", user);
-        return user;
+        if (users.containsKey(user.getId())) {
+            users.put(user.getId(), user);
+            log.info("updateUser: {}", user);
+            return user;
+        } else {
+            log.info("error updateUser without ID: {}", user);
+        }
+        return null;
     }
 
-    @GetMapping("")
+    @GetMapping
     public List<User> findAll() {
         log.info("findAll");
         return users.values().stream().collect(Collectors.toList());

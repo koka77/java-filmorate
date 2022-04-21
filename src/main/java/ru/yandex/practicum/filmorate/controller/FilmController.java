@@ -22,25 +22,34 @@ public class FilmController {
 
     private final Map<Integer, Film> films = new HashMap<>();
 
+
+    //поскольку мы храним фильмы прямо в контроллере, учет ID делаем тут же.
+    private static Integer currentMaxId = 0;
     @Autowired
     List<FilmValidator> validators = new ArrayList<>();
 
 
 
-    @PostMapping("/film")
+    @PostMapping
     public Film addFilm(@Valid @RequestBody Film film) {
         validators.stream().forEach(it -> it.validate(film));
-        films.put(film.getId(), film);
+        film.setId(currentMaxId++);
+        films.put(currentMaxId, film);
         log.info("addFilm: {}", film);
         return film;
     }
 
-    @PutMapping("/film")
+    @PutMapping
     public Film updateFilm(@Valid @RequestBody Film film) {
         validators.stream().forEach(it -> it.validate(film));
+        if (films.containsKey(film.getId())){
+
         log.debug("updateFilm: {}", film);
         films.put(film.getId(), film);
         return film;
+        }
+        log.debug("error updateFilm without ID: {}", film);
+        return null;
     }
 
     @GetMapping

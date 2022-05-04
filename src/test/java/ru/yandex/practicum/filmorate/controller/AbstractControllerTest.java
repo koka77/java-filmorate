@@ -12,11 +12,6 @@ import ru.yandex.practicum.filmorate.TestUtil;
 @AutoConfigureMockMvc
 public class AbstractControllerTest {
 
-
     @Autowired
     protected MockMvc mockMvc;
-
-
-
-
 }

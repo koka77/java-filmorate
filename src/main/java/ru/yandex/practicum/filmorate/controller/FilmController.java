@@ -26,13 +26,13 @@ public class FilmController {
     //поскольку мы храним фильмы прямо в контроллере, учет ID делаем тут же.
     private static Integer currentMaxId = 0;
     @Autowired
-    List<FilmValidator> validators = new ArrayList<>();
+    private List<FilmValidator> validators = new ArrayList<>();
 
 
 
     @PostMapping
     public Film addFilm(@Valid @RequestBody Film film) {
-        validators.stream().forEach(it -> it.validate(film));
+        validators.forEach(it -> it.validate(film));
         film.setId(currentMaxId++);
         films.put(currentMaxId, film);
         log.info("addFilm: {}", film);
@@ -40,16 +40,14 @@ public class FilmController {
     }
 
     @PutMapping
-    public Film updateFilm(@Valid @RequestBody Film film) {
+    public void updateFilm(@Valid @RequestBody Film film) {
         validators.stream().forEach(it -> it.validate(film));
         if (films.containsKey(film.getId())){
 
         log.debug("updateFilm: {}", film);
         films.put(film.getId(), film);
-        return film;
         }
         log.debug("error updateFilm without ID: {}", film);
-        return null;
     }
 
     @GetMapping

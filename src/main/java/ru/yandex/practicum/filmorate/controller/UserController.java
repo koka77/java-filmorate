@@ -17,14 +17,12 @@ import java.util.stream.Collectors;
 @RestController("")
 @RequestMapping("/users")
 public class UserController {
-
     //поскольку мы храним юзеров прямо в контроллере, учет ID делаем тут же.
     private static Integer currentMaxId = 0;
     private final Map<Integer, User> users = new HashMap<>();
 
     @PostMapping
     public User createUser(@Valid @RequestBody User user) {
-
         user.setId(currentMaxId++);
         users.put(currentMaxId, user);
         log.info("createUser: {}", user);
@@ -49,6 +47,4 @@ public class UserController {
         log.info("findAll");
         return users.values().stream().collect(Collectors.toList());
     }
-
-
 }

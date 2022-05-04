@@ -24,9 +24,7 @@ public class Film {
 
     @Size(max = 200)
     private String description;
-    //
-//    @DateTimeFormat(pattern = "yyyy-MM-dd")
-//    @JsonSerialize(using = ToStringSerializer.class)
+
     @JsonDeserialize(using = LocalDateDeserializer.class)
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private LocalDate releaseDate;

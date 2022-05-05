@@ -9,14 +9,24 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.time.Duration;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
-@Builder
 @ToString
-@AllArgsConstructor
 public class Film {
+    @Builder
+    public Film(int id, @NonNull String name, String description, LocalDate releaseDate, Duration duration) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.releaseDate = releaseDate;
+        this.duration = duration;
+        this.Likes = new HashSet<>();
+    }
 
     private int id;
+    final private Set<Long> Likes;
 
     @NonNull
     @NotBlank

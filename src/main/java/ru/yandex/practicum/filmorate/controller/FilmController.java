@@ -40,14 +40,16 @@ public class FilmController {
     }
 
     @PutMapping
-    public void updateFilm(@Valid @RequestBody Film film) {
+    public Film updateFilm(@Valid @RequestBody Film film) {
         validators.stream().forEach(it -> it.validate(film));
         if (films.containsKey(film.getId())){
 
-        log.debug("updateFilm: {}", film);
-        films.put(film.getId(), film);
+            log.debug("updateFilm: {}", film);
+            films.put(film.getId(), film);
+            return film;
         }
         log.debug("error updateFilm without ID: {}", film);
+        return null;
     }
 
     @GetMapping

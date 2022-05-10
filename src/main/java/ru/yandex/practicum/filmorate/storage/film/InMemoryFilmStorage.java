@@ -1,8 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.FindFilmException;

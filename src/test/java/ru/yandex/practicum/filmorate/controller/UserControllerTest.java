@@ -1,7 +1,5 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -27,8 +25,6 @@ class UserControllerTest extends AbstractControllerTest {
                         MockMvcRequestBuilders.get("/users/{id}", 0l)
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-//                .andDo(print())
-//                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(content()
                         .json("{\"id\":0,\"friends\":[],\"email\":\"asd@fds.ew\",\"login\":\"login\",\"birthday\":\"1981-05-16\"}")).andDo(print());
     }

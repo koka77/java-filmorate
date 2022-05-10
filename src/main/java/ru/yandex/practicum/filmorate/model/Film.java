@@ -13,20 +13,23 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Data
-@ToString
 public class Film {
+
+    private Long id;
+    final private Set<Long> likes;
     @Builder
-    public Film(int id, @NonNull String name, String description, LocalDate releaseDate, Duration duration) {
+    public Film(Long id, @NonNull String name, String description, LocalDate releaseDate, Duration duration) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.releaseDate = releaseDate;
         this.duration = duration;
-        this.Likes = new HashSet<>();
+        this.likes = new HashSet<>();
     }
 
-    private int id;
-    final private Set<Long> Likes;
+    public void addLike(Long filmId) {
+        likes.add(filmId);
+    }
 
     @NonNull
     @NotBlank
@@ -41,4 +44,8 @@ public class Film {
 
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Duration duration;
+
+    public void remoteLike(Long userId) {
+        likes.remove(userId);
+    }
 }

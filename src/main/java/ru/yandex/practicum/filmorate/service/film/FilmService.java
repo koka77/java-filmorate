@@ -1,20 +1,22 @@
 package ru.yandex.practicum.filmorate.service.film;
 
-import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.List;
+import java.util.Collection;
 
 public interface FilmService {
-    List<Film> findAll();
 
-    Film findById(Integer id);
+    void reset();
+
+    Collection<Film> findAll();
+
+    Film findById(Long id);
 
     Film addFilm(Film film);
 
     Film updateFilm(Film film);
 
-    void addLike(Film film);
+    void addLike(Long filmId, Long userId);
 
-    void remoteLike(Film film);
+    void remoteLike(Long filmId, Long userId);
 }

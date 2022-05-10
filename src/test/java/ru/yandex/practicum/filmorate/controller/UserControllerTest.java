@@ -51,12 +51,12 @@ class UserControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(content()
-                        .json("{\"id\":0,\"email\":\"asd@fds.ew\",\"login\":\"login\",\"birthday\":\"1981-05-16\"}"));
+                        .json("{\"id\":0,\"friends\":[],\"email\":\"asd@fds.ew\",\"login\":\"login\",\"birthday\":\"1981-05-16\"}"));
     }
 
     @Test
     void shouldUpdateUserCorrectly() throws Exception {
-        userController.getUsers().put(TestUtil.validFilm1.getId(), TestUtil.validUser1);
+        userController.createUser(TestUtil.validUser1);
         mockMvc.perform(
                         MockMvcRequestBuilders.put("/users")
                                 .content("{\"id\":1,\"email\":\"asd@fds.ew\",\"login\":\"login\",\"name\":\"name\",\"birthday\":\"1981-05-16\"}")
@@ -65,22 +65,22 @@ class UserControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(content()
-                        .json("{\"id\":1,\"email\":\"asd@fds.ew\",\"login\":\"login\",\"name\":\"name\",\"birthday\":\"1981-05-16\"}"));
+                        .json("{\"id\":1,\"friends\":[],\"email\":\"asd@fds.ew\",\"login\":\"login\",\"name\":\"name\",\"birthday\":\"1981-05-16\"}"));
     }
 
     @Test
     void shouldReturnAllUsersCorrectly() throws Exception {
-        userController.getUsers().put(TestUtil.validUser1.getId(), TestUtil.validUser1);
-        userController.getUsers().put(TestUtil.validUser2.getId(), TestUtil.validUser2);
+        userController.createUser(TestUtil.validUser1);
+        userController.createUser(TestUtil.validUser2);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/users"))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(content()
-                        .json("[{\"id\":1,\"email\":\"validUser1@mail.ru\",\"login\":\"login\"," +
+                        .json("[{\"id\":1,\"friends\":[],\"email\":\"validUser1@mail.ru\",\"login\":\"login\"," +
                                 "\"name\":\"validUser1\",\"birthday\":\"1981-05-16\"}," +
-                                "{\"id\":2,\"email\":\"validUser2@mail.ru\",\"login\":\"login\"," +
+                                "{\"id\":2,\"friends\":[],\"email\":\"validUser2@mail.ru\",\"login\":\"login\"," +
                                 "\"name\":\"validUser2\",\"birthday\":\"1981-05-16\"}]"));
     }
 }

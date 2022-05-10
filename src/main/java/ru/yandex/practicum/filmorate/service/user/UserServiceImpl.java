@@ -5,10 +5,15 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class UserServiceImpl implements UserService {
+
+    private static Long currentMaxId = 0L;
 
     @Autowired
     public UserServiceImpl(UserStorage storage) {
@@ -17,8 +22,8 @@ public class UserServiceImpl implements UserService {
 
     private UserStorage storage;
     @Override
-    public List<User> findAll() {
-        return null;
+    public Collection<User> findAll() {
+        return storage.findAll();
     }
 
     @Override
@@ -27,13 +32,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User addUser(User user) {
-        return null;
+    public User createUser(User user) {
+        user.setId(currentMaxId++);
+        storage.addUser(user);
+
+        return user;
     }
 
     @Override
     public User updateUser(User user) {
-        return null;
+        return storage.updateUser(user);
     }
 
     @Override

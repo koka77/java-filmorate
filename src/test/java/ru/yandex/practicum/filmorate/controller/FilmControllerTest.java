@@ -4,9 +4,13 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import static ru.yandex.practicum.filmorate.TestUtil.*;
+
+import org.springframework.web.context.annotation.RequestScope;
+import ru.yandex.practicum.filmorate.TestUtil;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.Duration;
@@ -22,13 +26,13 @@ class FilmControllerTest extends AbstractControllerTest {
 
     @BeforeEach
     void setUp() {
-        filmController.getFilms().put(validFilm1.getId(), validFilm1);
-        filmController.getFilms().put(validFilm2.getId(), validFilm2);
+        filmController.addFilm(validFilm1);
+        filmController.addFilm(validFilm2);
     }
 
     @AfterEach
     void cleanData() {
-        filmController.getFilms().clear();
+        filmController.getService().reset();
     }
 
     @Test
@@ -69,26 +73,31 @@ class FilmControllerTest extends AbstractControllerTest {
     void shouldAddFilmCorrectly() throws Exception {
         mockMvc.perform(
                         MockMvcRequestBuilders.post("/films")
-                                .content(String.valueOf(objectToJson(filmController.getFilms().get(1))))
+                                .content(String.valueOf(objectToJson(validFilm3)))
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(content()
-                        .json("{\"id\":0,\"name\":\"validFilm1\"," +
-                                "\"description\":\"validFilm1 description\"," +
-                                "\"releaseDate\":\"2020-10-10\"," +
+                        .json("{\"id\":2," +
+                                "\"likes\":[]," +
+                                "\"name\":\"validFilm3\"," +
+                                "\"description\":\"validFilm3 description\"," +
+                                "\"releaseDate\":\"2021-10-10\"," +
                                 "\"duration\":\"PT2H40M\"}"));
+
+
     }
 
     @Test
     void shouldUpdateFilmCorrectly() throws Exception {
-        Film oldFilm = filmController.getFilms().get(1);
+        Film oldFilm = filmController.getFilm(1L);
         Film newFilm = Film.builder().duration(oldFilm.getDuration()).description(oldFilm.getDescription())
                         .name("New Name").releaseDate(oldFilm.getReleaseDate())
                 .build();
         newFilm.setId(oldFilm.getId());
         String filmAsString = objectToJson(newFilm);
+
         mockMvc.perform(
                         MockMvcRequestBuilders.put("/films")
                                 .content(filmAsString)
@@ -97,31 +106,23 @@ class FilmControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(content()
-                        .json("{\"id\":1,\"name\":\"New Name\",\"description\":\"validFilm1 description\",\"releaseDate\":\"2020-10-10\",\"duration\":\"PT2H40M\"}"));
+                        .json("{\"id\":1,\"likes\":[],\"name\":\"New Name\"," +
+                                "\"description\":\"validFilm2 description\",\"releaseDate\":\"2021-10-10\"," +
+                                "\"duration\":\"PT2H40M\"}"));
     }
 
     @Test
     void shouldReturnAllFilms() throws Exception {
-
-        filmController.getFilms().put(validFilm1.getId(), validFilm1);
-        filmController.getFilms().put(validFilm2.getId(), validFilm2);
-
 
         mockMvc.perform(MockMvcRequestBuilders.get("/films"))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(content()
-                        .json("[" +
-                                "{\"id\":1," +
-                                "\"name\":\"validFilm1\"," +
-                                "\"description\":\"validFilm1 description\"," +
-                                "\"releaseDate\":\"2020-10-10\"," +
-                                "\"duration\":\"PT2H40M\"}," +
-                                "{\"id\":2,\"name\":\"validFilm2\"," +
-                                "\"description\":\"validFilm2 description\"," +
-                                "\"releaseDate\":\"2021-10-10\"," +
-                                "\"duration\":\"PT2H40M\"}" +
-                                "]"));
+                        .json("[{\"id\":0,\"likes\":[],\"name\":\"validFilm1\"," +
+                                "\"description\":\"validFilm1 description\",\"releaseDate\":\"2020-10-10\"," +
+                                "\"duration\":\"PT2H40M\"},{\"id\":1,\"likes\":[],\"name\":\"validFilm2\"," +
+                                "\"description\":\"validFilm2 description\",\"releaseDate\":\"2021-10-10\"," +
+                                "\"duration\":\"PT2H40M\"}]"));
     }
 }

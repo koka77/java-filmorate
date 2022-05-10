@@ -7,7 +7,7 @@ import java.util.Collection;
 public interface UserStorage {
     Collection<User> findAll();
 
-    User findById(Integer id);
+    User findById(Long id);
 
     User addUser(User user);
 

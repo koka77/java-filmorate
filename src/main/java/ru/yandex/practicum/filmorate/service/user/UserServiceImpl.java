@@ -27,8 +27,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User findById(Integer id) {
-        return null;
+    public User findById(Long id) {
+        return storage.findById(id);
     }
 
     @Override

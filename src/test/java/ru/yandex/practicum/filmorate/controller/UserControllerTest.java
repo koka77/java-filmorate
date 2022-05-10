@@ -21,6 +21,19 @@ class UserControllerTest extends AbstractControllerTest {
     UserController userController;
 
     @Test
+    void shouldReturnUserById() throws Exception {
+        userController.createUser(TestUtil.validUser1);
+        mockMvc.perform(
+                        MockMvcRequestBuilders.get("/users/{id}", 0l)
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+//                .andDo(print())
+//                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(content()
+                        .json("{\"id\":0,\"friends\":[],\"email\":\"asd@fds.ew\",\"login\":\"login\",\"birthday\":\"1981-05-16\"}")).andDo(print());
+    }
+
+    @Test
     void shouldReturnBadRequest() throws Exception {
         LocalDate tomorrowDate = LocalDate.now().plusDays(1);
         String tomorrowDateStr = DateTimeFormatter.ofPattern("dd.MM.yyyy").format(tomorrowDate);
@@ -51,7 +64,7 @@ class UserControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(content()
-                        .json("{\"id\":0,\"friends\":[],\"email\":\"asd@fds.ew\",\"login\":\"login\",\"birthday\":\"1981-05-16\"}"));
+                        .json("{\"id\":3,\"friends\":[],\"email\":\"asd@fds.ew\",\"login\":\"login\",\"birthday\":\"1981-05-16\"}"));
     }
 
     @Test
@@ -59,13 +72,13 @@ class UserControllerTest extends AbstractControllerTest {
         userController.createUser(TestUtil.validUser1);
         mockMvc.perform(
                         MockMvcRequestBuilders.put("/users")
-                                .content("{\"id\":1,\"email\":\"asd@fds.ew\",\"login\":\"login\",\"name\":\"name\",\"birthday\":\"1981-05-16\"}")
+                                .content("{\"id\":0,\"email\":\"asd@fds.ew\",\"login\":\"login\",\"name\":\"name\",\"birthday\":\"1981-05-16\"}")
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(content()
-                        .json("{\"id\":1,\"friends\":[],\"email\":\"asd@fds.ew\",\"login\":\"login\",\"name\":\"name\",\"birthday\":\"1981-05-16\"}"));
+                        .json("{\"id\":0,\"friends\":[],\"email\":\"asd@fds.ew\",\"login\":\"login\",\"name\":\"name\",\"birthday\":\"1981-05-16\"}"));
     }
 
     @Test
@@ -78,9 +91,11 @@ class UserControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(content()
-                        .json("[{\"id\":1,\"friends\":[],\"email\":\"validUser1@mail.ru\",\"login\":\"login\"," +
-                                "\"name\":\"validUser1\",\"birthday\":\"1981-05-16\"}," +
-                                "{\"id\":2,\"friends\":[],\"email\":\"validUser2@mail.ru\",\"login\":\"login\"," +
-                                "\"name\":\"validUser2\",\"birthday\":\"1981-05-16\"}]"));
+                        .json("[{\"id\":0,\"friends\":[],\"email\":\"asd@fds.ew\"," +
+                                "\"login\":\"login\",\"name\":\"name\",\"birthday\":\"1981-05-16\"}," +
+                                "{\"id\":1,\"friends\":[],\"email\":\"validUser1@mail.ru\"," +
+                                "\"login\":\"login\",\"name\":\"validUser1\",\"birthday\":\"1981-05-16\"}," +
+                                "{\"id\":2,\"friends\":[],\"email\":\"validUser2@mail.ru\"," +
+                                "\"login\":\"login\",\"name\":\"validUser2\",\"birthday\":\"1981-05-16\"}]"));
     }
 }

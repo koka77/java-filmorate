@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NoUserException;
 import ru.yandex.practicum.filmorate.model.User;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,14 +24,16 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User findById(Integer id) {
+    public User findById(Long id) {
         return users.get(id);
     }
 
     @Override
     public User addUser(User user) {
+        user.setId(currentMaxId++);
+        users.put(user.getId(), user);
         log.info("createUser: {}", user);
-        return users.put(currentMaxId++, user);
+        return user;
     }
 
     @Override

@@ -8,7 +8,7 @@ import java.util.List;
 public interface UserService {
     Collection<User> findAll();
 
-    User findById(Integer id);
+    User findById(Long id);
 
     User createUser(User user);
 

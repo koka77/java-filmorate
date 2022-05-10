@@ -6,11 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.film.FilmService;
-import ru.yandex.practicum.filmorate.validator.FilmValidator;
-
 import javax.validation.Valid;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Getter
@@ -20,10 +17,22 @@ public class FilmController {
 
     private final FilmService service;
 
-
     @Autowired
     public FilmController(FilmService service) {
         this.service = service;
+    }
+
+    @PutMapping("{id}/like/{userId}")
+    public void addLike(@PathVariable Long id, @PathVariable Long userId) {
+        service.addLike(id, userId);
+    }
+    @DeleteMapping("{id}/like/{userId}")
+    public void removeLike(@PathVariable Long id, @PathVariable Long userId) {
+        service.remoteLike(id, userId);
+    }
+    @GetMapping("/popular")
+    public void getPopular(@RequestParam(required = false) Integer count ) {
+
     }
 
     @GetMapping("{id}")

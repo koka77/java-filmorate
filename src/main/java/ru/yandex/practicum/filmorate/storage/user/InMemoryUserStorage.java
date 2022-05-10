@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NoUserException;
 import ru.yandex.practicum.filmorate.model.User;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,7 +26,13 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User findById(Long id) {
-        return users.get(id);
+        User user = users.get(id);
+        if (user != null) {
+            return users.get(id);
+        } else {
+            throw new NoUserException(String.format("Пользователь с id: {} не существует", id));
+        }
+
     }
 
     @Override

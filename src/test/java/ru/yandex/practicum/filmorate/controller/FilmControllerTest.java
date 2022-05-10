@@ -36,6 +36,24 @@ class FilmControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    void shouldReturnFilmById() throws Exception {
+        Film film = filmController.getFilm(1l);
+        System.out.println(film);
+
+        mockMvc.perform(
+                    MockMvcRequestBuilders.get("/films/{id}", 1l))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content()
+                        .json("{\"id\":1," +
+                                "\"likes\":[]," +
+                                "\"name\":\"validFilm2\"," +
+                                "\"description\":\"validFilm2 description\"," +
+                                "\"releaseDate\":\"2021-10-10\"," +
+                                "\"duration\":\"PT2H40M\"}"));
+    }
+
+    @Test
     void shouldReturnBadRequest() throws Exception {
         mockMvc.perform(
                         MockMvcRequestBuilders.put("/films")

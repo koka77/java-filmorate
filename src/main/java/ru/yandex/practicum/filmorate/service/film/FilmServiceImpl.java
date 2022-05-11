@@ -4,6 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.DublicateFilmException;
+import ru.yandex.practicum.filmorate.exception.FindFilmException;
+import ru.yandex.practicum.filmorate.exception.NoUserException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.user.UserService;
@@ -68,7 +70,7 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public void addLike(Long filmId, Long userId) {
+    public void addLike(Long filmId, Long userId) throws NoUserException, FindFilmException {
         Film film = storage.findById(filmId);
         User user = userService.findById(userId);
 
@@ -82,5 +84,10 @@ public class FilmServiceImpl implements FilmService {
         User user = userService.findById(userId);
         film.remoteLike(userId);
         log.info("User: was like film: {}",user, film);
+    }
+
+    @Override
+    public List<Film> getMostPopular(Integer count) {
+        return storage.getMostPopular(count);
     }
 }

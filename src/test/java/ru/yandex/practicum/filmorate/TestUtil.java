@@ -20,6 +20,23 @@ public class TestUtil {
             LocalDate.of(2021, 10, 10), Duration.ofMinutes(160));
     public static Film validFilm3 = new Film(3L, "validFilm3", "validFilm3 description",
             LocalDate.of(2021, 10, 10), Duration.ofMinutes(160));
+    public static Film validFilm4 = new Film(4L, "validFilm3", "validFilm3 description",
+            LocalDate.of(2021, 10, 10), Duration.ofMinutes(160));
+    public static Film validFilm5 = new Film(5L, "validFilm3", "validFilm3 description",
+            LocalDate.of(2021, 10, 10), Duration.ofMinutes(160));
+    public static Film validFilm6 = new Film(6L, "validFilm3", "validFilm3 description",
+            LocalDate.of(2021, 10, 10), Duration.ofMinutes(160));
+    public static Film validFilm7 = new Film(7L, "validFilm3", "validFilm3 description",
+            LocalDate.of(2021, 10, 10), Duration.ofMinutes(160));
+    public static Film validFilm8 = new Film(8L, "validFilm3", "validFilm3 description",
+            LocalDate.of(2021, 10, 10), Duration.ofMinutes(160));
+    public static Film validFilm9 = new Film(9L, "validFilm3", "validFilm3 description",
+            LocalDate.of(2021, 10, 10), Duration.ofMinutes(160));
+    public static Film validFilm10 = new Film(10L, "validFilm3", "validFilm3 description",
+            LocalDate.of(2021, 10, 10), Duration.ofMinutes(160));
+    public static Film validFilm11 = new Film(11L, "validFilm3", "validFilm3 description",
+            LocalDate.of(2021, 10, 10), Duration.ofMinutes(160));
+
     public static Film invalidFilm1 = new Film(1L, "invalidFilm1", "invalidFilm1 description",
             LocalDate.of(1894, 10, 1), Duration.ofMinutes(120));
 
@@ -27,6 +44,9 @@ public class TestUtil {
             LocalDate.of(1981, 5, 16));
     public static User validUser2 = new User(2L, "validUser2@mail.ru", "login", "validUser2",
             LocalDate.of(1981, 5, 16));
+    public static User validUser3 = new User(3L, "validUser2@mail.ru", "login", "validUser2",
+            LocalDate.of(1981, 5, 16));
+
     public static User invalidUser1 = new User(1L, "invalidUser1", "invalidUser1", "name",
             LocalDate.of(1981, 5, 16));
 

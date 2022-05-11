@@ -46,4 +46,8 @@ public class User {
         this.birthday = birthday;
         this.friends = new HashSet<>();
     }
+
+    public void addFriend(Long friendId) {
+        this.friends.add(friendId);
+    }
 }

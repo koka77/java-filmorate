@@ -10,7 +10,6 @@ import javax.validation.Valid;
 import java.util.*;
 
 @Slf4j
-@Getter
 @RestController
 @RequestMapping("/films")
 public class FilmController {
@@ -31,8 +30,8 @@ public class FilmController {
         service.remoteLike(id, userId);
     }
     @GetMapping("/popular")
-    public void getPopular(@RequestParam(required = false) Integer count ) {
-
+    public Collection<Film> getPopular(@RequestParam(required = false, defaultValue = "10") Integer count ) {
+        return service.getMostPopular(count);
     }
 
     @GetMapping("{id}")

@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -18,6 +19,47 @@ class UserControllerTest extends AbstractControllerTest {
     @Autowired
     UserController userController;
 
+    @AfterEach
+    void clear(){
+        userService.findAll().forEach(film -> film.getFriends().clear());
+        userService.reset();
+    }
+
+    @Test
+    void shouldReturnTwoUserFriends() throws Exception {
+        userController.createUser(TestUtil.validUser1);
+        userController.createUser(TestUtil.validUser2);
+        userController.createUser(TestUtil.validUser3);
+        userController.addFriend(TestUtil.validUser1.getId(), TestUtil.validUser2.getId());
+        userController.addFriend(TestUtil.validUser1.getId(), TestUtil.validUser3.getId());
+        mockMvc.perform(
+                        MockMvcRequestBuilders.get("/users/{id}/friends", 0l)
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content()
+                        .json("[{\"id\":1,\"friends\":[],\"email\":\"validUser2@mail.ru\"," +
+                                "\"login\":\"login\",\"name\":\"validUser2\",\"birthday\":\"1981-05-16\"}," +
+                                "{\"id\":2,\"friends\":[],\"email\":\"validUser2@mail.ru\",\"login\":\"login\"," +
+                                "\"name\":\"validUser2\",\"birthday\":\"1981-05-16\"}]")).andDo(print());
+    }
+
+    @Test
+    void shouldReturnCrossFriends() throws Exception {
+        userController.createUser(TestUtil.validUser1);
+        userController.createUser(TestUtil.validUser2);
+        userController.createUser(TestUtil.validUser3);
+        userController.addFriend(TestUtil.validUser1.getId(), TestUtil.validUser3.getId());
+        userController.addFriend(TestUtil.validUser2.getId(), TestUtil.validUser3.getId());
+
+        mockMvc.perform(
+                        MockMvcRequestBuilders.get("/users/1/friends/common/{otherId}", 0L, 1L)
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content()
+                        .json("[{\"id\":2,\"friends\":[],\"email\":\"validUser2@mail.ru\"," +
+                                "\"login\":\"login\",\"name\":\"validUser2\",\"birthday\":\"1981-05-16\"}]")).andDo(print());
+    }
+
     @Test
     void shouldReturnUserById() throws Exception {
         userController.createUser(TestUtil.validUser1);
@@ -26,7 +68,8 @@ class UserControllerTest extends AbstractControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content()
-                        .json("{\"id\":0,\"friends\":[],\"email\":\"asd@fds.ew\",\"login\":\"login\",\"birthday\":\"1981-05-16\"}")).andDo(print());
+                        .json("{\"id\":0,\"friends\":[],\"email\":\"validUser1@mail.ru\"," +
+                                "\"login\":\"login\",\"name\":\"validUser1\",\"birthday\":\"1981-05-16\"}")).andDo(print());
     }
 
     @Test
@@ -60,7 +103,7 @@ class UserControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(content()
-                        .json("{\"id\":3,\"friends\":[],\"email\":\"asd@fds.ew\",\"login\":\"login\",\"birthday\":\"1981-05-16\"}"));
+                        .json("{\"id\":0,\"friends\":[],\"email\":\"asd@fds.ew\",\"login\":\"login\",\"birthday\":\"1981-05-16\"}"));
     }
 
     @Test
@@ -87,11 +130,9 @@ class UserControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(content()
-                        .json("[{\"id\":0,\"friends\":[],\"email\":\"asd@fds.ew\"," +
-                                "\"login\":\"login\",\"name\":\"name\",\"birthday\":\"1981-05-16\"}," +
-                                "{\"id\":1,\"friends\":[],\"email\":\"validUser1@mail.ru\"," +
+                        .json("[{\"id\":0,\"friends\":[],\"email\":\"validUser1@mail.ru\"," +
                                 "\"login\":\"login\",\"name\":\"validUser1\",\"birthday\":\"1981-05-16\"}," +
-                                "{\"id\":2,\"friends\":[],\"email\":\"validUser2@mail.ru\"," +
+                                "{\"id\":1,\"friends\":[],\"email\":\"validUser2@mail.ru\"," +
                                 "\"login\":\"login\",\"name\":\"validUser2\",\"birthday\":\"1981-05-16\"}]"));
     }
 }

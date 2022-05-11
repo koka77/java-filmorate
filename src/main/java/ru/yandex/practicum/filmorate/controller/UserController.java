@@ -9,11 +9,8 @@ import ru.yandex.practicum.filmorate.service.user.UserService;
 
 import javax.validation.Valid;
 import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
-@Getter
 @RestController("")
 @RequestMapping("/users")
 public class UserController {
@@ -25,9 +22,28 @@ public class UserController {
         this.service = service;
     }
 
+    @PutMapping("{id}/friends/{friendId}")
+    public void addFriend(@PathVariable Long id, @PathVariable Long friendId) {
+        service.addFriend(id, friendId);
+    }
+
+    @DeleteMapping("{id}/friends/{friendId}")
+    public void removeFriend(@PathVariable Long id, @PathVariable Long friendId) {
+        service.removeFriend(id, friendId);
+    }
+
+    @GetMapping("{id}/friends")
+    public Collection<User> getFriends(@PathVariable Long id) {
+        return service.getFriends(id);
+    }
+
+    @GetMapping("{id}/friends/common/{otherId}")
+    public Collection<User> getCrossFriend(@PathVariable Long id, @PathVariable Long otherId) {
+        return service.getCrossFriends(id, otherId);
+    }
+
     @GetMapping("{id}")
     public User findById(@PathVariable Long id) {
-        log.info("findById: ", id);
         return service.findById(id);
     }
 

@@ -6,9 +6,8 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.FindFilmException;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Data
@@ -32,7 +31,8 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Film findById(Long id) {
+    public Film findById(Long id) throws FindFilmException {
+
         if (films.containsKey(id)) {
             return films.get(id);
         } else {
@@ -47,6 +47,7 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Film updateFilm(Film film) {
+
         if (films.containsKey(film.getId())) {
             films.put(film.getId(), film);
             return film;
@@ -54,5 +55,12 @@ public class InMemoryFilmStorage implements FilmStorage {
             log.debug("error updateFilm with ID: {}", film);
             throw new FindFilmException(film.getId());
         }
+    }
+
+    @Override
+    public List<Film> getMostPopular(Integer count) {
+
+        return films.values().stream().sorted(Comparator.comparingInt(f -> -f.getLikes().size()))
+                .limit(count).collect(Collectors.toList());
     }
 }

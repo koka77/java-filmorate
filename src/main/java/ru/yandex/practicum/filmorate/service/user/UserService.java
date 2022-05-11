@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.service.user;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Collection;
-import java.util.List;
 
 public interface UserService {
     Collection<User> findAll();
@@ -14,9 +13,13 @@ public interface UserService {
 
     User updateUser(User user);
 
-    void addFriend(User user);
+    void addFriend(Long id, Long friendId);
 
-    void remoteFriend(User user);
+    void removeFriend(Long id, Long userId);
 
-    List<User> getMutualFriends(User user);
+    Collection<User> getFriends(Long id);
+
+    Collection<User> getCrossFriends(Long id, Long userId);
+
+    void reset();
 }

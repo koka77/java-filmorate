@@ -46,17 +46,27 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void addFriend(User user) {
-
+    public void addFriend(Long id, Long friendId) {
+        storage.findById(id).addFriend(friendId);
     }
 
     @Override
-    public void remoteFriend(User user) {
-
+    public void removeFriend(Long id, Long userId) {
+        storage.findById(id).getFriends().remove(userId);
     }
 
     @Override
-    public List<User> getMutualFriends(User user) {
-        return null;
+    public Collection<User> getFriends(Long id) {
+        return storage.getUserFriends(id);
+    }
+
+    @Override
+    public Collection<User> getCrossFriends(Long id, Long userId) {
+        return storage.getUserCrossFriends(id, userId);
+    }
+
+    @Override
+    public void reset() {
+        storage.reset();
     }
 }

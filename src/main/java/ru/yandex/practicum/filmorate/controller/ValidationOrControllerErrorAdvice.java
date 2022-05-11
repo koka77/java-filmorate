@@ -12,8 +12,8 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 public class ValidationOrControllerErrorAdvice {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(ValidationException.class)
-    public String validationException() {
-        return HttpStatus.BAD_REQUEST.toString();
+    public String validationException(RuntimeException e) {
+        return e.getMessage();
     }
 
     @ResponseStatus(HttpStatus.NOT_FOUND)

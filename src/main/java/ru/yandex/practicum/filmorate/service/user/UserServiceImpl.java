@@ -47,6 +47,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void addFriend(Long id, Long friendId) {
+        storage.findById(friendId);
         storage.findById(id).addFriend(friendId);
     }
 

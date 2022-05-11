@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 @Setter
 @Component
 public class InMemoryUserStorage implements UserStorage {
-    private static Long currentMaxId = 0L;
+    private static Long currentMaxId = 1L;
     private final Map<Long, User> users = new HashMap<>();
 
     @Override

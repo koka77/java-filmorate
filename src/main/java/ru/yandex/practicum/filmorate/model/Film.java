@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import lombok.*;
 
+import javax.validation.constraints.Max;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.time.Duration;
@@ -36,6 +37,7 @@ public class Film {
     private String name;
 
     @Size(max = 200)
+    @NotBlank
     private String description;
 
     @JsonDeserialize(using = LocalDateDeserializer.class)

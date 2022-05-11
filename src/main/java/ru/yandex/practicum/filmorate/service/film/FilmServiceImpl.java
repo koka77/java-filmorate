@@ -22,7 +22,7 @@ public class FilmServiceImpl implements FilmService {
     private final FilmStorage storage;
     private final UserService userService;
 
-    private static Long currentMaxId = 0L;
+    private static Long currentMaxId = 1L;
 
     private final List<FilmValidator> validators;
 

@@ -9,14 +9,18 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.PastOrPresent;
 import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @Builder
-@ToString
 @NoArgsConstructor
+@AllArgsConstructor
 public class User {
 
-    private int id;
+    private Long id;
+
+    private Set<Long> friends = new HashSet<>();
 
     @Email
     @NonNull
@@ -34,11 +38,16 @@ public class User {
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private LocalDate birthday;
 
-    public User(int id, @Valid String email, @Valid String login, String name, LocalDate birthday) {
+    public User(Long id, @Valid String email, @Valid String login, String name, LocalDate birthday) {
         this.id = id;
         this.email = email;
         this.login = login;
         this.name = name.isEmpty() || name.isBlank() ? login : name;
         this.birthday = birthday;
+        this.friends = new HashSet<>();
+    }
+
+    public void addFriend(Long friendId) {
+        this.friends.add(friendId);
     }
 }

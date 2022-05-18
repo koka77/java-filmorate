@@ -5,57 +5,57 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.validator.FilmValidator;
-
+import ru.yandex.practicum.filmorate.service.film.FilmService;
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.*;
 
 @Slf4j
-@Getter
 @RestController
 @RequestMapping("/films")
 public class FilmController {
 
-    private final Map<Integer, Film> films = new HashMap<>();
+    private final FilmService service;
 
-
-    //поскольку мы храним фильмы прямо в контроллере, учет ID делаем тут же.
-    private static Integer currentMaxId = 0;
     @Autowired
-    private List<FilmValidator> validators = new ArrayList<>();
+    public FilmController(FilmService service) {
+        this.service = service;
+    }
 
+    @PutMapping("{id}/like/{userId}")
+    public void addLike(@PathVariable Long id, @PathVariable Long userId) {
+        service.addLike(id, userId);
+    }
+    @DeleteMapping("{id}/like/{userId}")
+    public void removeLike(@PathVariable Long id, @PathVariable Long userId) {
+        service.remoteLike(id, userId);
+    }
+    @GetMapping("/popular")
+    public Collection<Film> getPopular(@RequestParam(required = false, defaultValue = "10") Integer count ) {
+        return service.getMostPopular(count);
+    }
 
+    @GetMapping("{id}")
+    public Film getFilm(@PathVariable Long id) {
+        return service.findById(id);
+    }
 
     @PostMapping
     public Film addFilm(@Valid @RequestBody Film film) {
-        validators.forEach(it -> it.validate(film));
-        film.setId(currentMaxId++);
-        films.put(currentMaxId, film);
-        log.info("addFilm: {}", film);
+
+        service.addFilm(film);
+
         return film;
     }
 
     @PutMapping
     public Film updateFilm(@Valid @RequestBody Film film) {
-        validators.stream().forEach(it -> it.validate(film));
-        if (films.containsKey(film.getId())){
-
-            log.debug("updateFilm: {}", film);
-            films.put(film.getId(), film);
-            return film;
-        }
-        log.debug("error updateFilm without ID: {}", film);
-        return null;
+        return service.updateFilm(film);
     }
 
     @GetMapping
-    public List<Film> findAll() {
+    public Collection<Film> findAll() {
         log.info("findAll");
-        return films.values().stream().collect(Collectors.toList());
+        return service.findAll();
     }
 
 }

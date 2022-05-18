@@ -2,49 +2,65 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.user.UserService;
 
 import javax.validation.Valid;
-import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Collection;
 
 @Slf4j
-@Getter
 @RestController("")
 @RequestMapping("/users")
 public class UserController {
-    //поскольку мы храним юзеров прямо в контроллере, учет ID делаем тут же.
-    private static Integer currentMaxId = 0;
-    private final Map<Integer, User> users = new HashMap<>();
+
+    private final UserService service;
+
+    @Autowired
+    public UserController(UserService service) {
+        this.service = service;
+    }
+
+    @PutMapping("{id}/friends/{friendId}")
+    public void addFriend(@PathVariable Long id, @PathVariable Long friendId) {
+        service.addFriend(id, friendId);
+    }
+
+    @DeleteMapping("{id}/friends/{friendId}")
+    public void removeFriend(@PathVariable Long id, @PathVariable Long friendId) {
+        service.removeFriend(id, friendId);
+    }
+
+    @GetMapping("{id}/friends")
+    public Collection<User> getFriends(@PathVariable Long id) {
+        return service.getFriends(id);
+    }
+
+    @GetMapping("{id}/friends/common/{otherId}")
+    public Collection<User> getCrossFriend(@PathVariable Long id, @PathVariable Long otherId) {
+        return service.getCrossFriends(id, otherId);
+    }
+
+    @GetMapping("{id}")
+    public User findById(@PathVariable Long id) {
+        return service.findById(id);
+    }
 
     @PostMapping
     public User createUser(@Valid @RequestBody User user) {
-        user.setId(currentMaxId++);
-        users.put(currentMaxId, user);
-        log.info("createUser: {}", user);
-        return user;
+        return service.createUser(user);
     }
 
     @PutMapping
     public User updateUser(@Valid @RequestBody User user) {
+        return service.updateUser(user);
 
-        if (users.containsKey(user.getId())) {
-            users.put(user.getId(), user);
-            log.info("updateUser: {}", user);
-            return user;
-        } else {
-            log.info("error updateUser without ID: {}", user);
-        }
-        return null;
     }
 
     @GetMapping
-    public List<User> findAll() {
+    public Collection<User> findAll() {
         log.info("findAll");
-        return users.values().stream().collect(Collectors.toList());
+        return service.findAll();
     }
 }

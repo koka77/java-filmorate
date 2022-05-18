@@ -16,8 +16,12 @@ import java.util.Set;
 @Data
 public class Film {
 
+    final private Set<Enum<Genre>> genre;
+
+    private Enum<МРААRating> rating;
     private Long id;
     final private Set<Long> likes;
+
     @Builder
     public Film(Long id, @NonNull String name, String description, LocalDate releaseDate, Duration duration) {
         this.id = id;
@@ -26,6 +30,7 @@ public class Film {
         this.releaseDate = releaseDate;
         this.duration = duration;
         this.likes = new HashSet<>();
+        this.genre = new HashSet<>();
     }
 
     public void addLike(Long filmId) {

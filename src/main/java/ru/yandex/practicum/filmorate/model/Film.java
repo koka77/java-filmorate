@@ -18,7 +18,7 @@ public class Film {
 
     final private Set<Enum<Genre>> genre;
 
-    private Enum<МРААRating> rating;
+    private МРААRating rating;
     private Long id;
     final private Set<Long> likes;
 

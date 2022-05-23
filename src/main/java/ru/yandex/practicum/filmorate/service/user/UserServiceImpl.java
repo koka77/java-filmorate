@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service.user;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Friend;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -22,6 +23,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private UserStorage storage;
+
     @Override
     public Collection<User> findAll() {
         return storage.findAll();
@@ -47,8 +49,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void addFriend(Long id, Long friendId) {
-        storage.findById(friendId);
-        storage.findById(id).addFriend(friendId);
+        User userFriend = storage.findById(friendId);
+        Friend friend = new Friend();
+        if (userFriend.getFriends().stream().findFirst().get() != null) {
+            friend.setCross(true);
+        } else {
+            friend.setCross(false);
+        }
+        storage.findById(id).addFriend(friend);
     }
 
     @Override

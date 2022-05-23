@@ -50,8 +50,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public void addFriend(Long id, Long friendId) {
         User userFriend = storage.findById(friendId);
-        Friend friend = new Friend();
-        if (userFriend.getFriends().stream().findFirst().get() != null) {
+        Friend friend = new Friend(friendId);
+        if (!userFriend.getFriends().stream().findFirst().isEmpty()) {
             friend.setCross(true);
         } else {
             friend.setCross(false);

@@ -7,4 +7,7 @@ public class Friend {
     long userId;
     boolean isCross;
 
+    public Friend(Long friendId) {
+        this.userId = friendId;
+    }
 }

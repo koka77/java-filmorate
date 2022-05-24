@@ -5,6 +5,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NoUserException;
+import ru.yandex.practicum.filmorate.model.Friend;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Collection;
@@ -63,14 +64,17 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public Collection<User> getUserFriends(Long id) {
-        return users.get(id).getFriends().stream()
-                .map(userId -> users.get(userId)).collect(Collectors.toList());
+        Set<Friend> friends = users.get(id).getFriends();
+        return friends.stream().map(friend -> findById(friend.getUserId())).collect(Collectors.toList());
+
+        /*return users.get(id).getFriends().stream()
+                .map(friend -> users.get(users.get(friend.getUserId()))).collect(Collectors.toList());*/
     }
 
     @Override
     public Collection<User> getUserCrossFriends(Long id, Long userId) {
-        Set<Long> friendsId = findById(id).getFriends();
-        Set<Long> friendFriendsId = findById(userId).getFriends();
+        Set<Friend> friendsId = findById(id).getFriends();
+        Set<Friend> friendFriendsId = findById(userId).getFriends();
         friendsId.retainAll(findById(userId).getFriends());
 
         return friendFriendsId.stream().map(friendId -> users.get(friendId)).collect(Collectors.toList());

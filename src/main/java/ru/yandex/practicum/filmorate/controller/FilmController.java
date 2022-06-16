@@ -35,7 +35,7 @@ public class FilmController {
     }
 
     @GetMapping("{id}")
-    public Film getFilm(@PathVariable Long id) {
+    public Optional<Film> getFilm(@PathVariable Long id) {
         return service.findById(id);
     }
 
@@ -48,7 +48,7 @@ public class FilmController {
     }
 
     @PutMapping
-    public Film updateFilm(@Valid @RequestBody Film film) {
+    public Optional<Film> updateFilm(@Valid @RequestBody Film film) {
         return service.updateFilm(film);
     }
 

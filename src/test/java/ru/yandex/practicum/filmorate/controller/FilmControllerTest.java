@@ -15,6 +15,8 @@ import static ru.yandex.practicum.filmorate.TestUtil.*;
 
 import ru.yandex.practicum.filmorate.model.Film;
 
+import java.util.Optional;
+
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -35,7 +37,7 @@ class FilmControllerTest extends AbstractControllerTest {
     @AfterEach
     void cleanData() {
         filmService.findAll().forEach(film -> film.getLikes().clear());
-        filmService.reset();
+        filmService.findAll().clear();
         userService.reset();
     }
 
@@ -48,8 +50,8 @@ class FilmControllerTest extends AbstractControllerTest {
                 .andExpect(status().isOk())
                 .andDo(print());
 
-        assertEquals(1, filmService.findById(0l).getLikes().size());
-        assertTrue(filmService.findById(0l).getLikes().contains(1l));
+        assertEquals(1, filmService.findById(0l).get().getLikes().size());
+        assertTrue(filmService.findById(0l).get().getLikes().contains(1l));
     }
 
     @Test
@@ -134,7 +136,7 @@ class FilmControllerTest extends AbstractControllerTest {
 
     @Test
     void shouldReturnFilmById() throws Exception {
-        Film film = filmController.getFilm(1l);
+        Optional<Film> film = filmController.getFilm(1l);
         System.out.println(film);
 
         mockMvc.perform(
@@ -206,11 +208,11 @@ class FilmControllerTest extends AbstractControllerTest {
 
     @Test
     void shouldUpdateFilmCorrectly() throws Exception {
-        Film oldFilm = filmController.getFilm(1L);
-        Film newFilm = Film.builder().duration(oldFilm.getDuration()).description(oldFilm.getDescription())
-                .name("New Name").releaseDate(oldFilm.getReleaseDate())
+        Optional<Film> oldFilm = filmController.getFilm(1L);
+        Film newFilm = Film.builder().duration(oldFilm.get().getDuration()).description(oldFilm.get().getDescription())
+                .name("New Name").releaseDate(oldFilm.get().getReleaseDate())
                 .build();
-        newFilm.setId(oldFilm.getId());
+        newFilm.setId(oldFilm.get().getId());
         String filmAsString = objectToJson(newFilm);
 
         mockMvc.perform(

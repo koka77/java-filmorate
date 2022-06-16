@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.storage.film;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exception.DublicateFilmException;
 import ru.yandex.practicum.filmorate.exception.FindFilmException;
 import ru.yandex.practicum.filmorate.model.Film;
 
@@ -16,7 +17,6 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     private static Map<Long, Film> films = new HashMap<>();
 
-    @Override
     public void reset() {
         films.clear();
     }
@@ -31,26 +31,28 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Film findById(Long id) throws FindFilmException {
+    public Optional<Film> findById(Long id) throws FindFilmException {
 
         if (films.containsKey(id)) {
-            return films.get(id);
+            return Optional.of(films.get(id));
         } else {
             throw new FindFilmException(id);
         }
     }
 
     @Override
-    public Film addFilm(Film film) {
-        return films.put(film.getId(), film);
+    public Optional<Film> addFilm(Film film) {
+        if (!films.containsKey(film.getId())) {
+            return Optional.of(films.put(film.getId(), film));
+        } else throw new DublicateFilmException(String.format("Фильм с id {} уже существует", film.getId()));
     }
 
     @Override
-    public Film updateFilm(Film film) {
+    public Optional<Film> updateFilm(Film film) {
 
         if (films.containsKey(film.getId())) {
             films.put(film.getId(), film);
-            return film;
+            return Optional.of(film);
         } else {
             log.debug("error updateFilm with ID: {}", film);
             throw new FindFilmException(film.getId());

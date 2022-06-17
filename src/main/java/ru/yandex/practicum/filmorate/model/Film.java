@@ -16,9 +16,9 @@ import java.util.Set;
 @Data
 public class Film {
 
-    final private Set<Enum<Genre>> genre;
+    private Set<Enum<Genre>> genre;
 
-    private МРААRating rating;
+    private МРААRating rating ; //= МРААRating.G;
     private Long id;
     final private Set<Long> likes;
 

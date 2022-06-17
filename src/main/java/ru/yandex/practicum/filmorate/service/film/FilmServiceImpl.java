@@ -23,8 +23,6 @@ public class FilmServiceImpl implements FilmService {
     private final FilmStorage storage;
     private final UserService userService;
 
-    private static Long currentMaxId = 1L;
-
     private final List<FilmValidator> validators;
 
     @Autowired
@@ -48,7 +46,6 @@ public class FilmServiceImpl implements FilmService {
     public Optional<Film> addFilm(Film film) {
         validators.forEach(it -> it.validate(film));
         Optional<Film> res = storage.addFilm(film);
-        film.setId(currentMaxId++);
         log.info("addFilm: {}", film);
 
         return res;

@@ -15,6 +15,9 @@ import java.util.stream.Collectors;
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
 
+
+    private static Long currentMaxId = 1L;
+
     private static Map<Long, Film> films = new HashMap<>();
 
     public void reset() {
@@ -42,6 +45,7 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Optional<Film> addFilm(Film film) {
+        film.setId(currentMaxId++);
         if (!films.containsKey(film.getId())) {
             return Optional.of(films.put(film.getId(), film));
         } else throw new DublicateFilmException(String.format("Фильм с id {} уже существует", film.getId()));

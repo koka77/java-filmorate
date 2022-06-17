@@ -196,8 +196,8 @@ class FilmControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(content()
-                        .json("{\"id\":2," +
-                                "\"likes\":[]," +
+                        .json("{\"id\":3," +
+                                "\"likes\":[0]," +
                                 "\"name\":\"validFilm3\"," +
                                 "\"description\":\"validFilm3 description\"," +
                                 "\"releaseDate\":\"2021-10-10\"," +

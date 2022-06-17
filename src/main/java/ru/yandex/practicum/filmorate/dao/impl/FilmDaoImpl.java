@@ -6,11 +6,14 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.FilmDao;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 
+import java.sql.Date;
 import java.time.Duration;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Component("FilmDaoImpl")
 public class FilmDaoImpl implements FilmDao {
@@ -28,15 +31,36 @@ public class FilmDaoImpl implements FilmDao {
 
     @Override
     public Collection<Film> findAll() {
-        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(SELECT_ALL);
-        return null;
+
+        return jdbcTemplate.queryForStream("select * from FILMS order by FILM_ID;",
+                (rs, rowNum) ->
+                        new Film(
+                                rs.getLong("film_id"),
+                                rs.getString("name"),
+                                rs.getString("description"),
+                                rs.getDate("release_date").toLocalDate(),
+                                Duration.ofMinutes(rs.getLong("duration"))
+                        )
+        ).peek(film -> film.setGenre(jdbcTemplate.queryForStream("select * from  GENRES g join FILMS_GENRES fg on g.GENRE_ID = fg.GENRE_ID where film_id = ?",
+                                (rs, rowNum) ->
+                                        Genre.valueOf(
+                                                rs.getString("name")
+                                        ), film.getId()
+                        ).collect(Collectors.toSet())
+                )
+        ).peek(film -> film.getLikes().addAll(jdbcTemplate.queryForStream("select * from  LIKES where film_id = ?",
+                        (rs2, rowNum2) ->
+                                rs2.getLong("user_id")
+                        , film.getId()
+                ).collect(Collectors.toSet())
+        )).collect(Collectors.toList());
     }
 
     @Override
     public Optional<Film> findById(Long id) {
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet(SELECT_BY_ID, id);
 
-        if (rowSet.next()){
+        if (rowSet.next()) {
             Film film = Film.builder()
                     .description(rowSet.getString("description"))
                     .id(rowSet.getLong("film_id"))
@@ -52,7 +76,22 @@ public class FilmDaoImpl implements FilmDao {
 
     @Override
     public Optional<Film> addFilm(Film film) {
-        return null;
+        int countUpdate = jdbcTemplate.update("insert into FILMS (name, description, release_date, duration, MPAA_ID) values ( ?,?,?,?,? )",
+                film.getName(),
+                film.getDescription(),
+                Date.valueOf(film.getReleaseDate()),
+                film.getDuration().toMinutes(),
+                film.getRating() != null ? film.getRating().ordinal() : null);
+
+        if (countUpdate != 1) {
+            return Optional.empty();
+        }
+        countUpdate = countUpdate = jdbcTemplate.update("insert into FILMS (name, description, release_date, duration, MPAA_ID) values ( ?,?,?,?,? )",
+                film.getName(),
+                film.getDescription(),
+                Date.valueOf(film.getReleaseDate()),
+                film.getDuration().toMinutes(),
+                film.getRating() != null ? film.getRating().ordinal() : null);
     }
 
     @Override

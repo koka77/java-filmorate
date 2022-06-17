@@ -86,12 +86,14 @@ public class FilmDaoImpl implements FilmDao {
         if (countUpdate != 1) {
             return Optional.empty();
         }
-        countUpdate = countUpdate = jdbcTemplate.update("insert into FILMS (name, description, release_date, duration, MPAA_ID) values ( ?,?,?,?,? )",
-                film.getName(),
-                film.getDescription(),
-                Date.valueOf(film.getReleaseDate()),
-                film.getDuration().toMinutes(),
-                film.getRating() != null ? film.getRating().ordinal() : null);
+        for (Enum<Genre> genreEnum : film.getGenre()) {
+            countUpdate = jdbcTemplate.update("insert into FILMS_GENRES (FILM_ID, GENRE_ID) values ( ?,? )",
+                    film.getId(), genreEnum.name());
+        }
+        if (countUpdate != film.getGenre().size()) {
+            return Optional.empty();
+        }
+        return Optional.of(film);
     }
 
     @Override

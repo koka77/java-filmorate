@@ -8,6 +8,7 @@ DROP TABLE IF EXISTS films_genres;
 DROP TABLE IF EXISTS genres;
 DROP TABLE IF EXISTS films CASCADE;
 DROP TABLE IF EXISTS mpaa CASCADE;
+DROP TABLE IF EXISTS FRIENDS CASCADE;
 
 
 -- создание таблиц
@@ -69,7 +70,7 @@ create table IF NOT EXISTS friends
 (
     friend_id BIGINT NOT NULL,
     user_id   BIGINT NOT NULL,
-    isfriend  BOOLEAN,
+    is_friend  BOOLEAN,
     CONSTRAINT pk_friends PRIMARY KEY (user_id, friend_id),
     CONSTRAINT fk_friends1 FOREIGN KEY (user_id) REFERENCES users (user_id),
     CONSTRAINT fk_friends2 FOREIGN KEY (friend_id) REFERENCES users (user_id)

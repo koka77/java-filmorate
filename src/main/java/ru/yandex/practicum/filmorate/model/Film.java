@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import lombok.*;
 
-import javax.validation.constraints.Max;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.time.Duration;
@@ -16,7 +15,7 @@ import java.util.Set;
 @Data
 public class Film {
 
-    private Set<Enum<Genre>> genre;
+    private Set<Genre> genres;
 
     private МРААRating rating ; //= МРААRating.G;
     private Long id;
@@ -30,7 +29,7 @@ public class Film {
         this.releaseDate = releaseDate;
         this.duration = duration;
         this.likes = new HashSet<>();
-        this.genre = new HashSet<>();
+        this.genres = new HashSet<>();
     }
 
     public void addLike(Long filmId) {

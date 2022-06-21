@@ -12,7 +12,7 @@ public interface GenreDao {
 
     Optional<Genre> findById(Long id);
 
-    Optional<Genre> add(Genre film);
+    Optional<Genre> add(Genre genre);
 
-    Optional<Genre> update(Genre film);
+    Optional<Genre> update(Genre genre);
 }

@@ -25,10 +25,12 @@ public class FilmController {
     public void addLike(@PathVariable Long id, @PathVariable Long userId) {
         service.addLike(id, userId);
     }
+
     @DeleteMapping("{id}/like/{userId}")
     public void removeLike(@PathVariable Long id, @PathVariable Long userId) {
         service.remoteLike(id, userId);
     }
+
     @GetMapping("/popular")
     public Collection<Film> getPopular(@RequestParam(required = false, defaultValue = "10") Integer count ) {
         return service.getMostPopular(count);

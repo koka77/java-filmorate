@@ -4,18 +4,16 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Repository
 public interface FilmGenreDao {
 
-    Collection<Genre> findAll();
+    List<Genre> findAllByFilmId(Long id);
 
-    Optional<Genre> findById(Long id);
+    void addNewGenreToFilm(Long filmId, Genre genre);
 
-    Optional<Genre> add(Genre film);
-
-    Optional<Genre> update(Genre film);
+    void updateAllGenreByFilm(Film film);
 }

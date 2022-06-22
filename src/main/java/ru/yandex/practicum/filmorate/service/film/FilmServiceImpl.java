@@ -45,7 +45,7 @@ public class FilmServiceImpl implements FilmService {
     @Override
     public Optional<Film> addFilm(Film film) {
         validators.forEach(it -> it.validate(film));
-        Optional<Film> res = storage.addFilm(film);
+        Optional<Film> res = storage.create(film);
         log.info("addFilm: {}", film);
 
         return res;

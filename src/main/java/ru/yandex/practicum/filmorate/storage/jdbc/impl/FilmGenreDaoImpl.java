@@ -8,10 +8,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.jdbc.FilmGenreDao;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Repository
 public class FilmGenreDaoImpl implements FilmGenreDao {
@@ -24,8 +21,8 @@ public class FilmGenreDaoImpl implements FilmGenreDao {
     }
 
     @Override
-    public List<Genre> findAllByFilmId(Long id) {
-        List<Genre> genres = new ArrayList<>();
+    public Set<Genre> findAllByFilmId(Long id) {
+        Set<Genre> genres = new HashSet<>();
         String sql = "select * from FILMS_GENRES where film_id = ?";
         SqlRowSet rs = jdbcTemplate.queryForRowSet(sql, id);
         while (rs.next()) {

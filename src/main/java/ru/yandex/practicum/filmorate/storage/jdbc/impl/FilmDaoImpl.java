@@ -10,6 +10,8 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.jdbc.FilmGenreDao;
 
 import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -22,7 +24,10 @@ public class FilmDaoImpl implements FilmStorage {
 
 
     private static final String SELECT_ALL = "select * from films order by FILM_ID";
-    private static final String SELECT_BY_ID = "select * from films where film_id = ?";
+    private static final String SELECT_BY_ID = "select f.FILM_ID as FILM_ID, f.NAME , f.DESCRIPTION, f.RELEASE_DATE, f.DURATION, f.MPAA_ID, fg.GENRE_ID, G2.NAME as GNAME, L.USER_ID as `LIKE` from films f  left join  FILMS_GENRES fg " +
+            "on f.FILM_ID = fg.FILM_ID left join  GENRES as G2 on fg.GENRE_ID = G2.GENRE_ID left join LIKES L " +
+            "on f.FILM_ID = L.FILM_ID\n" +
+            "where f.FILM_ID = ?";
 
     @Autowired
     public FilmDaoImpl(JdbcTemplate jdbcTemplate, FilmGenreDao filmGenreDao) {
@@ -32,78 +37,101 @@ public class FilmDaoImpl implements FilmStorage {
 
     @Override
     public Collection<Film> findAll() {
+        Collection<Film> films = new ArrayList<>();
+        SqlRowSet rs = jdbcTemplate.queryForRowSet(SELECT_ALL);
+        while (rs.next()) {
+            Film film = new Film(
+                    rs.getLong("film_id"),
+                    rs.getString("name"),
+                    rs.getString("description"),
+                    rs.getDate("release_date").toLocalDate(),
+                    Duration.ofMinutes(rs.getLong("duration")));
+            films.add(film);
+        }
+        return films;
+    }
 
-        return jdbcTemplate.queryForStream(SELECT_ALL,
-                (rs, rowNum) ->
-                        new Film(
-                                rs.getLong("film_id"),
-                                rs.getString("name"),
-                                rs.getString("description"),
-                                rs.getDate("release_date").toLocalDate(),
-                                Duration.ofMinutes(rs.getLong("duration"))
-                        )
-        ).peek(film -> film.setGenres(jdbcTemplate.queryForStream("select * from  GENRES g join FILMS_GENRES fg on g.GENRE_ID = fg.GENRE_ID where film_id = ?",
-                                (rs, rowNum) ->
-                                        Genre.valueOf(
-                                                rs.getString("name")
-                                        ), film.getId()
-                        ).collect(Collectors.toSet())
-                )
-        ).peek(film -> film.getLikes().addAll(jdbcTemplate.queryForStream("select * from  LIKES where film_id = ?",
-                        (rs2, rowNum2) ->
-                                rs2.getLong("user_id")
-                        , film.getId()
-                ).collect(Collectors.toSet())
-        )).collect(Collectors.toList());
+    private Set<Long> getLikes(Film film) {
+        Set<Long> res = new HashSet<>();
+        String sql = "select USER_ID from  LIKES where FILM_ID = ?";
+        SqlRowSet rs = jdbcTemplate.queryForRowSet(sql, film.getId());
+        while (rs.next()) {
+            res.add(rs.getLong(1));
+        }
+        return res;
     }
 
     @Override
     public Optional<Film> findById(Long id) {
+        Film film = null;
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet(SELECT_BY_ID, id);
-
         if (rowSet.next()) {
-            Film film = Film.builder()
+            Set<Genre> genres = new HashSet<>();
+            Set<Long> likes = new HashSet<>();
+
+            film = Film.builder()
                     .description(rowSet.getString("description"))
                     .id(rowSet.getLong("film_id"))
                     .name(rowSet.getString("NAME"))
                     .releaseDate((rowSet.getDate("release_date").toLocalDate()))
                     .duration(Duration.ofMinutes(rowSet.getLong("duration")))
                     .build();
-
-            return Optional.of(film);
+            do {
+                genres.add(Genre.valueOf(rowSet.getString("GNAME")));
+                Long l;
+                if ((l = rowSet.getLong("LIKE")) != 0L) {
+                    likes.add(l);
+                }
+            } while (rowSet.next());
+            film.setGenres(genres);
+            film.getLikes().addAll(likes);
         }
-        return Optional.empty();
+        return Optional.of(film);
     }
 
     @Override
-    public Optional<Film> addFilm(Film film) {
+    public Optional<Film> create(Film film) {
         int countUpdate = jdbcTemplate.update("insert into FILMS (name, description, release_date, duration, MPAA_ID) values ( ?,?,?,?,? )",
                 film.getName(),
                 film.getDescription(),
                 Date.valueOf(film.getReleaseDate()),
-                film.getDuration().toMinutes(),
+                film.getDuration().toString(),
                 film.getRating() != null ? film.getRating().ordinal() : null);
 
         if (countUpdate != 1) {
             return Optional.empty();
         }
+        filmGenreDao.updateAllGenreByFilm(film);
 
+        updateLikes(film);
 
-            filmGenreDao.updateAllGenreByFilm(film);
-
-
-        /* TODO
-        не забыть удалить комментарий если все заработает
-         */
-       /* for (Enum<Genre> genreEnum : film.getGenres()) {
-            countUpdate = jdbcTemplate.update("insert into FILMS_GENRES (FILM_ID, GENRE_ID) values ( ?,? )",
-                    film.getId(), genreEnum.name());
-        }
-        if (countUpdate != film.getGenres().size()) {
-            return Optional.empty();
-        }
-        return Optional.of(film);*/
         return Optional.of(film);
+    }
+
+    private void updateLikes(Film film) {
+        deleteLikes(film);
+        insertLikes(film);
+    }
+
+    private void insertLikes(Film film) {
+        String sql = "insert into LIKES(USER_ID, FILM_ID) values (?, ?)";
+
+        try (PreparedStatement ps = jdbcTemplate.getDataSource().getConnection().prepareStatement(sql)) {
+            for (Long like : film.getLikes()) {
+                ps.setLong(1, like);
+                ps.setLong(2, film.getId());
+                ps.addBatch();
+                ps.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void deleteLikes(Film film) {
+        String sql = "DELETE FROM LIKES WHERE FILM_ID = ?";
+        jdbcTemplate.update(sql, film.getId());
+
     }
 
     @Override

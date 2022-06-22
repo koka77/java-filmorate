@@ -30,7 +30,7 @@ class FilmGenreDaoImplTest {
     @Test
     void findById() {
         filmGenreDao.findAllByFilmId(1L).forEach(System.out::println);
-        Genre genre = filmGenreDao.findAllByFilmId(1L).get(1);
+        Genre genre = filmGenreDao.findAllByFilmId(1L).stream().findFirst().get();
         assertEquals(Genre.CARTOON,genre);
     }
 

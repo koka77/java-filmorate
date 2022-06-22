@@ -37,7 +37,7 @@ public class GenreDaoImpl implements GenreDao {
     }
 
     @Override
-    public Optional<Genre> add(Genre genre) {
+    public Optional<Genre> create(Genre genre) {
         if (jdbcTemplate.update(ADD_GENRE, genre.getName()) != 1) {
             return Optional.empty();
         } else {

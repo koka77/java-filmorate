@@ -13,7 +13,7 @@ public interface FilmStorage {
 
     Optional<Film> findById(Long id);
 
-    Optional<Film> addFilm(Film film);
+    Optional<Film> create(Film film);
 
     Optional<Film> updateFilm(Film film);
 

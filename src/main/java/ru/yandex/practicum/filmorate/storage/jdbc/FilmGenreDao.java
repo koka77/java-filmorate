@@ -11,7 +11,7 @@ import java.util.Set;
 @Repository
 public interface FilmGenreDao {
 
-    List<Genre> findAllByFilmId(Long id);
+    Set<Genre> findAllByFilmId(Long id);
 
     void addNewGenreToFilm(Long filmId, Genre genre);
 

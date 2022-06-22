@@ -45,7 +45,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Optional<Film> addFilm(Film film) {
+    public Optional<Film> create(Film film) {
         film.setId(currentMaxId++);
         if (!films.containsKey(film.getId())) {
             return Optional.of(films.put(film.getId(), film));

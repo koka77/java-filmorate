@@ -61,7 +61,7 @@ public class FilmServiceImpl implements FilmService {
     @Override
     public void addLike(Long filmId, Long userId) throws NoUserException, FindFilmException {
         Optional<Film> film = storage.findById(filmId);
-        User user = userService.findById(userId);
+        User user = userService.findById(userId).get();
 
         film.get().addLike(userId);
         log.info("User: {} was like film: {}", user, film);
@@ -70,7 +70,7 @@ public class FilmServiceImpl implements FilmService {
     @Override
     public void remoteLike(Long filmId, Long userId) {
         Optional<Film> film = storage.findById(filmId);
-        User user = userService.findById(userId);
+        User user = userService.findById(userId).get();
         film.get().remoteLike(userId);
         log.info("User: was like film: {}", user, film);
     }

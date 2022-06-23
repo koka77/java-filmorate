@@ -4,11 +4,13 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.model.Friend;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.user.UserService;
 
 import javax.validation.Valid;
 import java.util.Collection;
+import java.util.Optional;
 
 @Slf4j
 @RestController("")
@@ -33,7 +35,7 @@ public class UserController {
     }
 
     @GetMapping("{id}/friends")
-    public Collection<User> getFriends(@PathVariable Long id) {
+    public Collection<Friend> getFriends(@PathVariable Long id) {
         return service.getFriends(id);
     }
 
@@ -43,17 +45,17 @@ public class UserController {
     }
 
     @GetMapping("{id}")
-    public User findById(@PathVariable Long id) {
+    public Optional<User> findById(@PathVariable Long id) {
         return service.findById(id);
     }
 
     @PostMapping
-    public User createUser(@Valid @RequestBody User user) {
+    public Optional<User> createUser(@Valid @RequestBody User user) {
         return service.createUser(user);
     }
 
     @PutMapping
-    public User updateUser(@Valid @RequestBody User user) {
+    public Optional<User> updateUser(@Valid @RequestBody User user) {
         return service.updateUser(user);
 
     }

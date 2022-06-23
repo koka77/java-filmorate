@@ -26,7 +26,7 @@ public class FilmGenreDaoImpl implements FilmGenreDao {
         String sql = "select * from FILMS_GENRES where film_id = ?";
         SqlRowSet rs = jdbcTemplate.queryForRowSet(sql, id);
         while (rs.next()) {
-            genres.add(Genre.values()[rs.getInt(2) - 1]);
+            genres.add(Genre.values()[rs.getInt(2)]);
         }
         return genres;
     }

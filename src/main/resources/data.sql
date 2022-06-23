@@ -19,9 +19,14 @@ insert into GENRES ( NAME)  VALUES( 'THRILLER');
 insert into GENRES ( NAME)  VALUES( 'DOCUMENTARY');
 insert into GENRES ( NAME)  VALUES( 'ACTION');
 
--- заполняем таблицу жанров
+-- заполняем таблицу FILMS_GENRES
 insert into FILMS_GENRES values ( 1,1 );
 insert into FILMS_GENRES values ( 1,2 );
 
 insert into FILMS_GENRES values ( 3,3 );
 insert into FILMS_GENRES values ( 3,5 );
+
+-- заполняем таблицу юзеров
+INSERT INTO USERS (EMAIL, LOGIN, NAME, BIRTHDAY) values ('1@ya.ru', 'login1', 'Федорова Алина', '2021-10-20');
+INSERT INTO USERS (EMAIL, LOGIN, NAME, BIRTHDAY) values ('2@ya.ru', 'login2', 'Чернова Екатерина', '2021-11-21');
+INSERT INTO USERS (EMAIL, LOGIN, NAME, BIRTHDAY) values ('3@ya.ru', 'login3', 'Столяров Даниил', '2021-12-22');

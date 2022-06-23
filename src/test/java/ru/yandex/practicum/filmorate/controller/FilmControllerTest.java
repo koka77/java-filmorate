@@ -38,7 +38,7 @@ class FilmControllerTest extends AbstractControllerTest {
     void cleanData() {
         filmService.findAll().forEach(film -> film.getLikes().clear());
         filmService.findAll().clear();
-        userService.reset();
+        userService = null;
     }
 
     @Test

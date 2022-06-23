@@ -51,16 +51,6 @@ public class FilmDaoImpl implements FilmStorage {
         return films;
     }
 
-    private Set<Long> getLikes(Film film) {
-        Set<Long> res = new HashSet<>();
-        String sql = "select USER_ID from  LIKES where FILM_ID = ?";
-        SqlRowSet rs = jdbcTemplate.queryForRowSet(sql, film.getId());
-        while (rs.next()) {
-            res.add(rs.getLong(1));
-        }
-        return res;
-    }
-
     @Override
     public Optional<Film> findById(Long id) {
         Film film = null;

@@ -21,8 +21,7 @@ class UserControllerTest extends AbstractControllerTest {
 
     @AfterEach
     void clear(){
-        userService.findAll().forEach(film -> film.getFriends().clear());
-        userService.reset();
+        userService  =null;
     }
 
     @Test

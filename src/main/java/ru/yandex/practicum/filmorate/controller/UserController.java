@@ -40,8 +40,8 @@ public class UserController {
     }
 
     @GetMapping("{id}/friends/common/{otherId}")
-    public Collection<User> getCrossFriend(@PathVariable Long id, @PathVariable Long otherId) {
-        return service.getCrossFriends(id, otherId);
+    public Collection<Friend> getCrossFriend(@PathVariable Long otherId) {
+        return service.getCrossFriends(otherId);
     }
 
     @GetMapping("{id}")

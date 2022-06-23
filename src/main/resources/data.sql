@@ -30,3 +30,8 @@ insert into FILMS_GENRES values ( 3,5 );
 INSERT INTO USERS (EMAIL, LOGIN, NAME, BIRTHDAY) values ('1@ya.ru', 'login1', 'Федорова Алина', '2021-10-20');
 INSERT INTO USERS (EMAIL, LOGIN, NAME, BIRTHDAY) values ('2@ya.ru', 'login2', 'Чернова Екатерина', '2021-11-21');
 INSERT INTO USERS (EMAIL, LOGIN, NAME, BIRTHDAY) values ('3@ya.ru', 'login3', 'Столяров Даниил', '2021-12-22');
+
+-- заполняем таблицу FRIENDS
+INSERT INTO FRIENDS (FRIEND_ID, USER_ID, IS_FRIEND) VALUES ( 2,1, true );
+INSERT INTO FRIENDS (FRIEND_ID, USER_ID, IS_FRIEND) VALUES ( 1,2, true);
+INSERT INTO FRIENDS (FRIEND_ID, USER_ID, IS_FRIEND) VALUES ( 3,1, false );

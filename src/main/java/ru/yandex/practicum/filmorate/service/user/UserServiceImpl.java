@@ -65,7 +65,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Collection<User> getCrossFriends(Long id, Long userId) {
-        return storage.getUserCrossFriends(id, userId);
+    public Collection<Friend> getCrossFriends(Long userId) {
+        return storage.getUserCrossFriends(userId);
     }
 }

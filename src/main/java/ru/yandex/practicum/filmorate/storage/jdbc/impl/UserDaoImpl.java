@@ -93,11 +93,24 @@ public class UserDaoImpl implements UserStorage {
 
     @Override
     public Collection<Friend> getUserFriends(Long id) {
-        return null;
+        final String sql = "Select FRIEND_ID, USER_ID, IS_FRIEND from FRIENDS where user_id = ?";
+        Collection<Friend> friends = new ArrayList<>();
+        SqlRowSet rs = jdbcTemplate.queryForRowSet(sql, id);
+        while (rs.next()) {
+            friends.add(new Friend(rs.getLong("FRIEND_ID"),
+                    rs.getLong("USER_ID"),
+                    rs.getBoolean("IS_FRIEND")
+            ));
+        }
+        return friends;
     }
 
     @Override
-    public Collection<User> getUserCrossFriends(Long id, Long userId) {
+    public Collection<Friend> getUserCrossFriends(Long userId) {
+        final String sql = "select * from FRIENDS where USER_ID = ? and IS_FRIEND = true";
+
+        SqlRowSet rs = jdbcTemplate.queryForRowSet(sql, userId);
+
         return null;
     }
 }

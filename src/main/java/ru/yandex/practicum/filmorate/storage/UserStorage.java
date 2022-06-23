@@ -18,5 +18,5 @@ public interface UserStorage {
 
     Collection<Friend> getUserFriends(Long id);
 
-    Collection<User> getUserCrossFriends(Long id, Long userId);
+    Collection<Friend> getUserCrossFriends(Long userId);
 }

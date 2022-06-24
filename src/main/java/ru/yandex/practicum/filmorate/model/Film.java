@@ -17,7 +17,7 @@ public class Film {
 
     private Set<Genre> genres;
 
-    private MPAARating mpa; //= МРААRating.G;
+    private Mpaa mpa;
     private Integer rate; //= LikesRating.G;
     private Long id;
     final private Set<Long> likes;
@@ -38,14 +38,13 @@ public class Film {
     private Duration duration;
 
     @Builder
-    public Film(Long id, @NonNull String name, String description, LocalDate releaseDate, Long duration, MPAARating mpa) {
+    public Film(Long id, @NonNull String name, String description, LocalDate releaseDate, Long duration , Mpaa mpa) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.releaseDate = releaseDate;
         this.duration = Duration.ofSeconds(duration);
         this.likes = new HashSet<>();
-        this.mpa = mpa;
     }
 
     public void addLike(Long filmId) {

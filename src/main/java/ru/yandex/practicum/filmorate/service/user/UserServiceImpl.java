@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.service.user;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.model.Friend;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
@@ -14,7 +13,7 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
 
     @Autowired
-    public UserServiceImpl(@Qualifier("UserDaoImpl")UserStorage storage) {
+    public UserServiceImpl(@Qualifier("UserDaoImpl") UserStorage storage) {
         this.storage = storage;
     }
 
@@ -32,6 +31,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<User> createUser(User user) {
+        if (user.getName().isEmpty()) {
+            user.setName(user.getLogin());
+        }
         storage.addUser(user);
 
         return Optional.of(user);
@@ -39,33 +41,36 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<User> updateUser(User user) {
+        if (user.getName().isEmpty()) {
+            user.setName(user.getLogin());
+        }
         return storage.updateUser(user);
     }
 
     @Override
     public void addFriend(Long id, Long friendId) {
-        User userFriend = storage.findById(friendId).get();
-        Friend friend = new Friend(friendId);
-        if (!userFriend.getFriends().stream().findFirst().isEmpty()) {
-            friend.setCross(true);
-        } else {
-            friend.setCross(false);
-        }
-        storage.findById(id).get().addFriend(friend);
+        User friend = storage.findById(friendId).get();
+        User user = storage.findById(id).get();
+        user.addFriend(friend);
+        storage.updateUser(user);
+//        storage.findById(id).get().addFriend(friend);
     }
 
     @Override
     public void removeFriend(Long id, Long userId) {
-        storage.findById(id).get().getFriends().remove(userId);
+        User user = storage.findById(id).get();
+        user.getFriends().remove(userId);
+        storage.updateUser(user);
+
     }
 
     @Override
-    public Collection<Friend> getFriends(Long id) {
+    public Collection<User> getFriends(Long id) {
         return storage.getUserFriends(id);
     }
 
     @Override
-    public Collection<Friend> getCrossFriends(Long userId) {
-        return storage.getUserCrossFriends(userId);
+    public Collection<User> getCrossFriends(Long id, Long otherId) {
+        return storage.getUserCrossFriends(id, otherId);
     }
 }

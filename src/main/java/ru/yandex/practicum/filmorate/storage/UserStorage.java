@@ -16,7 +16,7 @@ public interface UserStorage {
 
     Optional<User>  updateUser(User user);
 
-    Collection<Friend> getUserFriends(Long id);
+    Collection<User> getUserFriends(Long id);
 
-    Collection<Friend> getUserCrossFriends(Long userId);
+    Collection<User> getUserCrossFriends(Long id, Long otherId);
 }

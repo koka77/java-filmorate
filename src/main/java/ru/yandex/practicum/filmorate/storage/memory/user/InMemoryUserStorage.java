@@ -55,18 +55,22 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public Collection<Friend> getUserFriends(Long id) {
+    public Collection<User> getUserFriends(Long id) {
         return users.get(id).getFriends();
-        //return friends.stream().map(friend -> findById(friend.getUserId()).get()).collect(Collectors.toList());
-
-        /*return users.get(id).getFriends().stream()
-                .map(friend -> users.get(users.get(friend.getUserId()))).collect(Collectors.toList());*/
     }
 
     @Override
-    public Collection<Friend> getUserCrossFriends(Long userId) {
+    public Collection<User> getUserCrossFriends(Long id, Long otherId) {
+/*
+
         return findById(userId).get().getFriends().stream()
-                .filter(friend -> friend.isCross()).collect(Collectors.toSet());
+                .filter(friend -> friend.getId()).collect(Collectors.toSet());
+*/
+
+        Long userId = findById(id).get().getId();
+        return findById(id).get().getFriends().stream()
+                .filter(friend -> friend.getFriends().stream().map(user -> user.getId()).equals(userId))
+                .collect(Collectors.toSet());
 
     }
 }

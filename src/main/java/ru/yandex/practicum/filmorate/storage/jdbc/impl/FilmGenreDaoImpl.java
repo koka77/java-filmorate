@@ -39,7 +39,7 @@ public class FilmGenreDaoImpl implements FilmGenreDao {
 
     @Override
     public void updateAllGenreByFilm(Film film) {
-        if (!film.getGenres().isEmpty()) {
+        if (film.getGenres() != null && !film.getGenres().isEmpty()) {
             // перед обновлением  удаляем устаревшие данные
             String sqlDelete = "delete from FILMS_GENRES where film_id = ?";
             jdbcTemplate.update(sqlDelete, film.getId());

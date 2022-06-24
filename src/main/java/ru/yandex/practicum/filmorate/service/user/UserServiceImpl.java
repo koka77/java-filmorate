@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -59,7 +60,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public void removeFriend(Long id, Long userId) {
         User user = storage.findById(id).get();
-        user.getFriends().remove(userId);
+        user.setFriends(user.getFriends().stream().filter(user1 -> user1.getId()!=userId)
+                .collect(Collectors.toSet()));
         storage.updateUser(user);
 
     }

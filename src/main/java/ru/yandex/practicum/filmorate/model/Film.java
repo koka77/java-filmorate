@@ -17,24 +17,10 @@ public class Film {
 
     private Set<Genre> genres;
 
-    private МРААRating rating ; //= МРААRating.G;
+    private MPAARating mpa; //= МРААRating.G;
+    private Integer rate; //= LikesRating.G;
     private Long id;
     final private Set<Long> likes;
-
-    @Builder
-    public Film(Long id, @NonNull String name, String description, LocalDate releaseDate, Duration duration) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.releaseDate = releaseDate;
-        this.duration = duration;
-        this.likes = new HashSet<>();
-        this.genres = new HashSet<>();
-    }
-
-    public void addLike(Long filmId) {
-        likes.add(filmId);
-    }
 
     @NonNull
     @NotBlank
@@ -51,7 +37,22 @@ public class Film {
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Duration duration;
 
-    public void remoteLike(Long userId) {
+    @Builder
+    public Film(Long id, @NonNull String name, String description, LocalDate releaseDate, Long duration, MPAARating mpa) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.releaseDate = releaseDate;
+        this.duration = Duration.ofSeconds(duration);
+        this.likes = new HashSet<>();
+        this.mpa = mpa;
+    }
+
+    public void addLike(Long filmId) {
+        likes.add(filmId);
+    }
+
+    public void removeLike(Long userId) {
         likes.remove(userId);
     }
 }

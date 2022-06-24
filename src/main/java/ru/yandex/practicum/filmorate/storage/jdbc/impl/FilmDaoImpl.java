@@ -2,19 +2,18 @@ package ru.yandex.practicum.filmorate.storage.jdbc.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.model.MPAARating;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.jdbc.FilmGenreDao;
 
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.time.Duration;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Component("FilmDaoImpl")
 public class FilmDaoImpl implements FilmStorage {
@@ -45,7 +44,9 @@ public class FilmDaoImpl implements FilmStorage {
                     rs.getString("name"),
                     rs.getString("description"),
                     rs.getDate("release_date").toLocalDate(),
-                    Duration.ofMinutes(rs.getLong("duration")));
+                    (rs.getLong("duration")),
+                    MPAARating.values()[rs.getInt("MPAA_ID")]
+            );
             films.add(film);
         }
         return films;
@@ -64,7 +65,7 @@ public class FilmDaoImpl implements FilmStorage {
                     .id(rowSet.getLong("film_id"))
                     .name(rowSet.getString("NAME"))
                     .releaseDate((rowSet.getDate("release_date").toLocalDate()))
-                    .duration(Duration.ofMinutes(rowSet.getLong("duration")))
+                    .duration(rowSet.getLong("duration"))
                     .build();
             do {
                 genres.add(Genre.valueOf(rowSet.getString("GNAME")));
@@ -81,22 +82,32 @@ public class FilmDaoImpl implements FilmStorage {
 
     @Override
     public Optional<Film> create(Film film) {
-        int countUpdate = jdbcTemplate.update("insert into FILMS (name, description, release_date, duration, MPAA_ID) values ( ?,?,?,?,? )",
-                film.getName(),
-                film.getDescription(),
-                Date.valueOf(film.getReleaseDate()),
-                film.getDuration().toString(),
-                film.getRating() != null ? film.getRating().ordinal() : null);
 
-        if (countUpdate != 1) {
-            return Optional.empty();
-        }
+
+        SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
+                .withTableName("FILMS")
+                .usingGeneratedKeyColumns("FILM_ID");
+
+        film.setId(simpleJdbcInsert.executeAndReturnKey(this.filmToMap(film)).longValue());
+
         filmGenreDao.updateAllGenreByFilm(film);
 
         updateLikes(film);
 
         return Optional.of(film);
     }
+
+    public Map<String, Object> filmToMap(Film film) {
+        Map<String, Object> values = new HashMap<>();
+        values.put("NAME", film.getName());
+        values.put("DESCRIPTION", film.getDescription());
+        values.put("RELEASE_DATE", film.getReleaseDate());
+        values.put("DURATION", film.getDuration());
+        values.put("MPAA_ID", film.getMpa());
+
+        return values;
+    }
+
 
     private void updateLikes(Film film) {
         deleteLikes(film);

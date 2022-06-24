@@ -71,7 +71,7 @@ public class FilmServiceImpl implements FilmService {
     public void remoteLike(Long filmId, Long userId) {
         Optional<Film> film = storage.findById(filmId);
         User user = userService.findById(userId).get();
-        film.get().remoteLike(userId);
+        film.get().removeLike(userId);
         log.info("User: was like film: {}", user, film);
     }
 

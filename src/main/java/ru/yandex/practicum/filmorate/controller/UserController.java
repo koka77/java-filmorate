@@ -3,7 +3,7 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.IllegalIdException;
+import ru.yandex.practicum.filmorate.exception.InternalServerException;
 import ru.yandex.practicum.filmorate.exception.UnableToFindException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.user.UserService;
@@ -58,7 +58,7 @@ public class UserController {
     @PostMapping
     public Optional<User> createUser(@Valid @RequestBody User user) {
         if (user.getId() != null && user.getId() < 1){
-            throw new IllegalIdException();
+            throw new InternalServerException();
         }
         return service.createUser(user);
     }

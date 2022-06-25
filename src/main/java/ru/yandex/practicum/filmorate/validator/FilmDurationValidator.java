@@ -10,7 +10,7 @@ import java.time.LocalDate;
 public class FilmDurationValidator implements FilmValidator<Film> {
     @Override
     public void validate(Film film) {
-        if (film.getDuration().isNegative()) {
+        if (film.getDuration() < 1) {
             throw new ValidationException("Длительность не может быть отрицательной");
         }
     }

@@ -209,7 +209,7 @@ class FilmControllerTest extends AbstractControllerTest {
     @Test
     void shouldUpdateFilmCorrectly() throws Exception {
         Optional<Film> oldFilm = filmController.getFilm(1L);
-        Film newFilm = Film.builder().duration(oldFilm.get().getDuration().toMinutes()).description(oldFilm.get().getDescription())
+        Film newFilm = Film.builder().duration(oldFilm.get().getDuration()).description(oldFilm.get().getDescription())
                 .name("New Name").releaseDate(oldFilm.get().getReleaseDate())
                 .build();
         newFilm.setId(oldFilm.get().getId());

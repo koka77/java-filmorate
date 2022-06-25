@@ -36,8 +36,8 @@ public class ValidationOrControllerErrorAdvice {
 */
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    @ExceptionHandler(IllegalIdException.class)
-    public final String illegalIdAdvice(IllegalIdException e) {
+    @ExceptionHandler(InternalServerException.class)
+    public final String illegalIdAdvice(InternalServerException e) {
         return e.getMessage();
     }
 

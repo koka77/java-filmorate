@@ -5,7 +5,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.model.Mpaa;
+import ru.yandex.practicum.filmorate.exception.UnableToFindException;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
@@ -46,8 +47,8 @@ public class FilmDaoImpl implements FilmStorage {
                     rs.getString("name"),
                     rs.getString("description"),
                     rs.getDate("release_date").toLocalDate(),
-                    (rs.getLong("duration")),
-                    new Mpaa(rs.getInt("MPAA_ID"), rs.getString("MPAA_NAME"))
+                    (rs.getInt("duration")),
+                    new Mpa(rs.getInt("MPAA_ID"), rs.getString("MPAA_NAME"))
             );
             films.add(film);
         }
@@ -67,10 +68,12 @@ public class FilmDaoImpl implements FilmStorage {
                     .id(rowSet.getLong("film_id"))
                     .name(rowSet.getString("NAME"))
                     .releaseDate((rowSet.getDate("release_date").toLocalDate()))
-                    .duration(rowSet.getLong("duration"))
+                    .duration(rowSet.getInt("duration"))
                     .build();
             do {
-                genres.add(Genre.valueOf(rowSet.getString("GNAME")));
+                if (rowSet.getString("GNAME") != null) {
+                    genres.add(Genre.valueOf(rowSet.getString("GNAME")));
+                }
                 Long l;
                 if ((l = rowSet.getLong("LIKE")) != 0L) {
                     likes.add(l);
@@ -94,7 +97,7 @@ public class FilmDaoImpl implements FilmStorage {
 
         filmGenreDao.updateAllGenreByFilm(film);
 
-        updateLikes(film);
+        insertLikes(film);
 
         return Optional.of(film);
     }
@@ -105,18 +108,26 @@ public class FilmDaoImpl implements FilmStorage {
         values.put("DESCRIPTION", film.getDescription());
         values.put("RELEASE_DATE", film.getReleaseDate());
         values.put("DURATION", film.getDuration());
-        values.put("MPAA_ID", film.getMpa());
+        if (film.getMpa() != null) {
+            values.put("MPAA_ID", film.getMpa().getId());
+        }
 
         return values;
     }
 
 
     private void updateLikes(Film film) {
+        if (film.getLikes().isEmpty()) {
+            return;
+        }
         deleteLikes(film);
         insertLikes(film);
     }
 
     private void insertLikes(Film film) {
+        if (film.getLikes().isEmpty()) {
+            return;
+        }
         String sql = "insert into LIKES(USER_ID, FILM_ID) values (?, ?)";
 
         try (PreparedStatement ps = jdbcTemplate.getDataSource().getConnection().prepareStatement(sql)) {
@@ -139,18 +150,46 @@ public class FilmDaoImpl implements FilmStorage {
 
     @Override
     public Optional<Film> updateFilm(Film film) {
-        return null;
+        if (film.getId() != null && film.getId() < 1) {
+            throw new UnableToFindException();
+        }
+        SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
+                .withTableName("FILMS")
+                .usingGeneratedKeyColumns("FILM_ID");
+
+        simpleJdbcInsert.execute(this.filmToMap(film));
+
+        filmGenreDao.updateAllGenreByFilm(film);
+
+        updateLikes(film);
+
+        return Optional.of(film);
     }
 
     @Override
     public List<Film> getMostPopular(Integer count) {
-        return null;
-    }
+        String sql = "select F.FILM_ID, F.NAME, F.DESCRIPTION, F.RELEASE_DATE, " +
+                " F.DURATION, F.MPAA_ID, F.NAME as MPAA_NAME  " +
+                "from FILMS  F JOIN  LIKES  on F.FILM_ID  = lIKES.FILM_ID  GROUP BY LIKES.FILM_ID," +
+                " PUBLIC.LIKES.USER_ID ORDER BY COUNT(LIKES.USER_ID) DESC";
 
+       return jdbcTemplate.query(sql, (rs, rowNum) ->
+                new Film(
+                        rs.getLong("film_id"),
+                        rs.getString("name"),
+                        rs.getString("description"),
+                        rs.getDate("release_date").toLocalDate(),
+                        (rs.getInt("duration")),
+                        new Mpa(rs.getInt("MPAA_ID"), rs.getString("MPAA_NAME")
+                        )
+                )
+        );
+    }
+/*
     private void fillFilmGenreTable(Film film) {
         String sql = "";
         for (Enum<Genre> genre : film.getGenres()) {
 
         }
-    }
+    }*/
 }

@@ -91,6 +91,9 @@ public class FilmDaoImpl implements FilmStorage {
             film.getLikes().addAll(likes);
             getLikesByFilm(film);
         }
+        if (film.getGenres().isEmpty()){
+            film.setGenres(null);
+        }
         return Optional.of(film);
     }
 

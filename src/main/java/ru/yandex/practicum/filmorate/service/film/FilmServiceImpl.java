@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.FindFilmException;
 import ru.yandex.practicum.filmorate.exception.NoUserException;
+import ru.yandex.practicum.filmorate.exception.UnableToFindException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.user.UserService;
@@ -70,9 +71,12 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public void remoteLike(Long filmId, Long userId) {
-        Optional<Film> film = storage.findById(filmId);
+        if (filmId < 1 || userId < 1){
+            throw new UnableToFindException();
+        }
+        Film film = storage.findById(filmId).get();
         User user = userService.findById(userId).get();
-        film.get().removeLike(userId);
+        film.removeLike(userId);
         log.info("User: was like film: {}", user, film);
     }
 

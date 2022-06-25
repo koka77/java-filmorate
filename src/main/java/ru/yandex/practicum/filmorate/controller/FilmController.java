@@ -3,7 +3,9 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exception.FindFilmException;
 import ru.yandex.practicum.filmorate.exception.InternalServerException;
+import ru.yandex.practicum.filmorate.exception.UnableToFindException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.film.FilmService;
 import javax.validation.Valid;
@@ -38,6 +40,9 @@ public class FilmController {
 
     @GetMapping("{id}")
     public Optional<Film> getFilm(@PathVariable Long id) {
+        if (id < 1) {
+            throw new UnableToFindException();
+        }
         return service.findById(id);
     }
 
@@ -53,6 +58,9 @@ public class FilmController {
 
     @PutMapping
     public Optional<Film> updateFilm(@Valid @RequestBody Film film) {
+        if(film.getId()!= null && film.getId() < 1){
+            throw new UnableToFindException();
+        }
         return service.updateFilm(film);
     }
 

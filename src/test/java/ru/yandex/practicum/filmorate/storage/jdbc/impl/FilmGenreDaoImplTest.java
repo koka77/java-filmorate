@@ -31,12 +31,12 @@ class FilmGenreDaoImplTest {
     void findById() {
         filmGenreDao.findAllByFilmId(1L).forEach(System.out::println);
         Genre genre = filmGenreDao.findAllByFilmId(1L).stream().findFirst().get();
-        assertEquals(Genre.CARTOON,genre);
+        assertEquals(new Genre(1, ""),genre);
     }
 
     @Test
     void addNewGenreToFilm() {
-        filmGenreDao.addNewGenreToFilm(1l, Genre.ACTION);
+        filmGenreDao.addNewGenreToFilm(1l, new Genre(1, ""));
 
         filmGenreDao.findAllByFilmId(1L).forEach(System.out::println);
     }
@@ -45,7 +45,7 @@ class FilmGenreDaoImplTest {
     @Test
     void updateAllGenreByFilm() {
         Film film = filmDao.findById(1l).get();
-        film.setGenres(Stream.of(Genre.COMEDY).collect(Collectors.toSet()));
+        film.setGenres(Stream.of(new Genre(1, "")).collect(Collectors.toSet()));
         filmGenreDao.updateAllGenreByFilm(film);
         filmGenreDao.findAllByFilmId(1L).forEach(System.out::println);
     }

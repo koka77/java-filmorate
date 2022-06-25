@@ -12,6 +12,7 @@ import javax.validation.constraints.Size;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -19,7 +20,7 @@ public class Film {
 
 
 
-    private Set<Genre> genres;
+    private List<Genre> genres;
 
     private Integer rate; //= LikesRating.G;
     private Long id;

@@ -17,6 +17,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Component("FilmDaoImpl")
 public class FilmDaoImpl implements FilmStorage {
@@ -86,7 +87,7 @@ public class FilmDaoImpl implements FilmStorage {
                     likes.add(l);
                 }
             } while (rs.next());
-            film.setGenres(genres);
+            film.setGenres(genres.stream().collect(Collectors.toList()));
             film.getLikes().addAll(likes);
             getLikesByFilm(film);
         }

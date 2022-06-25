@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.exception.FindFilmException;
 import ru.yandex.practicum.filmorate.exception.InternalServerException;
 import ru.yandex.practicum.filmorate.exception.UnableToFindException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.service.film.FilmService;
 import javax.validation.Valid;
 import java.util.*;
@@ -69,5 +70,6 @@ public class FilmController {
         log.info("findAll");
         return service.findAll();
     }
+
 
 }

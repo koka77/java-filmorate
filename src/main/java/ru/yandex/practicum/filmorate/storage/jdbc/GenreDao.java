@@ -17,5 +17,4 @@ public interface GenreDao {
 
     Optional<Genre> update(Genre genre);
 
-    void updateAllByFilm(Film film);
 }

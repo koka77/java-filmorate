@@ -45,7 +45,7 @@ class FilmGenreDaoImplTest {
     @Test
     void updateAllGenreByFilm() {
         Film film = filmDao.findById(1l).get();
-        film.setGenres(Stream.of(new Genre(1, "")).collect(Collectors.toSet()));
+        film.setGenres(Stream.of(new Genre(1, "")).collect(Collectors.toSet()).stream().collect(Collectors.toList()));
         filmGenreDao.updateAllGenreByFilm(film);
         filmGenreDao.findAllByFilmId(1L).forEach(System.out::println);
     }

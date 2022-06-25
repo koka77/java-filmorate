@@ -70,19 +70,4 @@ public class GenreDaoImpl implements GenreDao {
         }
     }
 
-    @Override
-    public void updateAllByFilm(Film film) {
-        final String sql = "update FILMS_GENRES set FILM_ID = ?, GENRE_ID = ?";
-
-        try (PreparedStatement ps = jdbcTemplate.getDataSource().getConnection().prepareStatement(sql)) {
-            for (Genre genre : film.getGenres()) {
-                ps.setLong(1, genre.getId());
-                ps.setLong(2, film.getId());
-                ps.addBatch();
-                ps.executeUpdate();
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
 }

@@ -53,7 +53,7 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public Optional<Film> updateFilm(Film film) {
+    public Film updateFilm(Film film) {
         validators.forEach(it -> it.validate(film));
         log.info("updateFilm: {}", film);
         return storage.updateFilm(film);

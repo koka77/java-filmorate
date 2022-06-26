@@ -167,7 +167,7 @@ public class FilmDaoImpl implements FilmStorage {
     }
 
     @Override
-    public Optional<Film> updateFilm(Film film) {
+    public Film updateFilm(Film film) {
         if (film.getId() != null && film.getId() < 1) {
             throw new UnableToFindException();
         }
@@ -184,7 +184,7 @@ public class FilmDaoImpl implements FilmStorage {
             filmGenreDao.updateAllGenreByFilm(film);
             updateLikes(film);
         }
-        return Optional.of(film);
+        return film;
     }
 
     @Override

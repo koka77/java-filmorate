@@ -53,11 +53,11 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Optional<Film> updateFilm(Film film) {
+    public Film updateFilm(Film film) {
 
         if (films.containsKey(film.getId())) {
             films.put(film.getId(), film);
-            return Optional.of(film);
+            return film;
         } else {
             log.debug("error updateFilm with ID: {}", film);
             throw new FindFilmException(film.getId());

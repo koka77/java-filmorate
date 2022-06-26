@@ -58,7 +58,7 @@ public class FilmController {
     }
 
     @PutMapping
-    public Optional<Film> updateFilm(@Valid @RequestBody Film film) {
+    public Film updateFilm(@Valid @RequestBody Film film) {
         if (film.getId() != null && film.getId() < 1) {
             throw new UnableToFindException();
         }

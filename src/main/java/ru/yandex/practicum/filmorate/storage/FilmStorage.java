@@ -15,7 +15,7 @@ public interface FilmStorage {
 
     Optional<Film> create(Film film);
 
-    Optional<Film> updateFilm(Film film);
+    Film updateFilm(Film film);
 
     List<Film> getMostPopular(Integer count);
 }

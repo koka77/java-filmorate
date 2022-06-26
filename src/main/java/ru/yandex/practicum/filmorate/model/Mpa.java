@@ -22,8 +22,4 @@ public class Mpa {
     @JsonProperty("name")
     String name;
 
-    @JsonValue(value = false)
-    public int getId() {
-        return id;
-    }
 }

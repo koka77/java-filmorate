@@ -41,6 +41,7 @@ public class Film {
     @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT)
     private Integer duration;
 
+    @JsonFormat(shape = JsonFormat.Shape.OBJECT)
     @JsonProperty("mpa")
     private Mpa mpa;
 

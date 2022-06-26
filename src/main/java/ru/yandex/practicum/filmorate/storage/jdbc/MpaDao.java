@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface MpaDao {
-    Optional<Mpa> getById (int id);
+    Optional<Mpa> getById(int id);
 
     List<Mpa> getAll();
 }

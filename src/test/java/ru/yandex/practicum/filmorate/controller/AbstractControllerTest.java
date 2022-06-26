@@ -8,6 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.yandex.practicum.filmorate.service.film.FilmService;
 import ru.yandex.practicum.filmorate.service.user.UserService;
+
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @AutoConfigureTestDatabase
 @SpringBootTest

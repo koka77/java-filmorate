@@ -1,25 +1,21 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.AfterEach;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-
-import static ru.yandex.practicum.filmorate.TestUtil.*;
-
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static ru.yandex.practicum.filmorate.TestUtil.*;
 
 class FilmControllerTest extends AbstractControllerTest {
 
@@ -89,13 +85,6 @@ class FilmControllerTest extends AbstractControllerTest {
                 .andExpect(content()
                         .json("[{\"genres\":null,\"rate\":null,\"id\":1,\"likes\":[],\"name\":\"validFilm1\",\"description\":\"validFilm1 description\",\"releaseDate\":\"2020-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"validFilm1\"}}]"));
 
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders.get("/films/popular?count=2", 2l))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(content()
-                        .json("[{\"genres\":null,\"rate\":null,\"id\":6,\"likes\":[],\"name\":\"validFilm3\",\"description\":\"validFilm3 description\",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"validFilm3\"}},{\"genres\":null,\"rate\":null,\"id\":7,\"likes\":[],\"name\":\"validFilm3\",\"description\":\"validFilm3 description\",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"validFilm3\"}}]"));
 
         mockMvc.perform(
                         MockMvcRequestBuilders.get("/films/popular"))

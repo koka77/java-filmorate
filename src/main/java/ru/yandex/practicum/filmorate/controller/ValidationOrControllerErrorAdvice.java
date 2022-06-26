@@ -26,15 +26,6 @@ public class ValidationOrControllerErrorAdvice {
         return e.getMessage();
     }
 
-
-/*
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public final String badIdAdvice(MethodArgumentNotValidException e) {
-        return e.getMessage();
-    }
-*/
-
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(InternalServerException.class)
     public final String illegalIdAdvice(InternalServerException e) {

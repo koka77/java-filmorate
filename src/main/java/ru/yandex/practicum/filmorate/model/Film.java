@@ -4,12 +4,12 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
-import lombok.*;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NonNull;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.PastOrPresent;
 import javax.validation.constraints.Size;
-import java.time.Duration;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
@@ -17,8 +17,6 @@ import java.util.Set;
 
 @Data
 public class Film {
-
-
 
     private List<Genre> genres;
 
@@ -47,7 +45,7 @@ public class Film {
 
 
     @Builder
-    public Film(Long id, @NonNull String name, String description, LocalDate releaseDate, Integer duration , Mpa mpa) {
+    public Film(Long id, @NonNull String name, String description, LocalDate releaseDate, Integer duration, Mpa mpa) {
         this.id = id;
         this.name = name;
         this.description = description;

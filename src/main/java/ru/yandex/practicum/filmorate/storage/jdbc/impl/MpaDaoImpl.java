@@ -22,7 +22,7 @@ public class MpaDaoImpl implements MpaDao {
     @Override
     public Optional<Mpa> getById(int id) {
         final String sql = "SELECT * FROM MPAA where MPAA_ID = ?";
-        return jdbcTemplate.queryForStream(sql,   (rs, rowNum) ->
+        return jdbcTemplate.queryForStream(sql, (rs, rowNum) ->
                 new Mpa(rs.getInt(1), rs.getString(2)), id).findFirst();
     }
 
@@ -31,7 +31,7 @@ public class MpaDaoImpl implements MpaDao {
         final String sql = "SELECT * FROM MPAA ORDER BY 1 asc ";
 
         return jdbcTemplate.queryForStream(sql, (rs, rowNum) ->
-                new Mpa(rs.getInt(1), rs.getString(2)))
+                        new Mpa(rs.getInt(1), rs.getString(2)))
                 .sorted((o1, o2) -> o1.getId() < o2.getId() ? -1 : 1)
                 .collect(Collectors.toList());
     }

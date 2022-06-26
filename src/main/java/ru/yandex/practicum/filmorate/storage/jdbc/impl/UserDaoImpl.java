@@ -4,11 +4,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.model.Friend;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.*;
@@ -78,12 +76,11 @@ public class UserDaoImpl implements UserStorage {
 
         return values;
     }
-private void deleteFriends(User user){
+
+    private void deleteFriends(User user) {
         final String sql = "DELETE FROM FRIENDS where USER_ID = ?";
         jdbcTemplate.update(sql, user.getId());
-
-
-}
+    }
 
     private void insertFriends(User user) {
         if (user.getFriends().isEmpty()) {
@@ -139,7 +136,7 @@ private void deleteFriends(User user){
                 "FROM FRIENDS where USER_ID = " + id + ") " +
                 "AND USER_ID IN (SELECT FRIEND_ID FROM FRIENDS where USER_ID = " + otherId + ")";
 
-        List<User> users = jdbcTemplate.query(sql, (rs, rowNum) ->  new User(
+        List<User> users = jdbcTemplate.query(sql, (rs, rowNum) -> new User(
                 rs.getLong("USER_ID"),
                 rs.getString("EMAIL"),
                 rs.getString("LOGIN"),

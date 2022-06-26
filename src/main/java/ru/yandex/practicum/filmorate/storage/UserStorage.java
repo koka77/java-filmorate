@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.storage;
 
-import ru.yandex.practicum.filmorate.model.Friend;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Collection;
@@ -12,9 +11,9 @@ public interface UserStorage {
 
     Optional<User> findById(Long id);
 
-    Optional<User>  addUser(User user);
+    Optional<User> addUser(User user);
 
-    Optional<User>  updateUser(User user);
+    Optional<User> updateUser(User user);
 
     Collection<User> getUserFriends(Long id);
 

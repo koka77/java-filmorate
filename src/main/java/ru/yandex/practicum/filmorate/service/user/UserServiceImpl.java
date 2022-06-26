@@ -54,13 +54,12 @@ public class UserServiceImpl implements UserService {
         User user = storage.findById(id).get();
         user.addFriend(friend);
         storage.updateUser(user);
-//        storage.findById(id).get().addFriend(friend);
     }
 
     @Override
     public void removeFriend(Long id, Long userId) {
         User user = storage.findById(id).get();
-        user.setFriends(user.getFriends().stream().filter(user1 -> user1.getId()!=userId)
+        user.setFriends(user.getFriends().stream().filter(user1 -> user1.getId() != userId)
                 .collect(Collectors.toSet()));
         storage.updateUser(user);
 

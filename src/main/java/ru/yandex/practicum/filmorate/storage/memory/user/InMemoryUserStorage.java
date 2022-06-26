@@ -5,11 +5,13 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NoUserException;
-import ru.yandex.practicum.filmorate.model.Friend;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -26,7 +28,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public Optional<User>  findById(Long id) throws NoUserException {
+    public Optional<User> findById(Long id) throws NoUserException {
         User user = users.get(id);
         if (user != null) {
             return Optional.of(users.get(id));
@@ -37,7 +39,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public Optional<User>  addUser(User user) {
+    public Optional<User> addUser(User user) {
         user.setId(currentMaxId++);
         users.put(user.getId(), user);
         log.info("createUser: {}", user);
@@ -61,11 +63,6 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public Collection<User> getUserCrossFriends(Long id, Long otherId) {
-/*
-
-        return findById(userId).get().getFriends().stream()
-                .filter(friend -> friend.getId()).collect(Collectors.toSet());
-*/
 
         Long userId = findById(id).get().getId();
         return findById(id).get().getFriends().stream()

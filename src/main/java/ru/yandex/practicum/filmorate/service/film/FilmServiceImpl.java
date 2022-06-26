@@ -71,7 +71,7 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public void remoteLike(Long filmId, Long userId) {
-        if (filmId < 1 || userId < 1){
+        if (filmId < 1 || userId < 1) {
             throw new UnableToFindException();
         }
         Film film = storage.findById(filmId).get();

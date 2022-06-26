@@ -3,14 +3,14 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.FindFilmException;
 import ru.yandex.practicum.filmorate.exception.InternalServerException;
 import ru.yandex.practicum.filmorate.exception.UnableToFindException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.service.film.FilmService;
+
 import javax.validation.Valid;
-import java.util.*;
+import java.util.Collection;
+import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -35,7 +35,7 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public Collection<Film> getPopular(@RequestParam(required = false, defaultValue = "10") Integer count ) {
+    public Collection<Film> getPopular(@RequestParam(required = false, defaultValue = "10") Integer count) {
         return service.getMostPopular(count);
     }
 
@@ -49,7 +49,7 @@ public class FilmController {
 
     @PostMapping
     public Film addFilm(@Valid @RequestBody Film film) {
-        if (film.getMpa() == null){
+        if (film.getMpa() == null) {
             throw new InternalServerException();
         }
         service.addFilm(film);
@@ -59,7 +59,7 @@ public class FilmController {
 
     @PutMapping
     public Optional<Film> updateFilm(@Valid @RequestBody Film film) {
-        if(film.getId()!= null && film.getId() < 1){
+        if (film.getId() != null && film.getId() < 1) {
             throw new UnableToFindException();
         }
         return service.updateFilm(film);

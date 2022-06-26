@@ -26,7 +26,7 @@ public class UserController {
 
     @PutMapping("{id}/friends/{friendId}")
     public void addFriend(@PathVariable Long id, @PathVariable Long friendId) {
-        if (id < 1 || friendId < 1){
+        if (id < 1 || friendId < 1) {
             throw new UnableToFindException();
         }
         service.addFriend(id, friendId);
@@ -49,7 +49,7 @@ public class UserController {
 
     @GetMapping("{id}")
     public Optional<User> findById(@PathVariable Long id) {
-        if (!service.findById(id).isPresent()){
+        if (!service.findById(id).isPresent()) {
             throw new UnableToFindException();
         }
         return service.findById(id);
@@ -57,7 +57,7 @@ public class UserController {
 
     @PostMapping
     public Optional<User> createUser(@Valid @RequestBody User user) {
-        if (user.getId() != null && user.getId() < 1){
+        if (user.getId() != null && user.getId() < 1) {
             throw new InternalServerException();
         }
         return service.createUser(user);
@@ -65,7 +65,7 @@ public class UserController {
 
     @PutMapping
     public Optional<User> updateUser(@Valid @RequestBody User user) {
-        if (user.getId() != null && user.getId() < 1){
+        if (user.getId() != null && user.getId() < 1) {
             throw new UnableToFindException();
         }
         return service.updateUser(user);

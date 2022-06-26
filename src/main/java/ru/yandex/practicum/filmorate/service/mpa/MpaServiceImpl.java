@@ -7,7 +7,6 @@ import ru.yandex.practicum.filmorate.storage.jdbc.MpaDao;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Service
 public class MpaServiceImpl implements MpaService {

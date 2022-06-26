@@ -9,9 +9,8 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.jdbc.FilmGenreDao;
 import ru.yandex.practicum.filmorate.storage.jdbc.GenreDao;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Repository
@@ -36,15 +35,6 @@ public class FilmGenreDaoImpl implements FilmGenreDao {
             genres.add(new Genre(rs.getInt("GENRE_ID"),
                     rs.getString("NAME")));
         }
-
-/*        return jdbcTemplate.queryForStream(sql, (rs1, rowNum) ->
-                new Genre(
-                        rs.getInt("GENRE_ID"),
-                        rs.getString("NAME")))
-                .sorted((o1, o2) -> o1.getId() < o2.getId() ? -1 : 1)
-                .collect(Collectors.toSet());*/
-
-
         return genres;
     }
 
@@ -59,14 +49,10 @@ public class FilmGenreDaoImpl implements FilmGenreDao {
         if (film.getGenres() != null) {
             if (film.getGenres().isEmpty()) {
                 deleteAll(film);
-//                film.setGenres(null);
                 return;
             }
             // перед обновлением  удаляем устаревшие данные
             deleteAll(film);
-
-
-//            String sqlUpdate = "insert into FILMS_GENRES(GENRE_ID, FILM_ID) values (?, ?)";
 
             StringBuilder sb = new StringBuilder("insert into FILMS_GENRES(GENRE_ID, FILM_ID) values ");
 
@@ -75,11 +61,6 @@ public class FilmGenreDaoImpl implements FilmGenreDao {
             for (Genre genre : film.getGenres()) {
                 sb.append("(" + genre.getId() + ",")
                         .append(film.getId() + "),");
-
-
-/*                    if (genre.getName() == null) {
-                        genre.setName(genreDao.findById(genre.getId()).get().getName());
-                    }*/
             }
             String sql = sb.subSequence(0, sb.length() - 1).toString();
             jdbcTemplate.update(sql);

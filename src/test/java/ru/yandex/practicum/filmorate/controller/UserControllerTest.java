@@ -20,9 +20,8 @@ class UserControllerTest extends AbstractControllerTest {
     UserController userController;
 
     @AfterEach
-    void clear(){
-        userService.findAll().forEach(film -> film.getFriends().clear());
-        userService.reset();
+    void clear() {
+        userService = null;
     }
 
     @Test
@@ -33,13 +32,13 @@ class UserControllerTest extends AbstractControllerTest {
         userController.addFriend(TestUtil.validUser1.getId(), TestUtil.validUser2.getId());
         userController.addFriend(TestUtil.validUser1.getId(), TestUtil.validUser3.getId());
         mockMvc.perform(
-                        MockMvcRequestBuilders.get("/users/{id}/friends", 0l)
+                        MockMvcRequestBuilders.get("/users/{id}/friends", 4l)
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content()
-                        .json("[{\"id\":1,\"friends\":[],\"email\":\"validUser2@mail.ru\"," +
+                        .json("[{\"id\":5,\"friends\":[],\"email\":\"validUser2@mail.ru\"," +
                                 "\"login\":\"login\",\"name\":\"validUser2\",\"birthday\":\"1981-05-16\"}," +
-                                "{\"id\":2,\"friends\":[],\"email\":\"validUser2@mail.ru\",\"login\":\"login\"," +
+                                "{\"id\":6,\"friends\":[],\"email\":\"validUser2@mail.ru\",\"login\":\"login\"," +
                                 "\"name\":\"validUser2\",\"birthday\":\"1981-05-16\"}]")).andDo(print());
     }
 
@@ -52,11 +51,11 @@ class UserControllerTest extends AbstractControllerTest {
         userController.addFriend(TestUtil.validUser2.getId(), TestUtil.validUser3.getId());
 
         mockMvc.perform(
-                        MockMvcRequestBuilders.get("/users/1/friends/common/{otherId}", 0L, 1L)
+                        MockMvcRequestBuilders.get("/users/{id}/friends/common/{otherId}", 8L, 9L)
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content()
-                        .json("[{\"id\":2,\"friends\":[],\"email\":\"validUser2@mail.ru\"," +
+                        .json("[{\"id\":10,\"friends\":[],\"email\":\"validUser2@mail.ru\"," +
                                 "\"login\":\"login\",\"name\":\"validUser2\",\"birthday\":\"1981-05-16\"}]")).andDo(print());
     }
 
@@ -64,12 +63,13 @@ class UserControllerTest extends AbstractControllerTest {
     void shouldReturnUserById() throws Exception {
         userController.createUser(TestUtil.validUser1);
         mockMvc.perform(
-                        MockMvcRequestBuilders.get("/users/{id}", 0l)
+                        MockMvcRequestBuilders.get("/users/{id}", 1l)
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content()
-                        .json("{\"id\":0,\"friends\":[],\"email\":\"validUser1@mail.ru\"," +
-                                "\"login\":\"login\",\"name\":\"validUser1\",\"birthday\":\"1981-05-16\"}")).andDo(print());
+                        .json("{\"id\":1,\"friends\":[],\"email\":\"mail@yandex.ru\"," +
+                                "\"login\":\"doloreUpdate\",\"name\":\"est adipisicing\"," +
+                                "\"birthday\":\"1976-09-20\"}")).andDo(print());
     }
 
     @Test
@@ -97,13 +97,15 @@ class UserControllerTest extends AbstractControllerTest {
     void shouldAddUserCorrectly() throws Exception {
         mockMvc.perform(
                         MockMvcRequestBuilders.post("/users")
-                                .content("{\"email\":\"asd@fds.ew\",\"login\":\"login\",\"birthday\":\"1981-05-16\"}")
+                                .content("{\"id\":1,\"friends\":[],\"email\":\"mail@yandex.ru\"," +
+                                        "\"login\":\"doloreUpdate\",\"name\":\"est adipisicing\",\"birthday\":\"1976-09-20\"}")
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(content()
-                        .json("{\"id\":0,\"friends\":[],\"email\":\"asd@fds.ew\",\"login\":\"login\",\"birthday\":\"1981-05-16\"}"));
+                        .json("{\"id\":7,\"friends\":[],\"email\":\"mail@yandex.ru\"," +
+                                "\"login\":\"doloreUpdate\",\"name\":\"est adipisicing\",\"birthday\":\"1976-09-20\"}"));
     }
 
     @Test
@@ -111,13 +113,25 @@ class UserControllerTest extends AbstractControllerTest {
         userController.createUser(TestUtil.validUser1);
         mockMvc.perform(
                         MockMvcRequestBuilders.put("/users")
-                                .content("{\"id\":0,\"email\":\"asd@fds.ew\",\"login\":\"login\",\"name\":\"name\",\"birthday\":\"1981-05-16\"}")
+                                .content("{\n" +
+                                        "  \"login\": \"doloreUpdate\",\n" +
+                                        "  \"name\": \"est adipisicing\",\n" +
+                                        "  \"id\": 1,\n" +
+                                        "  \"email\": \"mail@yandex.ru\",\n" +
+                                        "  \"birthday\": \"1976-09-20\"\n" +
+                                        "}")
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(content()
-                        .json("{\"id\":0,\"friends\":[],\"email\":\"asd@fds.ew\",\"login\":\"login\",\"name\":\"name\",\"birthday\":\"1981-05-16\"}"));
+                        .json("{\n" +
+                                "  \"login\": \"doloreUpdate\",\n" +
+                                "  \"name\": \"est adipisicing\",\n" +
+                                "  \"id\": 1,\n" +
+                                "  \"email\": \"mail@yandex.ru\",\n" +
+                                "  \"birthday\": \"1976-09-20\"\n" +
+                                "}"));
     }
 
     @Test
@@ -130,9 +144,11 @@ class UserControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(content()
-                        .json("[{\"id\":0,\"friends\":[],\"email\":\"validUser1@mail.ru\"," +
-                                "\"login\":\"login\",\"name\":\"validUser1\",\"birthday\":\"1981-05-16\"}," +
-                                "{\"id\":1,\"friends\":[],\"email\":\"validUser2@mail.ru\"," +
-                                "\"login\":\"login\",\"name\":\"validUser2\",\"birthday\":\"1981-05-16\"}]"));
+                        .json("[{\"id\":1,\"friends\":[],\"email\":\"mail@yandex.ru\"," +
+                                "\"login\":\"doloreUpdate\",\"name\":\"est adipisicing\",\"birthday\":\"1976-09-20\"}," +
+                                "{\"id\":2,\"friends\":[],\"email\":\"validUser1@mail.ru\",\"login\":\"login\"," +
+                                "\"name\":\"validUser1\",\"birthday\":\"1981-05-16\"},{\"id\":3,\"friends\":[]," +
+                                "\"email\":\"validUser2@mail.ru\",\"login\":\"login\",\"name\":\"validUser2\"," +
+                                "\"birthday\":\"1981-05-16\"}]"));
     }
 }

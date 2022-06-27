@@ -2,18 +2,20 @@ package ru.yandex.practicum.filmorate.service.film;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.DublicateFilmException;
 import ru.yandex.practicum.filmorate.exception.FindFilmException;
 import ru.yandex.practicum.filmorate.exception.NoUserException;
+import ru.yandex.practicum.filmorate.exception.UnableToFindException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.user.UserService;
-import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.validator.FilmValidator;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -22,21 +24,13 @@ public class FilmServiceImpl implements FilmService {
     private final FilmStorage storage;
     private final UserService userService;
 
-    private static Long currentMaxId = 1L;
-
     private final List<FilmValidator> validators;
 
     @Autowired
-    public FilmServiceImpl(FilmStorage storage, UserService userService, List<FilmValidator> validators) {
+    public FilmServiceImpl(@Qualifier("FilmDaoImpl") FilmStorage storage, UserService userService, List<FilmValidator> validators) {
         this.storage = storage;
         this.userService = userService;
         this.validators = validators;
-    }
-
-    @Override
-    public void reset() {
-        currentMaxId = 0L;
-        storage.reset();
     }
 
     @Override
@@ -45,21 +39,17 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public Film findById(Long id) {
+    public Optional<Film> findById(Long id) {
         return storage.findById(id);
     }
 
     @Override
-    public Film addFilm(Film film) {
+    public Optional<Film> addFilm(Film film) {
         validators.forEach(it -> it.validate(film));
-        if (!storage.containsKey(film.getId())) {
-            film.setId(currentMaxId++);
-            Film res = storage.addFilm(film);
-            log.info("addFilm: {}", film);
-            return res;
-        } else {
-            throw new DublicateFilmException(String.format("Фильм с id {} уже существует", film.getId()));
-        }
+        Optional<Film> res = storage.create(film);
+        log.info("addFilm: {}", film);
+
+        return res;
     }
 
     @Override
@@ -71,19 +61,23 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public void addLike(Long filmId, Long userId) throws NoUserException, FindFilmException {
-        Film film = storage.findById(filmId);
-        User user = userService.findById(userId);
+        Film film = storage.findById(filmId).get();
+        User user = userService.findById(userId).get();
 
         film.addLike(userId);
-        log.info("User: {} was like film: {}",user, film);
+        storage.updateFilm(film);
+        log.info("User: {} was like film: {}", user, film);
     }
 
     @Override
     public void remoteLike(Long filmId, Long userId) {
-        Film film = storage.findById(filmId);
-        User user = userService.findById(userId);
-        film.remoteLike(userId);
-        log.info("User: was like film: {}",user, film);
+        if (filmId < 1 || userId < 1) {
+            throw new UnableToFindException();
+        }
+        Film film = storage.findById(filmId).get();
+        User user = userService.findById(userId).get();
+        film.removeLike(userId);
+        log.info("User: was like film: {}", user, film);
     }
 
     @Override

@@ -1,14 +1,16 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exception.InternalServerException;
+import ru.yandex.practicum.filmorate.exception.UnableToFindException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.user.UserService;
 
 import javax.validation.Valid;
 import java.util.Collection;
+import java.util.Optional;
 
 @Slf4j
 @RestController("")
@@ -24,6 +26,9 @@ public class UserController {
 
     @PutMapping("{id}/friends/{friendId}")
     public void addFriend(@PathVariable Long id, @PathVariable Long friendId) {
+        if (id < 1 || friendId < 1) {
+            throw new UnableToFindException();
+        }
         service.addFriend(id, friendId);
     }
 
@@ -43,17 +48,26 @@ public class UserController {
     }
 
     @GetMapping("{id}")
-    public User findById(@PathVariable Long id) {
+    public Optional<User> findById(@PathVariable Long id) {
+        if (!service.findById(id).isPresent()) {
+            throw new UnableToFindException();
+        }
         return service.findById(id);
     }
 
     @PostMapping
-    public User createUser(@Valid @RequestBody User user) {
+    public Optional<User> createUser(@Valid @RequestBody User user) {
+        if (user.getId() != null && user.getId() < 1) {
+            throw new InternalServerException();
+        }
         return service.createUser(user);
     }
 
     @PutMapping
-    public User updateUser(@Valid @RequestBody User user) {
+    public Optional<User> updateUser(@Valid @RequestBody User user) {
+        if (user.getId() != null && user.getId() < 1) {
+            throw new UnableToFindException();
+        }
         return service.updateUser(user);
 
     }

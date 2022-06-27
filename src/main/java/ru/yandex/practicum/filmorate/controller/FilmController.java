@@ -1,14 +1,17 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exception.InternalServerException;
+import ru.yandex.practicum.filmorate.exception.UnableToFindException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.film.FilmService;
+
 import javax.validation.Valid;
-import java.util.*;
-// commit for PR
+import java.util.Collection;
+import java.util.Optional;
+
 @Slf4j
 @RestController
 @RequestMapping("/films")
@@ -25,23 +28,30 @@ public class FilmController {
     public void addLike(@PathVariable Long id, @PathVariable Long userId) {
         service.addLike(id, userId);
     }
+
     @DeleteMapping("{id}/like/{userId}")
     public void removeLike(@PathVariable Long id, @PathVariable Long userId) {
         service.remoteLike(id, userId);
     }
+
     @GetMapping("/popular")
-    public Collection<Film> getPopular(@RequestParam(required = false, defaultValue = "10") Integer count ) {
+    public Collection<Film> getPopular(@RequestParam(required = false, defaultValue = "10") Integer count) {
         return service.getMostPopular(count);
     }
 
     @GetMapping("{id}")
-    public Film getFilm(@PathVariable Long id) {
+    public Optional<Film> getFilm(@PathVariable Long id) {
+        if (id < 1) {
+            throw new UnableToFindException();
+        }
         return service.findById(id);
     }
 
     @PostMapping
     public Film addFilm(@Valid @RequestBody Film film) {
-
+        if (film.getMpa() == null) {
+            throw new InternalServerException();
+        }
         service.addFilm(film);
 
         return film;
@@ -49,6 +59,9 @@ public class FilmController {
 
     @PutMapping
     public Film updateFilm(@Valid @RequestBody Film film) {
+        if (film.getId() != null && film.getId() < 1) {
+            throw new UnableToFindException();
+        }
         return service.updateFilm(film);
     }
 
@@ -57,5 +70,6 @@ public class FilmController {
         log.info("findAll");
         return service.findAll();
     }
+
 
 }

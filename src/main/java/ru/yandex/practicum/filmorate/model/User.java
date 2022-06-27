@@ -20,7 +20,7 @@ public class User {
 
     private Long id;
 
-    private Set<Friend> friends = new HashSet<>();
+    private Set<User> friends = new HashSet<>();
 
     @Email
     @NonNull
@@ -47,7 +47,7 @@ public class User {
         this.friends = new HashSet<>();
     }
 
-    public void addFriend(Friend friend) {
-        this.friends.add(friend);
+    public void addFriend(User user) {
+        this.friends.add(user);
     }
 }

@@ -1,24 +1,20 @@
 package ru.yandex.practicum.filmorate.service.user;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Friend;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
 
-    private static Long currentMaxId = 0L;
-
     @Autowired
-    public UserServiceImpl(UserStorage storage) {
+    public UserServiceImpl(@Qualifier("UserDaoImpl") UserStorage storage) {
         this.storage = storage;
     }
 
@@ -30,38 +26,43 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User findById(Long id) {
+    public Optional<User> findById(Long id) {
         return storage.findById(id);
     }
 
     @Override
-    public User createUser(User user) {
-        user.setId(currentMaxId++);
+    public Optional<User> createUser(User user) {
+        if (user.getName().isEmpty()) {
+            user.setName(user.getLogin());
+        }
         storage.addUser(user);
 
-        return user;
+        return Optional.of(user);
     }
 
     @Override
-    public User updateUser(User user) {
+    public Optional<User> updateUser(User user) {
+        if (user.getName().isEmpty()) {
+            user.setName(user.getLogin());
+        }
         return storage.updateUser(user);
     }
 
     @Override
     public void addFriend(Long id, Long friendId) {
-        User userFriend = storage.findById(friendId);
-        Friend friend = new Friend(friendId);
-        if (!userFriend.getFriends().stream().findFirst().isEmpty()) {
-            friend.setCross(true);
-        } else {
-            friend.setCross(false);
-        }
-        storage.findById(id).addFriend(friend);
+        User friend = storage.findById(friendId).get();
+        User user = storage.findById(id).get();
+        user.addFriend(friend);
+        storage.updateUser(user);
     }
 
     @Override
     public void removeFriend(Long id, Long userId) {
-        storage.findById(id).getFriends().remove(userId);
+        User user = storage.findById(id).get();
+        user.setFriends(user.getFriends().stream().filter(user1 -> user1.getId() != userId)
+                .collect(Collectors.toSet()));
+        storage.updateUser(user);
+
     }
 
     @Override
@@ -70,12 +71,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Collection<User> getCrossFriends(Long id, Long userId) {
-        return storage.getUserCrossFriends(id, userId);
-    }
-
-    @Override
-    public void reset() {
-        storage.reset();
+    public Collection<User> getCrossFriends(Long id, Long otherId) {
+        return storage.getUserCrossFriends(id, otherId);
     }
 }

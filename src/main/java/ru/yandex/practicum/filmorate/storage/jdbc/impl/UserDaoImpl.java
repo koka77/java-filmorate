@@ -4,12 +4,15 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component("UserDaoImpl")
 public class UserDaoImpl implements UserStorage {
@@ -144,5 +147,10 @@ public class UserDaoImpl implements UserStorage {
                 rs.getDate("BIRTHDAY").toLocalDate()));
 
         return users;
+    }
+
+    @Override
+    public Collection<Feed> findAllFeedsByUserId(Long userId) {
+        return Stream.of(Feed.builder().eventId(1l).entityId(1l).operation("LOLOLO").build()).collect(Collectors.toList());
     }
 }

@@ -3,8 +3,10 @@ package ru.yandex.practicum.filmorate.storage.memory.user;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.cfg.NotYetImplementedException;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NoUserException;
+import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
@@ -69,5 +71,10 @@ public class InMemoryUserStorage implements UserStorage {
                 .filter(friend -> friend.getFriends().stream().map(user -> user.getId()).equals(userId))
                 .collect(Collectors.toSet());
 
+    }
+
+    @Override
+    public Collection<Feed> findAllFeedsByUserId(Long userId) {
+        throw new NotYetImplementedException();
     }
 }

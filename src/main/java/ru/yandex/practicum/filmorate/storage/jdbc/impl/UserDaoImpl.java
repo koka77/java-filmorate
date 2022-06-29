@@ -104,7 +104,7 @@ public class UserDaoImpl implements UserStorage {
     }
 
     @Override
-    public Optional<User> updateUser(User user) {
+    public User updateUser(User user) {
         final String sql = "update users set email = ?, login = ?, name = ?, " +
                 "birthday = ?   where user_id = ?";
         jdbcTemplate.update(sql, user.getEmail(), user.getLogin(), user.getName()
@@ -113,7 +113,7 @@ public class UserDaoImpl implements UserStorage {
 
         deleteFriends(user);
         insertFriends(user);
-        return Optional.of(user);
+        return user;
     }
 
     @Override
@@ -147,10 +147,5 @@ public class UserDaoImpl implements UserStorage {
                 rs.getDate("BIRTHDAY").toLocalDate()));
 
         return users;
-    }
-
-    @Override
-    public Collection<Feed> findAllFeedsByUserId(Long userId) {
-        return Stream.of(Feed.builder().eventId(1l).entityId(1l).operation("LOLOLO").build()).collect(Collectors.toList());
     }
 }

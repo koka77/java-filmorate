@@ -13,7 +13,7 @@ public interface UserService {
 
     Optional<User> createUser(User user);
 
-    Optional<User> updateUser(User user);
+    User updateUser(User user);
 
     void addFriend(Long id, Long friendId);
 
@@ -22,6 +22,4 @@ public interface UserService {
     Collection<User> getFriends(Long id);
 
     Collection<User> getCrossFriends(Long id, Long otherId);
-
-    Collection<Feed> getAllFeedsByUserId(Long userId);
 }

@@ -49,10 +49,10 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public Optional<User> updateUser(User user) {
+    public User updateUser(User user) {
         if (users.containsKey(user.getId())) {
             users.put(user.getId(), user);
-            return Optional.of(user);
+            return user;
         } else {
             throw new NoUserException(String.format("Пользователя: {} не существует", user));
         }
@@ -71,10 +71,5 @@ public class InMemoryUserStorage implements UserStorage {
                 .filter(friend -> friend.getFriends().stream().map(user -> user.getId()).equals(userId))
                 .collect(Collectors.toSet());
 
-    }
-
-    @Override
-    public Collection<Feed> findAllFeedsByUserId(Long userId) {
-        throw new NotYetImplementedException();
     }
 }

@@ -42,7 +42,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<User> updateUser(User user) {
+    public User updateUser(User user) {
         if (user.getName().isEmpty()) {
             user.setName(user.getLogin());
         }
@@ -74,10 +74,5 @@ public class UserServiceImpl implements UserService {
     @Override
     public Collection<User> getCrossFriends(Long id, Long otherId) {
         return storage.getUserCrossFriends(id, otherId);
-    }
-
-    @Override
-    public Collection<Feed> getAllFeedsByUserId(Long userId) {
-        return storage.findAllFeedsByUserId(userId);
     }
 }

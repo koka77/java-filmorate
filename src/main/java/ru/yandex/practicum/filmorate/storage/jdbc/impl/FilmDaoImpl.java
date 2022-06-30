@@ -210,4 +210,10 @@ public class FilmDaoImpl implements FilmStorage {
         );
         return films;
     }
+
+    @Override
+    public void deleteFilm(Long filmId) {
+        final String sql = "DELETE FROM FILMS where FILM_ID = ?";
+        jdbcTemplate.update(sql, filmId);
+    }
 }

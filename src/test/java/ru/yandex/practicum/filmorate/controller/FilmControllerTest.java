@@ -97,7 +97,7 @@ class FilmControllerTest extends AbstractControllerTest {
 
     @Test
     void shouldReturnFilmById() throws Exception {
-        Optional<Film> film = filmController.getFilm(1l);
+        Film film = filmController.getFilm(1l);
         System.out.println(film);
 
         mockMvc.perform(
@@ -158,11 +158,11 @@ class FilmControllerTest extends AbstractControllerTest {
 
     @Test
     void shouldUpdateFilmCorrectly() throws Exception {
-        Optional<Film> oldFilm = filmController.getFilm(1L);
-        Film newFilm = Film.builder().duration(oldFilm.get().getDuration()).description(oldFilm.get().getDescription())
-                .name("New Name").releaseDate(oldFilm.get().getReleaseDate()).mpa(oldFilm.get().getMpa())
+        Film oldFilm = filmController.getFilm(1L);
+        Film newFilm = Film.builder().duration(oldFilm.getDuration()).description(oldFilm.getDescription())
+                .name("New Name").releaseDate(oldFilm.getReleaseDate()).mpa(oldFilm.getMpa())
                 .build();
-        newFilm.setId(oldFilm.get().getId());
+        newFilm.setId(oldFilm.getId());
         String filmAsString = objectToJson(newFilm);
 
         mockMvc.perform(

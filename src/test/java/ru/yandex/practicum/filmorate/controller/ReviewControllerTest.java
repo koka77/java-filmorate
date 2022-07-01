@@ -28,9 +28,9 @@ public class ReviewControllerTest {
     @LocalServerPort
     private int port;
     @Autowired
-    private TestRestTemplate restTemplate;
+    private final TestRestTemplate restTemplate;
     @Autowired
-    private ReviewService reviewService;
+    private final ReviewService reviewService;
 
 
     @Test
@@ -47,10 +47,10 @@ public class ReviewControllerTest {
 
     @Test
     public void shouldAddAndDeleteLikeOrDislike() {
-        reviewService.likeOrDislike(1, 2, true);
-        reviewService.likeOrDislike(1, 1, true);
-        reviewService.likeOrDislike(1, 3, false);
-        reviewService.likeOrDislike(3, 2, false);
+        reviewService.like(1, 2);
+        reviewService.like(1, 1);
+        reviewService.dislike(1, 3);
+        reviewService.dislike(3, 2);
         Review reviewFromStorage1 = reviewService.findById(1);
         Review reviewFromStorage2 = reviewService.findById(2);
         Review reviewFromStorage3 = reviewService.findById(3);
@@ -59,8 +59,8 @@ public class ReviewControllerTest {
         assertEquals(0, reviewFromStorage2.getUseful(), "Неверное количество лайков.");
         assertEquals(-1, reviewFromStorage3.getUseful(), "Неверное количество лайков.");
 
-        reviewService.deleteLikeOrDislike(3, 2, false);
-        reviewService.deleteLikeOrDislike(1, 1, true);
+        reviewService.deleteDislike(3, 2);
+        reviewService.deleteLike(1, 1);
         Review reviewFromStorage4 = reviewService.findById(3);
         Review reviewFromStorage5 = reviewService.findById(1);
         assertEquals(0, reviewFromStorage4.getUseful(), "Неверное количество лайков, " +
@@ -71,8 +71,8 @@ public class ReviewControllerTest {
 
     @Test
     public void shouldGetReviewsByFilmsOrExactQuantity() {
-        final Collection<Review> reviewsByFilm = reviewService.findAllByIdFilm(1L, 10);
-        final Collection<Review> reviews1 = reviewService.findAllByIdFilm(null, 1);
+        final Collection<Review> reviewsByFilm = reviewService.findCountByIdFilm(1L, 10);
+        final Collection<Review> reviews1 = reviewService.findCountByIdFilm(null, 1);
 
         assertNotNull(reviewsByFilm, "Отзывы на возвращаются.");
         assertNotNull(reviews1, "Отзыв нe возвращается.");
@@ -81,7 +81,7 @@ public class ReviewControllerTest {
                 "пользователь.");
         //delete review
         reviewService.delete(1L);
-        final Collection<Review> reviewsByFilm1 = reviewService.findAllByIdFilm(1L, 10);
+        final Collection<Review> reviewsByFilm1 = reviewService.findCountByIdFilm(1L, 10);
 
         assertEquals(1, reviewsByFilm1.size(), "Неверное количество отзывовов у фильма.");
     }

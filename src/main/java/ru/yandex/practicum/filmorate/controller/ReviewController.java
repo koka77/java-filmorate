@@ -15,7 +15,7 @@ import java.util.Collection;
 @RequestMapping("/reviews")
 @Slf4j
 public class ReviewController {
-    ReviewService service;
+    private final ReviewService service;
 
     @Autowired
     public ReviewController(ReviewService service) {
@@ -49,27 +49,27 @@ public class ReviewController {
     public Collection<Review> findAllBiIdFilm(
             @RequestParam(required = false) Long filmId,
             @RequestParam(defaultValue = "10", required = false) int count) {
-        return service.findAllByIdFilm(filmId, count);
+        return service.findCountByIdFilm(filmId, count);
     }
 
     @PutMapping("{id}/like/{userId}")
     public void like(@PathVariable long id, @PathVariable long userId) {
-        service.likeOrDislike(id, userId, true);
+        service.like(id, userId);
     }
 
     @PutMapping("{id}/dislike/{userId}")
     public void dislike(@PathVariable long id, @PathVariable long userId) {
-        service.likeOrDislike(id, userId, false);
+        service.dislike(id, userId);
     }
 
     @DeleteMapping("{id}/like/{userId}")
     public void deleteLike(@PathVariable long id, @PathVariable long userId) {
-        service.deleteLikeOrDislike(id, userId, true);
+        service.deleteLike(id, userId);
     }
 
     @DeleteMapping("{id}/dislike/{userId}")
     public void deleteDislike(@PathVariable long id, @PathVariable long userId) {
-        service.deleteLikeOrDislike(id, userId, false);
+        service.deleteDislike(id, userId);
     }
 
 }

@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.jdbc.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
@@ -7,7 +8,7 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.*;
 import ru.yandex.practicum.filmorate.model.Review;
-import ru.yandex.practicum.filmorate.storage.jdbc.ReviewStorage;
+import ru.yandex.practicum.filmorate.storage.jdbc.ReviewDao;
 
 import java.lang.module.FindException;
 import java.sql.ResultSet;
@@ -16,8 +17,9 @@ import java.util.Collection;
 import java.util.Optional;
 
 @Component
-public class ReviewDaoImpl implements ReviewStorage {
-    JdbcTemplate jdbcTemplate;
+@Slf4j
+public class ReviewDaoImpl implements ReviewDao {
+    private final JdbcTemplate jdbcTemplate;
 
     @Autowired
     public ReviewDaoImpl(JdbcTemplate jdbcTemplate) {
@@ -42,9 +44,9 @@ public class ReviewDaoImpl implements ReviewStorage {
 
     @Override
     public void insertReview(Review review) {
-        // эти методы здесь потому, что тесты завязаны на id_review
-        // нам приходиться делать несколько разных запросов в другие таблицы, чтобы не увеличивать auto increment
-        // вемсто того, чтобы просто ловить и обрабатывать исключения
+       /* эти методы здесь потому, что тесты завязаны на id_review.
+        нам приходиться делать несколько разных запросов в другие таблицы, чтобы не увеличивать auto_increment,
+        вемсто того, чтобы просто ловить и обрабатывать исключения*/
         findUser(review.getUserId());
         findFilm(review.getFilmId());
         try {
@@ -54,7 +56,7 @@ public class ReviewDaoImpl implements ReviewStorage {
             review.setId(simpleJdbcInsert.executeAndReturnKey(review.toMap()).longValue());
         } catch (RuntimeException e) {
             throw new FindException("Кажется, вы пытаетесь сослаться на несуществующий объект. " +
-                    "Проверьте filmId и userID");
+                    "Проверьте filmId и userID.");
         }
     }
 
@@ -63,19 +65,20 @@ public class ReviewDaoImpl implements ReviewStorage {
         boolean answ = jdbcTemplate.update(UPDATE_REVIEW,
                 review.getContent(),
                 review.getIsPositive(),
-                review.getId()) > 0;
-        if (!answ) {
-            throw new ReviewNotFoundException("Не удалось найти отзыв: " + review.getId());
+                review.getId()) < 1;
+        if (answ) {
+            throw new ReviewNotFoundException("Не удалось обновить отзыв: " + review.getId());
         }
-        //нужно вернуть объект имеено из базы, некторые поля во входящем объекте могут быть неконсистенты
+        //нужно вернуть объект имеено из базы, некторые поля во входящем объекте могут быть неконсистентны
         return findById(review.getId()).get();
     }
 
     @Override
     public void delete(long id) {
-        boolean answ = jdbcTemplate.update(DELETE_REVIEW, id) > 0;
-        if (!answ) {
-            throw new ReviewNotFoundException("Не удалось найти отзыв: " + id);
+        if (jdbcTemplate.update(DELETE_REVIEW, id) < 1) {
+            log.info("Что-то пошло не так. Не получилось удалить отзыв: {}.", +id);
+        } else {
+            log.info("Review {} delete.", id);
         }
     }
 
@@ -97,38 +100,48 @@ public class ReviewDaoImpl implements ReviewStorage {
     }
 
     @Override
-    public Collection<Review> findAllByIdFilm(Long filmId, int count) {
-        Collection<Review> reviews;
-        if (filmId == null) {
-            reviews = jdbcTemplate.query(FIND_ALL_REVIEWS, (rs, rowNum) -> makeReview(rs), count);
-        } else {
-            reviews = jdbcTemplate.query(FIND_ALL_REVIEWS_BY_FILM, (rs, rowNum) -> makeReview(rs), filmId, count);
-        }
-        return reviews;
+    public Collection<Review> findCount(int count) {
+        return jdbcTemplate.query(FIND_ALL_REVIEWS, (rs, rowNum) -> makeReview(rs), count);
     }
 
     @Override
-    public void insertLikeOrDislike(long reviewId, long userId, boolean isLike) {
+    public Collection<Review> findByIdFilm(Long filmId, int count) {
+        return jdbcTemplate.query(FIND_ALL_REVIEWS_BY_FILM, (rs, rowNum) -> makeReview(rs), filmId, count);
+    }
+
+    @Override
+    public void insertLike(long reviewId, long userId) {
         findUser(userId);
-        jdbcTemplate.update(INSERT_LIKE_REVIEW, reviewId, userId, isLike);
-        if(isLike) {
-            jdbcTemplate.update(UPDATE_USEFUL_PLUS, reviewId);
+        jdbcTemplate.update(INSERT_LIKE_REVIEW, reviewId, userId, true);
+        jdbcTemplate.update(UPDATE_USEFUL_PLUS, reviewId);
+
+    }
+
+    @Override
+    public void insertDislike(long reviewId, long userId) {
+        findUser(userId);
+        jdbcTemplate.update(INSERT_LIKE_REVIEW, reviewId, userId, false);
+        jdbcTemplate.update(UPDATE_USEFUL_MINUS, reviewId);
+    }
+
+    @Override
+    public void deleteLike(long reviewId, long userId) {
+        if (jdbcTemplate.update(DELETE_LIKE_REVIEW, reviewId, userId) < 1) {
+            log.info("Не удалост удалить пару: " + reviewId + ", " + userId);
         } else {
             jdbcTemplate.update(UPDATE_USEFUL_MINUS, reviewId);
+            log.info("User {} delete like the review {}.", userId, reviewId);
         }
 
     }
 
     @Override
-    public void deleteLikeOrDislike(long reviewId, long userId, boolean isLike) {
-        boolean answ = jdbcTemplate.update(DELETE_LIKE_REVIEW, reviewId, userId) > 0;
-        if (!answ) {
-            throw new FindException("Не удалост найти пару: " + reviewId + ", " + userId);
-        }
-        if (isLike){
-            jdbcTemplate.update(UPDATE_USEFUL_MINUS, reviewId);
+    public void deleteDislike(long reviewId, long userId) {
+        if (jdbcTemplate.update(DELETE_LIKE_REVIEW, reviewId, userId) < 1) {
+            log.info("Не удалост удалить пару: " + reviewId + ", " + userId);
         } else {
             jdbcTemplate.update(UPDATE_USEFUL_PLUS, reviewId);
+            log.info("User: {} delete disliked the review: {}.", userId, reviewId);
         }
     }
 
@@ -150,10 +163,11 @@ public class ReviewDaoImpl implements ReviewStorage {
             throw new UserNotFoundException("Не найден пользователь: " + userId);
         }
     }
+
     private void findFilm(long filmId) {
         SqlRowSet rsFilm = jdbcTemplate.queryForRowSet("select film_id from films where film_id = ?",
                 filmId);
-        if(!rsFilm.next()) {
+        if (!rsFilm.next()) {
             throw new FilmNotFoundException(filmId);
         }
     }

@@ -10,8 +10,10 @@ public interface ReviewService {
     public Review update(Review review);
     void delete(long id);
     Review findById(long id);
-    Collection<Review> findAllByIdFilm(Long filmId, int count);
-    void likeOrDislike(long reviewId, long userId, boolean isLike);
-    void deleteLikeOrDislike(long reviewId, long userId, boolean isLike);
+    Collection<Review> findCountByIdFilm(Long filmId, int count);
+    void like(long reviewId, long userId);
+    void dislike(long reviewId, long userId);
+    void deleteLike(long reviewId, long userId);
+    void deleteDislike(long reviewId, long userId);
 
 }

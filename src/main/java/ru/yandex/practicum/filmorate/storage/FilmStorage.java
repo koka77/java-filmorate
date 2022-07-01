@@ -8,7 +8,6 @@ import java.util.Optional;
 
 public interface FilmStorage {
 
-
     Collection<Film> findAll();
 
     Optional<Film> findById(Long id);
@@ -18,4 +17,6 @@ public interface FilmStorage {
     Film updateFilm(Film film);
 
     List<Film> getMostPopular(Integer count);
+
+    List<Film> getByDirector(Long directorId, String sortBy);
 }

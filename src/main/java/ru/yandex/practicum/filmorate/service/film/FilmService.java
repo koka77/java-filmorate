@@ -21,4 +21,6 @@ public interface FilmService {
     void remoteLike(Long filmId, Long userId);
 
     List<Film> getMostPopular(Integer count);
+
+    List<Film> getFilmsByDirector(Long directorId, String sortBy);
 }

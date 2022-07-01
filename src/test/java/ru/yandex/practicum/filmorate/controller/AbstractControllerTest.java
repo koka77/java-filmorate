@@ -23,4 +23,5 @@ public class AbstractControllerTest {
 
     @Autowired
     protected UserService userService;
+
 }

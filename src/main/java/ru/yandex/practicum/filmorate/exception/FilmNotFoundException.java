@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.exception;
 
-public class FindFilmException extends RuntimeException {
-    public FindFilmException(Long id) {
+public class FilmNotFoundException extends RuntimeException {
+    public FilmNotFoundException(Long id) {
         super(String.format("Не найден фильм с id: %s", id));
     }
 }

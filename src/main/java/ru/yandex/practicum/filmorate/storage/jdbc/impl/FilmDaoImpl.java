@@ -28,9 +28,14 @@ public class FilmDaoImpl implements FilmStorage {
     private static final String SELECT_ALL = "select FILMS.FILM_ID, FILMS.NAME, FILMS.DESCRIPTION, FILMS.RELEASE_DATE," +
             " FILMS.DURATION, FILMS.MPAA_ID, MPAA.NAME as MPAA_NAME from films " +
             "join MPAA on FILMS.MPAA_ID = MPAA.MPAA_ID order by FILM_ID";
-    private static final String SELECT_BY_ID = "select f.FILM_ID as FILM_ID, f.NAME , f.DESCRIPTION, f.RELEASE_DATE, f.DURATION, f.MPAA_ID, M2.NAME as MPAA_NAME, fg.GENRE_ID as GID, G2.NAME as GNAME, L.USER_ID as `LIKE` from films f  left join  FILMS_GENRES fg " +
-            "on f.FILM_ID = fg.FILM_ID left join  GENRES as G2 on fg.GENRE_ID = G2.GENRE_ID left join LIKES L " +
-            "on f.FILM_ID = L.FILM_ID " +
+    private static final String SELECT_BY_ID = "select f.FILM_ID as FILM_ID, " +
+            "f.NAME , f.DESCRIPTION, f.RELEASE_DATE, f.DURATION, f.MPAA_ID, " +
+            "M2.NAME as MPAA_NAME, fg.GENRE_ID as GID, " +
+            "G2.NAME as GNAME, " +
+            "L.USER_ID as `LIKE` from films f  " +
+            "left join FILMS_GENRES fg on f.FILM_ID = fg.FILM_ID " +
+            "left join GENRES as G2 on fg.GENRE_ID = G2.GENRE_ID " +
+            "left join LIKES L on f.FILM_ID = L.FILM_ID " +
             "left join MPAA M2 on f.MPAA_ID = M2.MPAA_ID " +
             "where f.FILM_ID = ?";
 

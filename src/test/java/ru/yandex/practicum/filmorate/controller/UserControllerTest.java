@@ -6,10 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import ru.yandex.practicum.filmorate.TestUtil;
+import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -150,5 +153,17 @@ class UserControllerTest extends AbstractControllerTest {
                                 "\"name\":\"validUser1\",\"birthday\":\"1981-05-16\"},{\"id\":3,\"friends\":[]," +
                                 "\"email\":\"validUser2@mail.ru\",\"login\":\"login\",\"name\":\"validUser2\"," +
                                 "\"birthday\":\"1981-05-16\"}]"));
+    }
+
+
+    @Test
+    void shouldRemoveUserByIdCorrectly() {
+        userService.createUser(TestUtil.validUser1);
+        userService.createUser(TestUtil.validUser2);
+
+
+        assertEquals(2, userService.findAll().size());
+        userController.removeUser(1l);
+        assertEquals(1, userService.findAll().size());
     }
 }

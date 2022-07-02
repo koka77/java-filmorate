@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.*;
@@ -88,13 +89,15 @@ public class UserDaoImpl implements UserStorage {
         }
         String sql = "insert into FRIENDS (FRIEND_ID, USER_ID) values (?, ?)";
 
-        try (PreparedStatement ps = jdbcTemplate.getDataSource().getConnection().prepareStatement(sql)) {
+        try (Connection connection = jdbcTemplate.getDataSource().getConnection();
+                PreparedStatement ps = connection.prepareStatement(sql)) {
             for (User friend : user.getFriends()) {
                 ps.setLong(1, friend.getId());
                 ps.setLong(2, user.getId());
                 ps.addBatch();
-                ps.executeUpdate();
+
             }
+                ps.executeBatch();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -116,6 +119,7 @@ public class UserDaoImpl implements UserStorage {
     @Override
     public Collection<User> getUserFriends(Long id) {
         final String sql = "SELECT * From USERS where USER_ID IN (SELECT FRIEND_ID FROM FRIENDS where USER_ID = ?)";
+//        final String sql = "SELECT * From USERS where USER_ID IN (SELECT FRIENDS.USER_ID FROM FRIENDS where FRIEND_ID = ?)";
         Collection<User> friends = new HashSet<>();
         SqlRowSet rs = jdbcTemplate.queryForRowSet(sql, id);
         while (rs.next()) {
@@ -144,5 +148,11 @@ public class UserDaoImpl implements UserStorage {
                 rs.getDate("BIRTHDAY").toLocalDate()));
 
         return users;
+    }
+
+    @Override
+    public void deleteUser(Long id) {
+        final String sql = "DELETE  FROM USERS  where USER_ID = ? ";
+        jdbcTemplate.update(sql, id);
     }
 }

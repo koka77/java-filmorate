@@ -8,8 +8,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -97,7 +95,7 @@ class FilmControllerTest extends AbstractControllerTest {
 
     @Test
     void shouldReturnFilmById() throws Exception {
-        Optional<Film> film = filmController.getFilm(1l);
+        Film film = filmController.getFilm(1l);
         System.out.println(film);
 
         mockMvc.perform(
@@ -158,11 +156,11 @@ class FilmControllerTest extends AbstractControllerTest {
 
     @Test
     void shouldUpdateFilmCorrectly() throws Exception {
-        Optional<Film> oldFilm = filmController.getFilm(1L);
-        Film newFilm = Film.builder().duration(oldFilm.get().getDuration()).description(oldFilm.get().getDescription())
-                .name("New Name").releaseDate(oldFilm.get().getReleaseDate()).mpa(oldFilm.get().getMpa())
+        Film oldFilm = filmController.getFilm(1L);
+        Film newFilm = Film.builder().duration(oldFilm.getDuration()).description(oldFilm.getDescription())
+                .name("New Name").releaseDate(oldFilm.getReleaseDate()).mpa(oldFilm.getMpa())
                 .build();
-        newFilm.setId(oldFilm.get().getId());
+        newFilm.setId(oldFilm.getId());
         String filmAsString = objectToJson(newFilm);
 
         mockMvc.perform(
@@ -186,5 +184,12 @@ class FilmControllerTest extends AbstractControllerTest {
                 .andExpect(content()
 //                        .json("[{\"genres\":null,\"rate\":null,\"id\":1,\"likes\":[],\"name\":\"validFilm1\",\"description\":\"validFilm1 description\",\"releaseDate\":\"2020-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"G\"}},{\"genres\":null,\"rate\":null,\"id\":2,\"likes\":[],\"name\":\"validFilm2\",\"description\":\"validFilm2 description\",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"G\"}}]"));
                         .json("[{\"genres\":null,\"rate\":null,\"id\":1,\"likes\":[],\"name\":\"New Name\",\"description\":\"validFilm1 description\",\"releaseDate\":\"2020-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"G\"}},{\"genres\":null,\"rate\":null,\"id\":2,\"likes\":[],\"name\":\"validFilm2\",\"description\":\"validFilm2 description\",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"G\"}},{\"genres\":null,\"rate\":null,\"id\":3,\"likes\":[],\"name\":\"validFilm3\",\"description\":\"validFilm3 description\",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"G\"}},{\"genres\":null,\"rate\":null,\"id\":4,\"likes\":[],\"name\":\"validFilm3\",\"description\":\"validFilm3 description\",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"G\"}},{\"genres\":null,\"rate\":null,\"id\":5,\"likes\":[],\"name\":\"validFilm3\",\"description\":\"validFilm3 description\",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"G\"}},{\"genres\":null,\"rate\":null,\"id\":6,\"likes\":[],\"name\":\"validFilm3\",\"description\":\"validFilm3 description\",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"G\"}},{\"genres\":null,\"rate\":null,\"id\":7,\"likes\":[],\"name\":\"validFilm3\",\"description\":\"validFilm3 description\",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"G\"}},{\"genres\":null,\"rate\":null,\"id\":8,\"likes\":[],\"name\":\"validFilm3\",\"description\":\"validFilm3 description\",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"G\"}},{\"genres\":null,\"rate\":null,\"id\":9,\"likes\":[],\"name\":\"validFilm3\",\"description\":\"validFilm3 description\",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"G\"}},{\"genres\":null,\"rate\":null,\"id\":10,\"likes\":[],\"name\":\"validFilm3\",\"description\":\"validFilm3 description\",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"G\"}},{\"genres\":null,\"rate\":null,\"id\":11,\"likes\":[],\"name\":\"validFilm1\",\"description\":\"validFilm1 description\",\"releaseDate\":\"2020-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"G\"}},{\"genres\":null,\"rate\":null,\"id\":12,\"likes\":[],\"name\":\"validFilm2\",\"description\":\"validFilm2 description\",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"G\"}},{\"genres\":null,\"rate\":null,\"id\":13,\"likes\":[],\"name\":\"validFilm1\",\"description\":\"validFilm1 description\",\"releaseDate\":\"2020-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"G\"}},{\"genres\":null,\"rate\":null,\"id\":14,\"likes\":[],\"name\":\"validFilm2\",\"description\":\"validFilm2 description\",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"G\"}},{\"genres\":null,\"rate\":null,\"id\":15,\"likes\":[],\"name\":\"validFilm1\",\"description\":\"validFilm1 description\",\"releaseDate\":\"2020-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"G\"}},{\"genres\":null,\"rate\":null,\"id\":16,\"likes\":[],\"name\":\"validFilm2\",\"description\":\"validFilm2 description\",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"G\"}}]"));
+    }
+
+    @Test
+    void shouldRemoveFilmByIdCorrectly() {
+        assertEquals(2, filmService.findAll().size());
+        filmController.removeFilm(1l);
+        assertEquals(1, filmService.findAll().size());
     }
 }

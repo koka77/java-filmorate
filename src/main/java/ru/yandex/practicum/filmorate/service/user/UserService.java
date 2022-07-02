@@ -21,4 +21,6 @@ public interface UserService {
     Collection<User> getFriends(Long id);
 
     Collection<User> getCrossFriends(Long id, Long otherId);
+
+    void removeUser(Long id);
 }

@@ -3,9 +3,11 @@ package ru.yandex.practicum.filmorate.service.user;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.UnableToFindException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
+import javax.servlet.UnavailableException;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -67,11 +69,20 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Collection<User> getFriends(Long id) {
-        return storage.getUserFriends(id);
+        if (storage.findById(id).isPresent()) {
+            return storage.getUserFriends(id);
+        } else {
+            throw new UnableToFindException();
+        }
     }
 
     @Override
     public Collection<User> getCrossFriends(Long id, Long otherId) {
         return storage.getUserCrossFriends(id, otherId);
+    }
+
+    @Override
+    public void removeUser(Long id) {
+        storage.deleteUser(id);
     }
 }

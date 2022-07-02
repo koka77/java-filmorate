@@ -4,7 +4,8 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.DublicateFilmException;
-import ru.yandex.practicum.filmorate.exception.FindFilmException;
+import ru.yandex.practicum.filmorate.exception.InternalServerException;
+import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
@@ -35,12 +36,12 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Optional<Film> findById(Long id) throws FindFilmException {
+    public Optional<Film> findById(Long id) {
 
         if (films.containsKey(id)) {
             return Optional.of(films.get(id));
         } else {
-            throw new FindFilmException(id);
+            throw new ObjectNotFoundException(String.format("Film not found with id: %s", id));
         }
     }
 
@@ -60,7 +61,7 @@ public class InMemoryFilmStorage implements FilmStorage {
             return film;
         } else {
             log.debug("error updateFilm with ID: {}", film);
-            throw new FindFilmException(film.getId());
+            throw new ObjectNotFoundException(String.format("Film not found with id: %s", film.getId()));
         }
     }
 
@@ -74,5 +75,10 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public void deleteFilm(Long filmId) {
         throw  new UnsupportedOperationException("Метод не поддерживается в данной реализации хранилища");
+    }
+
+    @Override
+    public List<Film> getByDirector(Long directorId, String sortBy) {
+        throw new InternalServerException("Method not allowed");
     }
 }

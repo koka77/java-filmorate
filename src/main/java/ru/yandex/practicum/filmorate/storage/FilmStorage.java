@@ -20,4 +20,6 @@ public interface FilmStorage {
     List<Film> getMostPopular(Integer count);
 
     void deleteFilm(Long filmId);
+
+    List<Film> getByDirector(Long directorId, String sortBy);
 }

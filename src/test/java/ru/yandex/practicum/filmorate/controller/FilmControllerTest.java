@@ -20,7 +20,6 @@ class FilmControllerTest extends AbstractControllerTest {
     @Autowired
     private FilmController filmController;
 
-
     @BeforeEach
     void setUp() {
         filmController.addFilm(validFilm1);

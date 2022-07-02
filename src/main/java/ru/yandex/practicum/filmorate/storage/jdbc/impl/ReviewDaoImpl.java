@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.storage.jdbc.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -41,6 +42,9 @@ public class ReviewDaoImpl implements ReviewDao {
     private final static String DELETE_LIKE_REVIEW = "delete from reviews_likes where review_id = ? and user_id = ?";
     private final static String UPDATE_USEFUL_PLUS = "update reviews set useful = useful + 1 where review_id = ?";
     private final static String UPDATE_USEFUL_MINUS = "update reviews set useful = useful - 1 where review_id = ?";
+    private final static String FIND_USER = "select user_id from users where user_id = ?";
+    private final static String FIND_FILM = "select film_id from films where film_id = ?";
+
 
     @Override
     public void insertReview(Review review) {
@@ -84,17 +88,9 @@ public class ReviewDaoImpl implements ReviewDao {
 
     @Override
     public Optional<Review> findById(long id) {
-        SqlRowSet rs = jdbcTemplate.queryForRowSet(FIND_BY_ID, id);
-        if (rs.next()) {
-            Review review = new Review(
-                    rs.getLong("review_id"),
-                    rs.getString("content"),
-                    rs.getBoolean("is_positive"),
-                    rs.getLong("user_id"),
-                    rs.getLong("film_id"),
-                    rs.getInt("useful"));
-            return Optional.of(review);
-        } else {
+        try {
+            return Optional.of(jdbcTemplate.queryForObject(FIND_BY_ID, (rs, rowNum) -> makeReview(rs), id));
+        } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
         }
     }
@@ -157,7 +153,7 @@ public class ReviewDaoImpl implements ReviewDao {
     }
 
     private void findUser(long userId) {
-        SqlRowSet rsUser = jdbcTemplate.queryForRowSet("select user_id from users where user_id = ?",
+        SqlRowSet rsUser = jdbcTemplate.queryForRowSet(FIND_USER,
                 userId);
         if (!rsUser.next()) {
             throw new UserNotFoundException("Не найден пользователь: " + userId);
@@ -165,7 +161,7 @@ public class ReviewDaoImpl implements ReviewDao {
     }
 
     private void findFilm(long filmId) {
-        SqlRowSet rsFilm = jdbcTemplate.queryForRowSet("select film_id from films where film_id = ?",
+        SqlRowSet rsFilm = jdbcTemplate.queryForRowSet(FIND_FILM,
                 filmId);
         if (!rsFilm.next()) {
             throw new FilmNotFoundException(filmId);

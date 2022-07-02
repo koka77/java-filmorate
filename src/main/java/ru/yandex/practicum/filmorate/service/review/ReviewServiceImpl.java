@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.ReviewNotFoundException;
 import ru.yandex.practicum.filmorate.exception.UnableToFindException;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
@@ -53,7 +54,7 @@ public class ReviewServiceImpl implements ReviewService {
     public Review findById(long id) {
         Optional<Review> review = reviewStorage.findById(id);
         if (review.isEmpty()) {
-            throw new UnableToFindException();
+            throw new ReviewNotFoundException("Review not found");
         }
         log.info("Review: {} found.", review.get().getId());
         return review.get();

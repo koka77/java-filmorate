@@ -70,9 +70,4 @@ public class InMemoryUserStorage implements UserStorage {
                 .collect(Collectors.toSet());
 
     }
-
-    @Override
-    public void deleteUser(Long id) {
-        throw  new UnsupportedOperationException("Метод не поддерживается в данной реализации хранилища");
-    }
 }

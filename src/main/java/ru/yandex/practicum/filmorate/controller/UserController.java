@@ -24,11 +24,6 @@ public class UserController {
         this.service = service;
     }
 
-    @DeleteMapping("{id}")
-    public void removeUser(@PathVariable Long id) {
-        service.removeUser(id);
-    }
-
     @PutMapping("{id}/friends/{friendId}")
     public void addFriend(@PathVariable Long id, @PathVariable Long friendId) {
         if (id < 1 || friendId < 1) {
@@ -44,8 +39,7 @@ public class UserController {
 
     @GetMapping("{id}/friends")
     public Collection<User> getFriends(@PathVariable Long id) {
-        Collection<User> users = service.getFriends(id);
-            return users;
+        return service.getFriends(id);
     }
 
     @GetMapping("{id}/friends/common/{otherId}")
@@ -66,8 +60,7 @@ public class UserController {
         if (user.getId() != null && user.getId() < 1) {
             throw new InternalServerException();
         }
-        Optional<User> res =  service.createUser(user);
-        return res;
+        return service.createUser(user);
     }
 
     @PutMapping

@@ -12,7 +12,6 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.jdbc.FilmGenreDao;
 
-import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -149,14 +148,13 @@ public class FilmDaoImpl implements FilmStorage {
         }
         String sql = "insert into LIKES(USER_ID, FILM_ID) values (?, ?)";
 
-        try (Connection connection = jdbcTemplate.getDataSource().getConnection();
-             PreparedStatement ps = connection.prepareStatement(sql)) {
+        try (PreparedStatement ps = jdbcTemplate.getDataSource().getConnection().prepareStatement(sql)) {
             for (Long like : film.getLikes()) {
                 ps.setLong(1, like);
                 ps.setLong(2, film.getId());
                 ps.addBatch();
+                ps.executeUpdate();
             }
-                ps.executeBatch();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -207,29 +205,9 @@ public class FilmDaoImpl implements FilmStorage {
                             )
                     );
                     getLikesByFilm(film);
-                    setGenre(film);
                     return film;
                 }, count
         );
         return films;
-    }
-
-    @Override
-    public void deleteFilm(Long filmId) {
-        final String sql = "DELETE FROM FILMS where FILM_ID = ?";
-        jdbcTemplate.update(sql, filmId);
-    }
-
-    private Film setGenre(Film film) {
-        String sql = "select G.GENRE_ID, G.NAME from GENRES AS G  join FILMS_GENRES GF on G.GENRE_ID = GF.GENRE_ID  where  GF.FILM_ID = ?  ORDER BY G.GENRE_ID ";
-        List<Genre> genres = jdbcTemplate.queryForStream(sql, (gs, rowNum)
-                -> new Genre(gs.getInt("genre_id"),gs.getString("name"))
-                , film.getId()).collect(Collectors.toList());
-
-        if (genres.isEmpty()) {
-            return film;
-        }
-        film.setGenres(genres);
-        return film;
     }
 }

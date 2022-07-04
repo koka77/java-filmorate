@@ -24,11 +24,6 @@ public class FilmController {
         this.service = service;
     }
 
-    @DeleteMapping("{filmId}")
-    public void removeFilm(@PathVariable Long filmId) {
-        service.removeFilm(filmId);
-    }
-
     @PutMapping("{id}/like/{userId}")
     public void addLike(@PathVariable Long id, @PathVariable Long userId) {
         service.addLike(id, userId);
@@ -45,12 +40,11 @@ public class FilmController {
     }
 
     @GetMapping("{id}")
-    public Film getFilm(@PathVariable Long id) {
+    public Optional<Film> getFilm(@PathVariable Long id) {
         if (id < 1) {
             throw new UnableToFindException();
         }
-        Optional<Film> film = service.findById(id);
-        return film.orElseThrow(() -> new UnableToFindException());
+        return service.findById(id);
     }
 
     @PostMapping

@@ -70,9 +70,4 @@ public class InMemoryFilmStorage implements FilmStorage {
         return films.values().stream().sorted(Comparator.comparingInt(f -> -f.getLikes().size()))
                 .limit(count).collect(Collectors.toList());
     }
-
-    @Override
-    public void deleteFilm(Long filmId) {
-        throw  new UnsupportedOperationException("Метод не поддерживается в данной реализации хранилища");
-    }
 }

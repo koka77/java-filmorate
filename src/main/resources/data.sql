@@ -25,6 +25,7 @@ INSERT INTO PUBLIC.GENRES (NAME) VALUES ('Документальный');
 INSERT INTO PUBLIC.GENRES (NAME) VALUES ('Боевик');
 
 
+
 /*
 -- заполняем таблицу фильмов
 INSERT INTO films (name, description, release_date, duration, mpaa_id) VALUES ('Побег из Шоушенка', 'Молодого финансиста Энди Дюфрейна подозревают в убийстве, которого он не совершал. Несмотря на это его приговаривают к пожизненному заключению в тюрьме, из которой ещё никому не удавалось сбежать.', '2022-10-10', 100, 1);
@@ -58,6 +59,5 @@ VALUES (2, 1, 'Фильм, который вызывает уважение', tr
 
 INSERT INTO REVIEWS (FILM_ID, USER_ID, CONTENT, IS_POSITIVE, USEFUL)
 VALUES (1, 3, 'Всем рекомендую', true, DEFAULT);
-
 
 */

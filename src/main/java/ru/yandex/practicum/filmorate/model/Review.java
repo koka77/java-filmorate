@@ -11,7 +11,7 @@ import java.util.Map;
 @AllArgsConstructor
 public class Review {
     @PositiveOrZero
-    long id;
+    long reviewId;
     @NotNull
     @NotBlank
     String content;

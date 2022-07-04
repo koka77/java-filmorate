@@ -29,11 +29,10 @@ public class ReviewDaoImpl implements ReviewDao {
 
     private final static String FIND_BY_ID = "select * from reviews where review_id = ?";
     private final static String FIND_ALL_REVIEWS = "select * from reviews order by useful desc limit ?";
-    private final static String FIND_ALL_REVIEWS_BY_FILM = "select * from reviews where film_id = ? "
-            + "order by useful desc limit ?";
+    private final static String FIND_ALL_REVIEWS_BY_FILM = "select * from reviews where film_id = ? " +
+            "order by useful desc limit ?";
 
-    private final static String UPDATE_REVIEW = "update reviews set content = ?, is_positive = ? " +
-            "where review_id = ?";
+    private final static String UPDATE_REVIEW = "update reviews set content = ?, is_positive = ? where review_id = ?";
 
     private final static String DELETE_REVIEW = "delete from reviews where review_id = ?";
 
@@ -57,7 +56,7 @@ public class ReviewDaoImpl implements ReviewDao {
             SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                     .withTableName("reviews")
                     .usingGeneratedKeyColumns("review_id");
-            review.setId(simpleJdbcInsert.executeAndReturnKey(review.toMap()).longValue());
+            review.setReviewId(simpleJdbcInsert.executeAndReturnKey(review.toMap()).longValue());
         } catch (RuntimeException e) {
             throw new FindException("Кажется, вы пытаетесь сослаться на несуществующий объект. " +
                     "Проверьте filmId и userID.");
@@ -69,12 +68,12 @@ public class ReviewDaoImpl implements ReviewDao {
         boolean answ = jdbcTemplate.update(UPDATE_REVIEW,
                 review.getContent(),
                 review.getIsPositive(),
-                review.getId()) < 1;
+                review.getReviewId()) < 1;
         if (answ) {
-            throw new ReviewNotFoundException("Не удалось обновить отзыв: " + review.getId());
+            throw new ReviewNotFoundException("Не удалось обновить отзыв: " + review.getReviewId());
         }
         //нужно вернуть объект имеено из базы, некторые поля во входящем объекте могут быть неконсистентны
-        return findById(review.getId()).get();
+        return findById(review.getReviewId()).get();
     }
 
     @Override

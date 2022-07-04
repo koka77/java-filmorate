@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ReviewNotFoundException;
-import ru.yandex.practicum.filmorate.exception.UnableToFindException;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
@@ -56,7 +55,7 @@ public class ReviewServiceImpl implements ReviewService {
         if (review.isEmpty()) {
             throw new ReviewNotFoundException("Review not found");
         }
-        log.info("Review: {} found.", review.get().getId());
+        log.info("Review: {} found.", review.get().getReviewId());
         return review.get();
     }
 

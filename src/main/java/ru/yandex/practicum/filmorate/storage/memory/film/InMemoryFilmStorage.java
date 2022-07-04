@@ -81,4 +81,9 @@ public class InMemoryFilmStorage implements FilmStorage {
     public Collection<Film> search(String queryString, String searchBy) {
         throw new InternalServerException("Method not allowed");
     }
+
+    @Override
+    public Collection<Film> getCommonFilms(Long userId, Long friendId) {
+        throw new InternalServerException("Method not allowed");
+    }
 }

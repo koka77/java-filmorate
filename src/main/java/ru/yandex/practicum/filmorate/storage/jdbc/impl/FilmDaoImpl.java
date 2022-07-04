@@ -58,6 +58,11 @@ public class FilmDaoImpl implements FilmStorage {
             "SELECT df.film_id FROM director_films df " +
                     "JOIN directors d ON df.director_id=d.director_id " +
                     "WHERE UPPER(d.name) LIKE UPPER('%'||?||'%')";
+    private static final String SEL_COMMON_FILMS_SQL =
+            "SELECT f.film_id FROM likes l1 " +
+                    "LEFT JOIN likes l2 ON l1.film_id = l2.film_id " +
+                    "LEFT JOIN films f ON l1.film_id = f.film_id " +
+                    "WHERE l1.user_id=? AND l2.user_id=? AND l1.film_id=l2.film_id";
 
     @Autowired
     public FilmDaoImpl(JdbcTemplate jdbcTemplate, FilmGenreDao filmGenreDao, DirectorFilmsDao directorFilmsDao) {
@@ -266,6 +271,11 @@ public class FilmDaoImpl implements FilmStorage {
             default:
                 return getMostPopular(10);
         }
+    }
+
+    @Override
+    public Collection<Film> getCommonFilms(Long userId, Long friendId) {
+        return jdbcTemplate.query(SEL_COMMON_FILMS_SQL, this::mapFilm, userId, friendId);
     }
 
     //Использовал существующую логику класса

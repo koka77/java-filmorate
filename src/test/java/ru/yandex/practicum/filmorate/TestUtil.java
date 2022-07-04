@@ -8,6 +8,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.Data;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
@@ -49,6 +50,20 @@ public class TestUtil {
 
     public static User invalidUser1 = new User(1L, "invalidUser1", "invalidUser1", "name",
             LocalDate.of(1981, 5, 16));
+
+    public static Review validReview1 = new Review(1, "content", false, 1L, 2L,
+            0);
+    public static Review validReview2 = new Review(2, "content", true, 2L, 1L,
+            0);
+    public static Review validReview3 = new Review(3, "content", true, 2L, 1L,
+            0);
+    public static Review invalidReview1 = new Review(3, null, false, 2L, 1L,
+            0);
+
+    public static Review invalidReview2 = new Review(4, "content", null, 2L, 1L,
+            0);
+    public static Review invalidReview3 = new Review(-1, null, false, 2L, 1L,
+            0);
 
     public static String objectToJson(Object object) throws JsonProcessingException {
         ObjectMapper mapper = JsonMapper.builder()

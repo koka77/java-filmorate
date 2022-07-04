@@ -94,4 +94,9 @@ public class FilmServiceImpl implements FilmService {
         }
         return storage.getByDirector(directorId, sortBy);
     }
+
+    @Override
+    public Collection<Film> searchFilms(String queryString, String searchBy) {
+        return storage.search(queryString, searchBy);
+    }
 }

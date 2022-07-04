@@ -76,4 +76,9 @@ public class InMemoryFilmStorage implements FilmStorage {
     public List<Film> getByDirector(Long directorId, String sortBy) {
         throw new InternalServerException("Method not allowed");
     }
+
+    @Override
+    public Collection<Film> search(String queryString, String searchBy) {
+        throw new InternalServerException("Method not allowed");
+    }
 }

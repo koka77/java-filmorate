@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.InternalServerException;
-import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
+import ru.yandex.practicum.filmorate.exception.UnableToFindException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.film.FilmService;
 
@@ -47,7 +47,7 @@ public class FilmController {
     @GetMapping("{id}")
     public Film getFilm(@PathVariable Long id) {
         if (id < 1) {
-            throw new ObjectNotFoundException(String.format("Film not found with id: %s", id));
+            throw new UnableToFindException();
         }
         Optional<Film> film = service.findById(id);
         return film.orElseThrow(() -> new UnableToFindException());
@@ -66,7 +66,7 @@ public class FilmController {
     @PutMapping
     public Film updateFilm(@Valid @RequestBody Film film) {
         if (film.getId() != null && film.getId() < 1) {
-            throw new ObjectNotFoundException(String.format("Film not found with id: %s", film.getId()));
+            throw new UnableToFindException();
         }
         return service.updateFilm(film);
     }
@@ -77,11 +77,5 @@ public class FilmController {
         return service.findAll();
     }
 
-    @GetMapping("director/{directorId}")
-    public Collection<Film> getFilmsByDirector(
-            @PathVariable Long directorId,
-            @RequestParam(required = false, defaultValue = "year") String sortBy) {
-        log.info("getFilmsByDirector");
-        return service.getFilmsByDirector(directorId, sortBy);
-    }
+
 }

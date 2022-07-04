@@ -23,6 +23,4 @@ public interface FilmService {
     List<Film> getMostPopular(Integer count);
 
     void removeFilm(Long filmId);
-
-    List<Film> getFilmsByDirector(Long directorId, String sortBy);
 }

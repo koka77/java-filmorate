@@ -17,8 +17,8 @@ import java.util.Set;
 
 @Data
 public class Film {
+
     private List<Genre> genres;
-    private List<Director> directors;
 
     private Integer rate; //= LikesRating.G;
     private Long id;
@@ -43,14 +43,9 @@ public class Film {
     @JsonProperty("mpa")
     private Mpa mpa;
 
+
     @Builder
-    public Film(
-            Long id,
-            @NonNull String name,
-            String description,
-            LocalDate releaseDate,
-            Integer duration,
-            Mpa mpa) {
+    public Film(Long id, @NonNull String name, String description, LocalDate releaseDate, Integer duration, Mpa mpa) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -66,9 +61,5 @@ public class Film {
 
     public void removeLike(Long userId) {
         likes.remove(userId);
-    }
-
-    public void setDirectors(List<Director> list) {
-        this.directors = list;
     }
 }

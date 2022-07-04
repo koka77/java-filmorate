@@ -1,78 +1,50 @@
 package ru.yandex.practicum.filmorate.storage.jdbc.impl;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
+import ru.yandex.practicum.filmorate.exception.UnableToFindException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.jdbc.DirectorFilmsDao;
 import ru.yandex.practicum.filmorate.storage.jdbc.FilmGenreDao;
 
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Slf4j
 @Component("FilmDaoImpl")
 public class FilmDaoImpl implements FilmStorage {
+
     private final JdbcTemplate jdbcTemplate;
     private final FilmGenreDao filmGenreDao;
-    private final DirectorFilmsDao directorFilmsDao;
+
 
     private static final String SELECT_ALL = "select FILMS.FILM_ID, FILMS.NAME, FILMS.DESCRIPTION, FILMS.RELEASE_DATE," +
             " FILMS.DURATION, FILMS.MPAA_ID, MPAA.NAME as MPAA_NAME from films " +
             "join MPAA on FILMS.MPAA_ID = MPAA.MPAA_ID order by FILM_ID";
-    private static final String SELECT_BY_ID = "select f.FILM_ID as FILM_ID, f.NAME , f.DESCRIPTION, f.RELEASE_DATE, " +
-            "f.DURATION, f.MPAA_ID, M2.NAME as MPAA_NAME, fg.GENRE_ID as GID, G2.NAME as GNAME, L.USER_ID as `LIKE` " +
-            "from films f  left join  FILMS_GENRES fg " +
+    private static final String SELECT_BY_ID = "select f.FILM_ID as FILM_ID, f.NAME , f.DESCRIPTION, f.RELEASE_DATE, f.DURATION, f.MPAA_ID, M2.NAME as MPAA_NAME, fg.GENRE_ID as GID, G2.NAME as GNAME, L.USER_ID as `LIKE` from films f  left join  FILMS_GENRES fg " +
             "on f.FILM_ID = fg.FILM_ID left join  GENRES as G2 on fg.GENRE_ID = G2.GENRE_ID left join LIKES L " +
             "on f.FILM_ID = L.FILM_ID " +
             "left join MPAA M2 on f.MPAA_ID = M2.MPAA_ID " +
             "where f.FILM_ID = ?";
-    private final String UPD_SQL =
-            "UPDATE films " +
-                    "SET name=?, description=?, release_date=?, duration=?, mpaa_id=? " +
-                    "WHERE film_id=?";
-
-    private static final String SEL_SORT_YEAR_SQL =
-            "SELECT df.film_id FROM director_films df " +
-                    "JOIN films f ON df.film_id=f.film_id " +
-                    "WHERE df.director_id=? ORDER BY f.release_date";
-    private static final String SEL_SORT_LIKE_SQL =
-            "SELECT df.film_id FROM director_films df " +
-                    "LEFT JOIN likes l ON df.film_id=l.film_id " +
-                    "WHERE df.director_id=? " +
-                    "GROUP BY df.film_id, l.user_id ORDER BY COUNT(L.user_id) DESC";
 
     @Autowired
-    public FilmDaoImpl(
-            JdbcTemplate jdbcTemplate,
-            FilmGenreDao filmGenreDao,
-            DirectorFilmsDao directorFilmsDao) {
+    public FilmDaoImpl(JdbcTemplate jdbcTemplate, FilmGenreDao filmGenreDao) {
         this.jdbcTemplate = jdbcTemplate;
         this.filmGenreDao = filmGenreDao;
-        this.directorFilmsDao = directorFilmsDao;
     }
 
     @Override
     public Collection<Film> findAll() {
         Collection<Film> films = new ArrayList<>();
-        SqlRowSet rs = null;
-        try {
-            rs = jdbcTemplate.queryForRowSet(SELECT_ALL);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        SqlRowSet rs = jdbcTemplate.queryForRowSet(SELECT_ALL);
         while (rs.next()) {
             Film film = new Film(
                     rs.getLong("film_id"),
@@ -82,7 +54,6 @@ public class FilmDaoImpl implements FilmStorage {
                     (rs.getInt("duration")),
                     new Mpa(rs.getInt("MPAA_ID"), rs.getString("MPAA_NAME"))
             );
-            film.setDirectors(directorFilmsDao.getByFilm(film.getId()));
             films.add(film);
         }
         return films;
@@ -106,7 +77,6 @@ public class FilmDaoImpl implements FilmStorage {
 
             film.setMpa(new Mpa(rs.getInt("MPAA_ID"),
                     rs.getString("MPAA_NAME")));
-            film.setDirectors(directorFilmsDao.getByFilm(film.getId()));
 
             do {
                 if (rs.getString("GNAME") != null) {
@@ -117,18 +87,14 @@ public class FilmDaoImpl implements FilmStorage {
                     likes.add(l);
                 }
             } while (rs.next());
-
             film.setGenres(genres.stream().collect(Collectors.toList()));
             film.getLikes().addAll(likes);
             getLikesByFilm(film);
             if (film.getGenres().isEmpty()) {
                 film.setGenres(null);
             }
-
             return Optional.of(film);
         }
-
-
         return Optional.empty();
     }
 
@@ -142,7 +108,6 @@ public class FilmDaoImpl implements FilmStorage {
         film.setId(simpleJdbcInsert.executeAndReturnKey(this.filmToMap(film)).longValue());
 
         filmGenreDao.updateAllGenreByFilm(film);
-        directorFilmsDao.refresh(film);
 
         insertLikes(film);
 
@@ -206,17 +171,19 @@ public class FilmDaoImpl implements FilmStorage {
     @Override
     public Film updateFilm(Film film) {
         if (film.getId() != null && film.getId() < 1) {
-            throw new ObjectNotFoundException(String.format("Film not found with id: %s", film.getId()));
+            throw new UnableToFindException();
         }
-        if (jdbcTemplate.update(UPD_SQL,
-                film.getName(),
-                film.getDescription(),
-                Date.valueOf(film.getReleaseDate()),
-                film.getDuration(),
-                film.getMpa().getId(),
-                film.getId()) > 0) {
+        final String sql = "update FILMS set NAME = ?, DESCRIPTION = ?,RELEASE_DATE = ?, DURATION = ?, MPAA_ID = ?   where FILM_ID = ?";
+        int count = jdbcTemplate.update(sql
+                , film.getName()
+                , film.getDescription()
+                , Date.valueOf(film.getReleaseDate())
+                , film.getDuration()
+                , film.getMpa().getId()
+                , film.getId());
+
+        if (count == 1) {
             filmGenreDao.updateAllGenreByFilm(film);
-            directorFilmsDao.refresh(film);
             updateLikes(film);
         }
         return film;
@@ -264,18 +231,5 @@ public class FilmDaoImpl implements FilmStorage {
         }
         film.setGenres(genres);
         return film;
-    }
-
-    @Override
-    public List<Film> getByDirector(Long directorId, String sortBy) {
-        if (sortBy.equals("year"))
-            return jdbcTemplate.query(SEL_SORT_YEAR_SQL, this::mapFilm, directorId);
-        else
-            return jdbcTemplate.query(SEL_SORT_LIKE_SQL, this::mapFilm, directorId);
-    }
-
-    //Использовал существующую логику класса
-    private Film mapFilm(ResultSet row, int rowNum) throws SQLException {
-        return findById(row.getLong("film_id")).get();
     }
 }

@@ -10,10 +10,12 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.jdbc.DirectorFilmsDao;
 import ru.yandex.practicum.filmorate.storage.jdbc.FilmGenreDao;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -23,6 +25,7 @@ public class FilmDaoImpl implements FilmStorage {
 
     private final JdbcTemplate jdbcTemplate;
     private final FilmGenreDao filmGenreDao;
+    private final DirectorFilmsDao directorFilmsDao;
 
 
     private static final String SELECT_ALL = "select FILMS.FILM_ID, FILMS.NAME, FILMS.DESCRIPTION, FILMS.RELEASE_DATE," +
@@ -39,10 +42,21 @@ public class FilmDaoImpl implements FilmStorage {
             "left join MPAA M2 on f.MPAA_ID = M2.MPAA_ID " +
             "where f.FILM_ID = ?";
 
+    private static final String SEL_SORT_YEAR_SQL =
+            "SELECT df.film_id FROM director_films df " +
+                    "JOIN films f ON df.film_id=f.film_id " +
+                    "WHERE df.director_id=? ORDER BY f.release_date";
+    private static final String SEL_SORT_LIKE_SQL =
+            "SELECT df.film_id FROM director_films df " +
+                    "LEFT JOIN likes l ON df.film_id=l.film_id " +
+                    "WHERE df.director_id=? " +
+                    "GROUP BY df.film_id, l.user_id ORDER BY COUNT(L.user_id) DESC";
+
     @Autowired
-    public FilmDaoImpl(JdbcTemplate jdbcTemplate, FilmGenreDao filmGenreDao) {
+    public FilmDaoImpl(JdbcTemplate jdbcTemplate, FilmGenreDao filmGenreDao, DirectorFilmsDao directorFilmsDao) {
         this.jdbcTemplate = jdbcTemplate;
         this.filmGenreDao = filmGenreDao;
+        this.directorFilmsDao = directorFilmsDao;
     }
 
     @Override
@@ -58,6 +72,7 @@ public class FilmDaoImpl implements FilmStorage {
                     (rs.getInt("duration")),
                     new Mpa(rs.getInt("MPAA_ID"), rs.getString("MPAA_NAME"))
             );
+            film.setDirectors(directorFilmsDao.getByFilm(film.getId()));
             films.add(film);
         }
         return films;
@@ -81,6 +96,7 @@ public class FilmDaoImpl implements FilmStorage {
 
             film.setMpa(new Mpa(rs.getInt("MPAA_ID"),
                     rs.getString("MPAA_NAME")));
+            film.setDirectors(directorFilmsDao.getByFilm(film.getId()));
 
             do {
                 if (rs.getString("GNAME") != null) {
@@ -112,6 +128,7 @@ public class FilmDaoImpl implements FilmStorage {
         film.setId(simpleJdbcInsert.executeAndReturnKey(this.filmToMap(film)).longValue());
 
         filmGenreDao.updateAllGenreByFilm(film);
+        directorFilmsDao.refresh(film);
 
         insertLikes(film);
 
@@ -187,6 +204,7 @@ public class FilmDaoImpl implements FilmStorage {
 
         if (count == 1) {
             filmGenreDao.updateAllGenreByFilm(film);
+            directorFilmsDao.refresh(film);
             updateLikes(film);
         }
         return film;
@@ -214,5 +232,18 @@ public class FilmDaoImpl implements FilmStorage {
                 }, count
         );
         return films;
+    }
+
+    @Override
+    public List<Film> getByDirector(Long directorId, String sortBy) {
+        if (sortBy.equals("year"))
+            return jdbcTemplate.query(SEL_SORT_YEAR_SQL, this::mapFilm, directorId);
+        else
+            return jdbcTemplate.query(SEL_SORT_LIKE_SQL, this::mapFilm, directorId);
+    }
+
+    //Использовал существующую логику класса
+    private Film mapFilm(ResultSet row, int rowNum) throws SQLException {
+        return findById(row.getLong("film_id")).get();
     }
 }

@@ -10,11 +10,19 @@ import ru.yandex.practicum.filmorate.storage.UserStorage;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Component("UserDaoImpl")
 public class UserDaoImpl implements UserStorage {
 
     private final JdbcTemplate jdbcTemplate;
+    private static final String SEL_RECOMMENDATIONS = "SELECT L.FILM_ID FROM " +
+            "(SELECT L2.USER_ID, COUNT(L2.FILM_ID) CNT FROM LIKES L1 " +
+            "LEFT JOIN LIKES L2 ON L1.FILM_ID = L2.FILM_ID " +
+            "WHERE L1.USER_ID = ? AND L1.USER_ID <> L2.USER_ID AND L1.FILM_ID = L2.FILM_ID " +
+            "GROUP BY L2.USER_ID ORDER BY CNT DESC LIMIT 1) U " +
+            "LEFT JOIN LIKES L ON U.USER_ID = L.USER_ID " +
+            "WHERE L.FILM_ID NOT IN (SELECT FILM_ID FROM LIKES WHERE USER_ID = ?) LIMIT ? ";
 
     public UserDaoImpl(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -144,5 +152,11 @@ public class UserDaoImpl implements UserStorage {
                 rs.getDate("BIRTHDAY").toLocalDate()));
 
         return users;
+    }
+
+    @Override
+    public Collection<Long> getRecommendations(Long id, Integer count) {
+        return jdbcTemplate.query(SEL_RECOMMENDATIONS,
+                (rs, rowNum) -> rs.getLong("FILM_ID"), id, id, count);
     }
 }

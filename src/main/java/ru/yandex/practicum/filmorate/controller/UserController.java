@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.InternalServerException;
 import ru.yandex.practicum.filmorate.exception.UnableToFindException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.user.UserService;
 
@@ -76,5 +77,11 @@ public class UserController {
     public Collection<User> findAll() {
         log.info("findAll");
         return service.findAll();
+    }
+
+    @GetMapping("{id}/recommendations")
+    public Collection<Film> getRecommendations(@PathVariable Long id,
+                                               @RequestParam(required = false, defaultValue = "10") Integer count) {
+        return service.getRecommendations(id, count);
     }
 }

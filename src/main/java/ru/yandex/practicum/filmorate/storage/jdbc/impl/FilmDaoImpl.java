@@ -10,10 +10,12 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.jdbc.DirectorFilmsDao;
 import ru.yandex.practicum.filmorate.storage.jdbc.FilmGenreDao;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -23,21 +25,50 @@ public class FilmDaoImpl implements FilmStorage {
 
     private final JdbcTemplate jdbcTemplate;
     private final FilmGenreDao filmGenreDao;
+    private final DirectorFilmsDao directorFilmsDao;
 
 
     private static final String SELECT_ALL = "select FILMS.FILM_ID, FILMS.NAME, FILMS.DESCRIPTION, FILMS.RELEASE_DATE," +
             " FILMS.DURATION, FILMS.MPAA_ID, MPAA.NAME as MPAA_NAME from films " +
             "join MPAA on FILMS.MPAA_ID = MPAA.MPAA_ID order by FILM_ID";
-    private static final String SELECT_BY_ID = "select f.FILM_ID as FILM_ID, f.NAME , f.DESCRIPTION, f.RELEASE_DATE, f.DURATION, f.MPAA_ID, M2.NAME as MPAA_NAME, fg.GENRE_ID as GID, G2.NAME as GNAME, L.USER_ID as `LIKE` from films f  left join  FILMS_GENRES fg " +
-            "on f.FILM_ID = fg.FILM_ID left join  GENRES as G2 on fg.GENRE_ID = G2.GENRE_ID left join LIKES L " +
-            "on f.FILM_ID = L.FILM_ID " +
+    private static final String SELECT_BY_ID = "select f.FILM_ID as FILM_ID, " +
+            "f.NAME , f.DESCRIPTION, f.RELEASE_DATE, f.DURATION, f.MPAA_ID, " +
+            "M2.NAME as MPAA_NAME, fg.GENRE_ID as GID, " +
+            "G2.NAME as GNAME, " +
+            "L.USER_ID as `LIKE` from films f  " +
+            "left join FILMS_GENRES fg on f.FILM_ID = fg.FILM_ID " +
+            "left join GENRES as G2 on fg.GENRE_ID = G2.GENRE_ID " +
+            "left join LIKES L on f.FILM_ID = L.FILM_ID " +
             "left join MPAA M2 on f.MPAA_ID = M2.MPAA_ID " +
             "where f.FILM_ID = ?";
 
+    private static final String SEL_SORT_YEAR_SQL =
+            "SELECT df.film_id FROM director_films df " +
+                    "JOIN films f ON df.film_id=f.film_id " +
+                    "WHERE df.director_id=? ORDER BY f.release_date";
+    private static final String SEL_SORT_LIKE_SQL =
+            "SELECT df.film_id FROM director_films df " +
+                    "LEFT JOIN likes l ON df.film_id=l.film_id " +
+                    "WHERE df.director_id=? " +
+                    "GROUP BY df.film_id, l.user_id ORDER BY COUNT(L.user_id) DESC";
+    private static final String SEARCH_FILMS_SQL =
+            "SELECT f.film_id FROM films f " +
+                    "WHERE UPPER(f.name) LIKE UPPER('%'||?||'%')";
+    private static final String SEARCH_DIRECTOR_SQL =
+            "SELECT df.film_id FROM director_films df " +
+                    "JOIN directors d ON df.director_id=d.director_id " +
+                    "WHERE UPPER(d.name) LIKE UPPER('%'||?||'%')";
+    private static final String SEL_COMMON_FILMS_SQL =
+            "SELECT f.film_id FROM likes l1 " +
+                    "LEFT JOIN likes l2 ON l1.film_id = l2.film_id " +
+                    "LEFT JOIN films f ON l1.film_id = f.film_id " +
+                    "WHERE l1.user_id=? AND l2.user_id=? AND l1.film_id=l2.film_id";
+
     @Autowired
-    public FilmDaoImpl(JdbcTemplate jdbcTemplate, FilmGenreDao filmGenreDao) {
+    public FilmDaoImpl(JdbcTemplate jdbcTemplate, FilmGenreDao filmGenreDao, DirectorFilmsDao directorFilmsDao) {
         this.jdbcTemplate = jdbcTemplate;
         this.filmGenreDao = filmGenreDao;
+        this.directorFilmsDao = directorFilmsDao;
     }
 
     @Override
@@ -53,6 +84,7 @@ public class FilmDaoImpl implements FilmStorage {
                     (rs.getInt("duration")),
                     new Mpa(rs.getInt("MPAA_ID"), rs.getString("MPAA_NAME"))
             );
+            film.setDirectors(directorFilmsDao.getByFilm(film.getId()));
             films.add(film);
         }
         return films;
@@ -76,6 +108,7 @@ public class FilmDaoImpl implements FilmStorage {
 
             film.setMpa(new Mpa(rs.getInt("MPAA_ID"),
                     rs.getString("MPAA_NAME")));
+            film.setDirectors(directorFilmsDao.getByFilm(film.getId()));
 
             do {
                 if (rs.getString("GNAME") != null) {
@@ -107,6 +140,7 @@ public class FilmDaoImpl implements FilmStorage {
         film.setId(simpleJdbcInsert.executeAndReturnKey(this.filmToMap(film)).longValue());
 
         filmGenreDao.updateAllGenreByFilm(film);
+        directorFilmsDao.refresh(film);
 
         insertLikes(film);
 
@@ -182,6 +216,7 @@ public class FilmDaoImpl implements FilmStorage {
 
         if (count == 1) {
             filmGenreDao.updateAllGenreByFilm(film);
+            directorFilmsDao.refresh(film);
             updateLikes(film);
         }
         return film;
@@ -209,5 +244,42 @@ public class FilmDaoImpl implements FilmStorage {
                 }, count
         );
         return films;
+    }
+
+    @Override
+    public List<Film> getByDirector(Long directorId, String sortBy) {
+        if (sortBy.equals("year"))
+            return jdbcTemplate.query(SEL_SORT_YEAR_SQL, this::mapFilm, directorId);
+        else
+            return jdbcTemplate.query(SEL_SORT_LIKE_SQL, this::mapFilm, directorId);
+    }
+
+    @Override
+    public Collection<Film> search(String queryString, String searchBy) {
+        final String searchDirectorTitle = SEARCH_FILMS_SQL + " UNION ALL " + SEARCH_DIRECTOR_SQL;
+        final String searchTitleDirector = SEARCH_DIRECTOR_SQL + " UNION ALL " + SEARCH_FILMS_SQL;
+
+        switch (searchBy) {
+            case "director":
+                return jdbcTemplate.query(SEARCH_DIRECTOR_SQL, this::mapFilm, queryString);
+            case "title":
+                return jdbcTemplate.query(SEARCH_FILMS_SQL, this::mapFilm, queryString);
+            case "director,title":
+                return jdbcTemplate.query(searchDirectorTitle, this::mapFilm, queryString, queryString);
+            case "title,director":
+                return jdbcTemplate.query(searchTitleDirector, this::mapFilm, queryString, queryString);
+            default:
+                return getMostPopular(10);
+        }
+    }
+
+    @Override
+    public Collection<Film> getCommonFilms(Long userId, Long friendId) {
+        return jdbcTemplate.query(SEL_COMMON_FILMS_SQL, this::mapFilm, userId, friendId);
+    }
+
+    //Использовал существующую логику класса
+    private Film mapFilm(ResultSet row, int rowNum) throws SQLException {
+        return findById(row.getLong("film_id")).get();
     }
 }

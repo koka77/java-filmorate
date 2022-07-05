@@ -6,23 +6,37 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.yandex.practicum.filmorate.exception.*;
 
+import java.lang.module.FindException;
+
 @RestControllerAdvice
 public class ValidationOrControllerErrorAdvice {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(ValidationException.class)
-    public String validationException(RuntimeException e) {
+    public String validationException(ValidationException e) {
         return e.getMessage();
     }
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    @ExceptionHandler(FindFilmException.class)
-    public String noFilmAdvice(RuntimeException e) {
+    @ExceptionHandler(FilmNotFoundException.class)
+    public String noFilmAdvice(FilmNotFoundException e) {
         return e.getMessage();
     }
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    @ExceptionHandler(NoUserException.class)
-    public String noUserAdvice(NoUserException e) {
+    @ExceptionHandler(UserNotFoundException.class)
+    public String noUserAdvice(UserNotFoundException e) {
+        return e.getMessage();
+    }
+
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(FindException.class)
+    public String notFoundAdvice(FindException e) {
+        return e.getMessage();
+    }
+
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(ReviewNotFoundException.class)
+    public String noReviewAdvice(ReviewNotFoundException e) {
         return e.getMessage();
     }
 
@@ -35,6 +49,12 @@ public class ValidationOrControllerErrorAdvice {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(UnableToFindException.class)
     public final String illegalIdInUpdateAdvice(UnableToFindException e) {
+        return e.getMessage();
+    }
+
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(ObjectNotFoundException.class)
+    public String noFilmAdvice(ObjectNotFoundException e) {
         return e.getMessage();
     }
 }

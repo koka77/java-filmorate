@@ -4,7 +4,8 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.DublicateFilmException;
-import ru.yandex.practicum.filmorate.exception.FindFilmException;
+import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
+import ru.yandex.practicum.filmorate.exception.InternalServerException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
@@ -35,12 +36,12 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Optional<Film> findById(Long id) throws FindFilmException {
+    public Optional<Film> findById(Long id) throws FilmNotFoundException {
 
         if (films.containsKey(id)) {
             return Optional.of(films.get(id));
         } else {
-            throw new FindFilmException(id);
+            throw new FilmNotFoundException(id);
         }
     }
 
@@ -60,7 +61,7 @@ public class InMemoryFilmStorage implements FilmStorage {
             return film;
         } else {
             log.debug("error updateFilm with ID: {}", film);
-            throw new FindFilmException(film.getId());
+            throw new FilmNotFoundException(film.getId());
         }
     }
 
@@ -69,5 +70,20 @@ public class InMemoryFilmStorage implements FilmStorage {
 
         return films.values().stream().sorted(Comparator.comparingInt(f -> -f.getLikes().size()))
                 .limit(count).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Film> getByDirector(Long directorId, String sortBy) {
+        throw new InternalServerException("Method not allowed");
+    }
+
+    @Override
+    public Collection<Film> search(String queryString, String searchBy) {
+        throw new InternalServerException("Method not allowed");
+    }
+
+    @Override
+    public Collection<Film> getCommonFilms(Long userId, Long friendId) {
+        throw new InternalServerException("Method not allowed");
     }
 }

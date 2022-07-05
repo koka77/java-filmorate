@@ -19,6 +19,7 @@ import java.util.Set;
 public class Film {
 
     private List<Genre> genres;
+    private List<Director> directors;
 
     private Integer rate; //= LikesRating.G;
     private Long id;
@@ -61,5 +62,9 @@ public class Film {
 
     public void removeLike(Long userId) {
         likes.remove(userId);
+    }
+
+    public void setDirectors(List<Director> list) {
+        this.directors = list;
     }
 }

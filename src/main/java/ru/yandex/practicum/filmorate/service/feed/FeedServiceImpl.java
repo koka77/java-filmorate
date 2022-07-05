@@ -5,19 +5,23 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.storage.jdbc.FeedDao;
+import ru.yandex.practicum.filmorate.storage.jdbc.ReviewDao;
 
 import java.util.Collection;
+import java.util.Optional;
 
 @Service
 public class FeedServiceImpl implements FeedService {
 
     private final FeedDao feedDao;
+    private final ReviewDao reviewDao;
 
     private Feed feed;
 
     @Autowired
-    public FeedServiceImpl(FeedDao feedDao) {
+    public FeedServiceImpl(FeedDao feedDao, ReviewDao reviewDao) {
         this.feedDao = feedDao;
+        this.reviewDao = reviewDao;
     }
 
     @Override
@@ -41,13 +45,16 @@ public class FeedServiceImpl implements FeedService {
     }
 
     @Override
-    public void updateFeedByEventId(Object o) {
-        if (o instanceof Review) {
-            feedDao.updateFeed(o);
+    public void addFeed(String methodName, Long reviewId) {
+        Optional<Review> review = reviewDao.findById(reviewId);
+
+        if (review.isPresent()) {
+            Feed feed = feedDao.findByReview(review.get());
+            feed = createFeed(methodName, feed.getUserId(), feed.getEntityId());
+            feedDao.addFeed(feed);
+
         }
-
     }
-
 
     private Feed createFeed(String methodName, Long userId, Long entityId) {
 

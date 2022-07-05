@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
@@ -21,7 +22,7 @@ public class FeedAspect {
         this.feedService = feedService;
     }
 
-    @AfterReturning(pointcut = "updateControllerMethod() || addControllerMethod() || removeControllerMethod()|| reviewAllFeedMethod() || likeControllerMethod()", returning = "val")
+    @AfterReturning(pointcut = "updateControllerMethod() || addControllerMethod() || removeControllerMethod()|| reviewCreateAddFeedMethod() || likeControllerMethod()", returning = "val")
     public void afterOperationAspect(JoinPoint jp, Object val) {
 
         MethodSignature methodSignature = (MethodSignature) jp.getSignature();
@@ -34,12 +35,12 @@ public class FeedAspect {
         }
     }
 
-    @AfterReturning(pointcut = "reviewUpdateMethod()", returning = "val")
-    public void afterUpdateReviewAspect(JoinPoint jp, Object val) {
+    @Before("reviewDeleteMethod()")
+    public void afterDeleteReviewAspect(JoinPoint jp) {
         MethodSignature methodSignature = (MethodSignature) jp.getSignature();
         Object[] parameters = jp.getArgs();
         String methodName = methodSignature.getName();
-        feedService.updateFeedByEventId(parameters[0]);
+        feedService.addFeed(methodName, (Long) parameters[0]);
     }
 
 
@@ -63,15 +64,15 @@ public class FeedAspect {
 
 
 
-    @Pointcut("reviewCreateMethod() || reviewDeleteMethod()")
-    private void reviewAllFeedMethod() {
+    @Pointcut("reviewCreateMethod() ||  reviewCreateMethod()")
+    private void reviewCreateAddFeedMethod() {
     }
 
     @Pointcut("execution(public * ru.yandex.practicum.filmorate.controller.ReviewController.create(..))")
     private void reviewCreateMethod() {
     }
 
-    @Pointcut("execution(public * ru.yandex.practicum.filmorate.controller.ReviewController.create(..))")
+    @Pointcut("execution(public * ru.yandex.practicum.filmorate.controller.ReviewController.delete(..))")
     private void reviewDeleteMethod() {
     }
 

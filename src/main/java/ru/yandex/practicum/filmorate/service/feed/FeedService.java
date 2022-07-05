@@ -10,5 +10,5 @@ public interface FeedService {
 
     void addFeed(String methodName, Object[] parametrs);
 
-    void updateFeedByEventId(Object o);
+    void addFeed(String methodName, Long reviewId);
 }

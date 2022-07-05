@@ -107,7 +107,7 @@ public class UserDaoImpl implements UserStorage {
 
     @Override
     public User updateUser(User user) {
-        final String sql = "update users set email = ?, login = ?, name = ?, " +
+        final String sql = "update USERS set email = ?, login = ?, name = ?, " +
                 "birthday = ?   where user_id = ?";
         jdbcTemplate.update(sql, user.getEmail(), user.getLogin(), user.getName()
                 , user.getBirthday()

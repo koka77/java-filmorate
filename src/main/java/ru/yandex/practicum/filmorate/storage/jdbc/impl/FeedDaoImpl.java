@@ -57,12 +57,15 @@ public class FeedDaoImpl implements FeedDao {
 
     @Override
     public void updateFeed(Object o) {
-        Feed feed;
         if (o instanceof Review) {
             Review r = (Review) o;
-            final String sql = "UPDATE FEEDS SET USER_ID=? WHERE EVENT_ID =? And EVENT_TYPE = ?";
-            int b = jdbcTemplate.update(sql, r.getUserId(), r.getReviewId(), "REVIEW");
-            System.out.println(b);
+            Feed feed = Feed.builder()
+                    .userId(r.getUserId())
+                    .eventType("REVIEW")
+                    .operation("UPDATE")
+                    .entityId(r.getReviewId())
+                    .build();
+             this.addFeed(feed);
         }
 
     }

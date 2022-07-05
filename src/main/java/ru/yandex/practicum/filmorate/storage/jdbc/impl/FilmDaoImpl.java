@@ -51,6 +51,18 @@ public class FilmDaoImpl implements FilmStorage {
                     "LEFT JOIN likes l ON df.film_id=l.film_id " +
                     "WHERE df.director_id=? " +
                     "GROUP BY df.film_id, l.user_id ORDER BY COUNT(L.user_id) DESC";
+    private static final String SEARCH_FILMS_SQL =
+            "SELECT f.film_id FROM films f " +
+                    "WHERE UPPER(f.name) LIKE UPPER('%'||?||'%')";
+    private static final String SEARCH_DIRECTOR_SQL =
+            "SELECT df.film_id FROM director_films df " +
+                    "JOIN directors d ON df.director_id=d.director_id " +
+                    "WHERE UPPER(d.name) LIKE UPPER('%'||?||'%')";
+    private static final String SEL_COMMON_FILMS_SQL =
+            "SELECT f.film_id FROM likes l1 " +
+                    "LEFT JOIN likes l2 ON l1.film_id = l2.film_id " +
+                    "LEFT JOIN films f ON l1.film_id = f.film_id " +
+                    "WHERE l1.user_id=? AND l2.user_id=? AND l1.film_id=l2.film_id";
 
     @Autowired
     public FilmDaoImpl(JdbcTemplate jdbcTemplate, FilmGenreDao filmGenreDao, DirectorFilmsDao directorFilmsDao) {
@@ -240,6 +252,30 @@ public class FilmDaoImpl implements FilmStorage {
             return jdbcTemplate.query(SEL_SORT_YEAR_SQL, this::mapFilm, directorId);
         else
             return jdbcTemplate.query(SEL_SORT_LIKE_SQL, this::mapFilm, directorId);
+    }
+
+    @Override
+    public Collection<Film> search(String queryString, String searchBy) {
+        final String searchDirectorTitle = SEARCH_FILMS_SQL + " UNION ALL " + SEARCH_DIRECTOR_SQL;
+        final String searchTitleDirector = SEARCH_DIRECTOR_SQL + " UNION ALL " + SEARCH_FILMS_SQL;
+
+        switch (searchBy) {
+            case "director":
+                return jdbcTemplate.query(SEARCH_DIRECTOR_SQL, this::mapFilm, queryString);
+            case "title":
+                return jdbcTemplate.query(SEARCH_FILMS_SQL, this::mapFilm, queryString);
+            case "director,title":
+                return jdbcTemplate.query(searchDirectorTitle, this::mapFilm, queryString, queryString);
+            case "title,director":
+                return jdbcTemplate.query(searchTitleDirector, this::mapFilm, queryString, queryString);
+            default:
+                return getMostPopular(10);
+        }
+    }
+
+    @Override
+    public Collection<Film> getCommonFilms(Long userId, Long friendId) {
+        return jdbcTemplate.query(SEL_COMMON_FILMS_SQL, this::mapFilm, userId, friendId);
     }
 
     //Использовал существующую логику класса

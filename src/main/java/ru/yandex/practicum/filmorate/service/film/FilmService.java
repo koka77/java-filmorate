@@ -18,9 +18,13 @@ public interface FilmService {
 
     void addLike(Long filmId, Long userId);
 
-    void remoteLike(Long filmId, Long userId);
+    void removeLike(Long filmId, Long userId);
 
     List<Film> getMostPopular(Integer count);
 
     List<Film> getFilmsByDirector(Long directorId, String sortBy);
+
+    Collection<Film> searchFilms(String queryString, String searchBy);
+
+    Collection<Film> getCommonFilms(Long userId, Long friendId);
 }

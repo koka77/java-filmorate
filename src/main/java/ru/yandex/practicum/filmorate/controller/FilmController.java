@@ -32,7 +32,7 @@ public class FilmController {
 
     @DeleteMapping("{id}/like/{userId}")
     public void removeLike(@PathVariable Long id, @PathVariable Long userId) {
-        service.remoteLike(id, userId);
+        service.removeLike(id, userId);
     }
 
     @GetMapping("/popular")
@@ -78,5 +78,21 @@ public class FilmController {
             @RequestParam(required = false, defaultValue = "year") String sortBy) {
         log.info("getFilmsByDirector");
         return service.getFilmsByDirector(directorId, sortBy);
+    }
+
+    @GetMapping("search")
+    public Collection<Film> searchBy(
+            @RequestParam(required = false) String query,
+            @RequestParam(required = false) String by) {
+        log.info("searchBy");
+        return service.searchFilms(query, by);
+    }
+
+    @GetMapping("common")
+    public Collection<Film> getCommonFilms(
+            @RequestParam Long userId,
+            @RequestParam Long friendId) {
+        log.info("getCommonFilms");
+        return service.getCommonFilms(userId, friendId);
     }
 }

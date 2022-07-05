@@ -71,13 +71,14 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public void remoteLike(Long filmId, Long userId) {
+    public void removeLike(Long filmId, Long userId) {
         if (filmId < 1 || userId < 1) {
             throw new UnableToFindException();
         }
         Film film = storage.findById(filmId).get();
         User user = userService.findById(userId).get();
         film.removeLike(userId);
+        storage.updateFilm(film);
         log.info("User: was like film: {}", user, film);
     }
 
@@ -93,5 +94,15 @@ public class FilmServiceImpl implements FilmService {
             throw new ObjectNotFoundException(String.format("Films not found for director: %s", directorId));
         }
         return storage.getByDirector(directorId, sortBy);
+    }
+
+    @Override
+    public Collection<Film> searchFilms(String queryString, String searchBy) {
+        return storage.search(queryString, searchBy);
+    }
+
+    @Override
+    public Collection<Film> getCommonFilms(Long userId, Long friendId) {
+        return storage.getCommonFilms(userId, friendId);
     }
 }

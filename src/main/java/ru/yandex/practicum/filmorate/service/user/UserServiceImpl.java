@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service.user;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
@@ -73,5 +74,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public Collection<User> getCrossFriends(Long id, Long otherId) {
         return storage.getUserCrossFriends(id, otherId);
+    }
+
+    @Override
+    public Collection<Film> getRecommendations(Long id, Integer count) {
+        return storage.getRecommendations(id, count);
     }
 }

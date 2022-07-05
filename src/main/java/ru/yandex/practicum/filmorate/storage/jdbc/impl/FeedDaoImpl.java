@@ -55,20 +55,7 @@ public class FeedDaoImpl implements FeedDao {
 
     }
 
-    @Override
-    public void updateFeed(Object o) {
-        if (o instanceof Review) {
-            Review r = (Review) o;
-            Feed feed = Feed.builder()
-                    .userId(r.getUserId())
-                    .eventType("REVIEW")
-                    .operation("UPDATE")
-                    .entityId(r.getReviewId())
-                    .build();
-             this.addFeed(feed);
-        }
 
-    }
 
     @Override
     public Feed findByReview(Review r) {

@@ -56,6 +56,12 @@ public class FeedServiceImpl implements FeedService {
         }
     }
 
+    @Override
+    public void addFeed(String methodName, Review r) {
+        Feed feed = createFeed(methodName,  r.getReviewId(), r.getUserId() );
+        feedDao.addFeed(feed);
+    }
+
     private Feed createFeed(String methodName, Long userId, Long entityId) {
 
         Feed feed = Feed.builder().userId(userId).entityId(entityId).build();

@@ -22,7 +22,8 @@ public class FeedAspect {
         this.feedService = feedService;
     }
 
-    @AfterReturning(pointcut = "updateControllerMethod() || addControllerMethod() " +
+    @AfterReturning(pointcut = "updateFilmControllerMethod() || updateUserControllerMethod()" +
+            "|| addControllerMethod() " +
             "|| removeControllerMethod()|| reviewCreateAddFeedMethod() " +
             "|| likeControllerMethod()"
             , returning = "val")
@@ -34,6 +35,20 @@ public class FeedAspect {
 
         if (val == null || methodSignature.getReturnType() == Review.class) {
             feedService.addFeed(methodName, parameters);
+            log.info("был запущен метод : {} \r\n возвращаемое значение: {}", methodName, methodSignature.getReturnType());
+        }
+    }
+
+    @AfterReturning(pointcut = "updateReviewUpdateMethod()"
+            , returning = "val")
+    public void afterUpdateAspect(JoinPoint jp, Object val) {
+
+        MethodSignature methodSignature = (MethodSignature) jp.getSignature();
+        Object[] parameters = jp.getArgs();
+        String methodName = methodSignature.getName();
+
+        if (methodSignature.getReturnType() == Review.class) {
+            feedService.addFeed(methodName, (Review) val);
             log.info("был запущен метод : {} \r\n возвращаемое значение: {}", methodName, methodSignature.getReturnType());
         }
     }
@@ -51,8 +66,11 @@ public class FeedAspect {
     private void addControllerMethod() {
     }
 
-    @Pointcut("execution(public * ru.yandex.practicum.filmorate.controller.*.update*(..))")
-    private void updateControllerMethod() {
+    @Pointcut("execution(public * ru.yandex.practicum.filmorate.controller.FilmController.update*(..))")
+    private void updateFilmControllerMethod() {
+    }
+    @Pointcut("execution(public * ru.yandex.practicum.filmorate.controller.UserController.update*(..))")
+    private void updateUserControllerMethod() {
     }
 
     @Pointcut("execution(public * ru.yandex.practicum.filmorate.controller.*.remove*(..))")
@@ -80,7 +98,6 @@ public class FeedAspect {
     }
 
     @Pointcut("execution(public * ru.yandex.practicum.filmorate.controller.ReviewController.update(..))")
-    private void reviewUpdateMethod() {
+    private void updateReviewUpdateMethod() {
     }
-
 }

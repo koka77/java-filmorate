@@ -12,6 +12,7 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.jdbc.FilmGenreDao;
 
+import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -153,7 +154,8 @@ public class FilmDaoImpl implements FilmStorage {
         }
         String sql = "insert into LIKES(USER_ID, FILM_ID) values (?, ?)";
 
-        try (PreparedStatement ps = jdbcTemplate.getDataSource().getConnection().prepareStatement(sql)) {
+        try (Connection connection = jdbcTemplate.getDataSource().getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql)) {
             for (Long like : film.getLikes()) {
                 ps.setLong(1, like);
                 ps.setLong(2, film.getId());

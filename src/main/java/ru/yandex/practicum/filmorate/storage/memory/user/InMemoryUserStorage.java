@@ -74,6 +74,6 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public Collection<Film> getRecommendations(Long id, Integer count) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 }

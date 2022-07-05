@@ -13,10 +13,8 @@ import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.jdbc.DirectorFilmsDao;
 import ru.yandex.practicum.filmorate.storage.jdbc.FilmGenreDao;
 
+import java.sql.*;
 import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -182,13 +180,14 @@ public class FilmDaoImpl implements FilmStorage {
         }
         String sql = "insert into LIKES(USER_ID, FILM_ID) values (?, ?)";
 
-        try (PreparedStatement ps = jdbcTemplate.getDataSource().getConnection().prepareStatement(sql)) {
+        try (Connection connection = jdbcTemplate.getDataSource().getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql)) {
             for (Long like : film.getLikes()) {
                 ps.setLong(1, like);
                 ps.setLong(2, film.getId());
                 ps.addBatch();
-                ps.executeUpdate();
             }
+                ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }

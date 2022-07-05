@@ -2,15 +2,12 @@ package ru.yandex.practicum.filmorate.aspect;
 
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
+import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.service.feed.FeedService;
 
 @Aspect
@@ -24,17 +21,25 @@ public class FeedAspect {
         this.feedService = feedService;
     }
 
-    @AfterReturning(pointcut = "updateControllerMethod() || addControllerMethod() || removeControllerMethod()", returning = "val")
+    @AfterReturning(pointcut = "updateControllerMethod() || addControllerMethod() || removeControllerMethod()|| reviewAllFeedMethod() || likeControllerMethod()", returning = "val")
     public void afterOperationAspect(JoinPoint jp, Object val) {
 
         MethodSignature methodSignature = (MethodSignature) jp.getSignature();
         Object[] parameters = jp.getArgs();
         String methodName = methodSignature.getName();
 
-        if (val == null) {
+        if (val == null || methodSignature.getReturnType() == Review.class) {
             feedService.addFeed(methodName, parameters);
-            log.info("был запущен метод : {} \r\n возвращаемое значение: {}");
+            log.info("был запущен метод : {} \r\n возвращаемое значение: {}", methodName, methodSignature.getReturnType());
         }
+    }
+
+    @AfterReturning(pointcut = "reviewUpdateMethod()", returning = "val")
+    public void afterUpdateReviewAspect(JoinPoint jp, Object val) {
+        MethodSignature methodSignature = (MethodSignature) jp.getSignature();
+        Object[] parameters = jp.getArgs();
+        String methodName = methodSignature.getName();
+        feedService.updateFeedByEventId(parameters[0]);
     }
 
 
@@ -48,6 +53,30 @@ public class FeedAspect {
 
     @Pointcut("execution(public * ru.yandex.practicum.filmorate.controller.*.remove*(..))")
     private void removeControllerMethod() {
+    }
+
+
+    @Pointcut("execution(public * ru.yandex.practicum.filmorate.controller.*.*Like(..))")
+    private void likeControllerMethod() {
+    }
+
+
+
+
+    @Pointcut("reviewCreateMethod() || reviewDeleteMethod()")
+    private void reviewAllFeedMethod() {
+    }
+
+    @Pointcut("execution(public * ru.yandex.practicum.filmorate.controller.ReviewController.create(..))")
+    private void reviewCreateMethod() {
+    }
+
+    @Pointcut("execution(public * ru.yandex.practicum.filmorate.controller.ReviewController.create(..))")
+    private void reviewDeleteMethod() {
+    }
+
+    @Pointcut("execution(public * ru.yandex.practicum.filmorate.controller.ReviewController.update(..))")
+    private void reviewUpdateMethod() {
     }
 
 

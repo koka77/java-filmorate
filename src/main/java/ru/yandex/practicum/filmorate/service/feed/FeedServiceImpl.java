@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service.feed;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Feed;
+import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.storage.jdbc.FeedDao;
 
 import java.util.Collection;
@@ -26,11 +27,26 @@ public class FeedServiceImpl implements FeedService {
 
     @Override
     public void addFeed(String methodName, Object[] parametrs) {
+        Feed result;
+        if (parametrs[0].getClass() == Review.class) {
+            Review review = (Review) parametrs[0];
+            result = createFeed(methodName, review.getUserId(), review.getReviewId());
+        } else if (methodName.contains("Like")) {
+            result = createFeed(methodName, (Long) parametrs[1], (Long) parametrs[0]);
+        } else {
+            result = createFeed(methodName, (Long) parametrs[0], (Long) parametrs[1]);
+        }
 
-        Feed result = createFeed(methodName, (Long) parametrs[0], (Long) parametrs[1]);
         feedDao.addFeed(result);
     }
 
+    @Override
+    public void updateFeedByEventId(Object o) {
+        if (o instanceof Review) {
+            feedDao.updateFeed(o);
+        }
+
+    }
 
 
     private Feed createFeed(String methodName, Long userId, Long entityId) {
@@ -55,15 +71,16 @@ public class FeedServiceImpl implements FeedService {
                 feed.setEventType("LIKE");
                 feed.setOperation("REMOVE");
                 break;
-            case "addReview":
+// работа с методами из аспекта для review
+            case "create":
                 feed.setEventType("REVIEW");
                 feed.setOperation("ADD");
                 break;
-            case "updateReview":
+            case "update":
                 feed.setEventType("REVIEW");
                 feed.setOperation("UPDATE");
                 break;
-            case "removeReview":
+            case "delete":
                 feed.setEventType("REVIEW");
                 feed.setOperation("REMOVE");
                 break;

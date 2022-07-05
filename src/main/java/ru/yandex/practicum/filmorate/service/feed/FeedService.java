@@ -9,4 +9,6 @@ public interface FeedService {
     Collection<Feed> getAllFeedsByUserId(Long userId, Integer limit);
 
     void addFeed(String methodName, Object[] parametrs);
+
+    void updateFeedByEventId(Object o);
 }

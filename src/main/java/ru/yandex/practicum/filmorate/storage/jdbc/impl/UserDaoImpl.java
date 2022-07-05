@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.*;
@@ -91,7 +92,8 @@ public class UserDaoImpl implements UserStorage {
         }
         String sql = "insert into FRIENDS (FRIEND_ID, USER_ID) values (?, ?)";
 
-        try (PreparedStatement ps = jdbcTemplate.getDataSource().getConnection().prepareStatement(sql)) {
+        try (Connection connection = jdbcTemplate.getDataSource().getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql)) {
             for (User friend : user.getFriends()) {
                 ps.setLong(1, friend.getId());
                 ps.setLong(2, user.getId());

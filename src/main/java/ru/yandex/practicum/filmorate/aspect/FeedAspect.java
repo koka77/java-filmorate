@@ -22,7 +22,10 @@ public class FeedAspect {
         this.feedService = feedService;
     }
 
-    @AfterReturning(pointcut = "updateControllerMethod() || addControllerMethod() || removeControllerMethod()|| reviewCreateAddFeedMethod() || likeControllerMethod()", returning = "val")
+    @AfterReturning(pointcut = "updateControllerMethod() || addControllerMethod() " +
+            "|| removeControllerMethod()|| reviewCreateAddFeedMethod() " +
+            "|| likeControllerMethod()"
+            , returning = "val")
     public void afterOperationAspect(JoinPoint jp, Object val) {
 
         MethodSignature methodSignature = (MethodSignature) jp.getSignature();
@@ -79,6 +82,5 @@ public class FeedAspect {
     @Pointcut("execution(public * ru.yandex.practicum.filmorate.controller.ReviewController.update(..))")
     private void reviewUpdateMethod() {
     }
-
 
 }

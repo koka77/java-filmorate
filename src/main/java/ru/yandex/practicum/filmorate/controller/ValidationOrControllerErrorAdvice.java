@@ -52,4 +52,9 @@ public class ValidationOrControllerErrorAdvice {
         return e.getMessage();
     }
 
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(ObjectNotFoundException.class)
+    public String noFilmAdvice(ObjectNotFoundException e) {
+        return e.getMessage();
+    }
 }

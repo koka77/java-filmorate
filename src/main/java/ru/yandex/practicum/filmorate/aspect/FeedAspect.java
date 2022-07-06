@@ -39,18 +39,14 @@ public class FeedAspect {
         }
     }
 
-    @AfterReturning(pointcut = "updateReviewUpdateMethod()"
-            , returning = "val")
-    public void afterUpdateAspect(JoinPoint jp, Object val) {
+    @Before("updateReviewUpdateMethod()")
+    public void afterUpdateAspect(JoinPoint jp) {
 
         MethodSignature methodSignature = (MethodSignature) jp.getSignature();
-        Object[] parameters = jp.getArgs();
+        Review r = (Review) jp.getArgs()[0];
         String methodName = methodSignature.getName();
-
-        if (methodSignature.getReturnType() == Review.class) {
-            feedService.addFeed(methodName, (Review) val);
+             feedService.addFeed(methodName, r);
             log.info("был запущен метод : {} \r\n возвращаемое значение: {}", methodName, methodSignature.getReturnType());
-        }
     }
 
     @Before("reviewDeleteMethod()")

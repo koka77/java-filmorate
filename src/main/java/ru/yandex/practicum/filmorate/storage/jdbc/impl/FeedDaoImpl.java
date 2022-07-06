@@ -59,7 +59,7 @@ public class FeedDaoImpl implements FeedDao {
 
     @Override
     public Feed findByReview(Review r) {
-        final String sql = "SELECT * FROM FEEDS where ENTITY_ID = ? AND USER_ID = ?";
+        final String sql = "SELECT * FROM FEEDS where ENTITY_ID = ? limit 1";
         return jdbcTemplate.queryForObject(sql, new RowMapper<Feed>() {
             @Override
             public Feed mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -72,7 +72,7 @@ public class FeedDaoImpl implements FeedDao {
                         .entityId(rs.getLong(6))
                         .build();
             }
-        }, r.getReviewId(), r.getUserId());
+        }, r.getReviewId());
     }
 
     public Map<String, Object> feedToMap(Feed feed) {

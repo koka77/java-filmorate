@@ -11,6 +11,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.util.ResourceUtils;
@@ -31,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-
+@DirtiesContext
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class FeedAdviceTestsTest extends AbstractControllerTest {
 
@@ -81,14 +82,4 @@ public class FeedAdviceTestsTest extends AbstractControllerTest {
                                 ",\"eventType\":\"FRIEND\",\"operation\":\"REMOVE\",\"entityId\":2}]"));
     }
 
-    @AfterAll
-    @Autowired
-    private static   void destroy(@Autowired JdbcTemplate j) throws IOException {
-        File file = ResourceUtils.getFile("classpath:schema.sql");
-        String sql = new String(Files.readAllBytes(file.toPath()));
-        j.update(sql);
-        file = ResourceUtils.getFile("classpath:data.sql");
-        sql = new String(Files.readAllBytes(file.toPath()));
-        j.update(sql);
-    }
 }

@@ -324,4 +324,27 @@ public class FilmDaoImpl implements FilmStorage {
     private Film mapFilm(ResultSet row, int rowNum) throws SQLException {
         return findById(row.getLong("film_id")).get();
     }
+
+    @Override
+    public void deleteFilm(Long filmId) {
+        final String sql = "DELETE FROM FILMS where FILM_ID = ?";
+        jdbcTemplate.update(sql, filmId);
+        final String sql2 = "DELETE FROM LIKES where FILM_ID = ?";
+        jdbcTemplate.update(sql, filmId);/*
+        final String sql3 = "DELETE FROM FILMS where FILM_ID = ?";
+        jdbcTemplate.update(sql, filmId);*/
+    }
+
+    private Film setGenre(Film film) {
+        String sql = "select G.GENRE_ID, G.NAME from GENRES AS G  join FILMS_GENRES GF on G.GENRE_ID = GF.GENRE_ID  where  GF.FILM_ID = ?  ORDER BY G.GENRE_ID ";
+        List<Genre> genres = jdbcTemplate.queryForStream(sql, (gs, rowNum)
+                        -> new Genre(gs.getInt("genre_id"),gs.getString("name"))
+                , film.getId()).collect(Collectors.toList());
+
+        if (genres.isEmpty()) {
+            return film;
+        }
+        film.setGenres(genres);
+        return film;
+    }
 }

@@ -19,4 +19,6 @@ public interface UserStorage {
     Collection<User> getUserFriends(Long id);
 
     Collection<User> getUserCrossFriends(Long id, Long otherId);
+
+    void deleteUser(Long id);
 }

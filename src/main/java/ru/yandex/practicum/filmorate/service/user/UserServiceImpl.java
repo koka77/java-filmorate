@@ -75,4 +75,9 @@ public class UserServiceImpl implements UserService {
     public Collection<User> getCrossFriends(Long id, Long otherId) {
         return storage.getUserCrossFriends(id, otherId);
     }
+
+    @Override
+    public void removeUser(Long id) {
+        storage.deleteUser(id);
+    }
 }

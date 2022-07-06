@@ -115,4 +115,9 @@ public class InMemoryFilmStorage implements FilmStorage {
     public Collection<Film> getCommonFilms(Long userId, Long friendId) {
         throw new InternalServerException("Method not allowed");
     }
+
+    @Override
+    public void deleteFilm(Long filmId) {
+        throw  new UnsupportedOperationException("Метод не поддерживается в данной реализации хранилища");
+    }
 }

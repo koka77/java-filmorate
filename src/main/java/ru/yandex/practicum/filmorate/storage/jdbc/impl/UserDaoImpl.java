@@ -150,4 +150,14 @@ public class UserDaoImpl implements UserStorage {
 
         return users;
     }
+
+    @Override
+    public void deleteUser(Long id) {
+        final String sql = "DELETE FROM FRIENDS where USER_ID = ? ";
+        jdbcTemplate.update(sql, id);
+        final String sql2 = "DELETE FROM FRIENDS where FRIEND_ID = ? ";
+        jdbcTemplate.update(sql2, id);
+        final String sql3 = "DELETE FROM USERS  where USER_ID = ? ";
+        jdbcTemplate.update(sql3, id);
+    }
 }

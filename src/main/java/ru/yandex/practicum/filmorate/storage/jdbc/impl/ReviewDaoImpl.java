@@ -80,6 +80,7 @@ public class ReviewDaoImpl implements ReviewDao {
     public void delete(long id) {
         if (jdbcTemplate.update(DELETE_REVIEW, id) < 1) {
             log.info("Что-то пошло не так. Не получилось удалить отзыв: {}.", +id);
+            throw new NoReviewException();
         } else {
             log.info("Review {} delete.", id);
         }

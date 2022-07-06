@@ -4,12 +4,16 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component("UserDaoImpl")
 public class UserDaoImpl implements UserStorage {
@@ -88,7 +92,8 @@ public class UserDaoImpl implements UserStorage {
         }
         String sql = "insert into FRIENDS (FRIEND_ID, USER_ID) values (?, ?)";
 
-        try (PreparedStatement ps = jdbcTemplate.getDataSource().getConnection().prepareStatement(sql)) {
+        try (Connection connection = jdbcTemplate.getDataSource().getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql)) {
             for (User friend : user.getFriends()) {
                 ps.setLong(1, friend.getId());
                 ps.setLong(2, user.getId());
@@ -101,8 +106,8 @@ public class UserDaoImpl implements UserStorage {
     }
 
     @Override
-    public Optional<User> updateUser(User user) {
-        final String sql = "update users set email = ?, login = ?, name = ?, " +
+    public User updateUser(User user) {
+        final String sql = "update USERS set email = ?, login = ?, name = ?, " +
                 "birthday = ?   where user_id = ?";
         jdbcTemplate.update(sql, user.getEmail(), user.getLogin(), user.getName()
                 , user.getBirthday()
@@ -110,7 +115,7 @@ public class UserDaoImpl implements UserStorage {
 
         deleteFriends(user);
         insertFriends(user);
-        return Optional.of(user);
+        return user;
     }
 
     @Override

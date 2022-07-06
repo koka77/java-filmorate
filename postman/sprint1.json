@@ -1,7 +1,7 @@
 {
 	"info": {
-		"_postman_id": "325ac977-a774-44b3-889b-c81036030fa0",
-		"name": "add-reviews",
+		"_postman_id": "abeeb866-fc3f-40de-b07e-215254295b8f",
+		"name": "add-feed",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "2036415"
 	},
@@ -13481,6 +13481,455 @@
 									],
 									"path": [
 										"users",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "-29029902",
+											"description": "(Required) "
+										}
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "*/*"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "add-feed",
+			"item": [
+				{
+					"name": "User 1 get feed",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Test get feed user 1\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.length).to.eql(9);\r",
+									"\r",
+									"    pm.expect(jsonData[0].eventId).to.eql(1);\r",
+									"    pm.expect(jsonData[0].userId).to.eql(1);\r",
+									"    pm.expect(jsonData[0].entityId).to.eql(2);\r",
+									"    pm.expect(jsonData[0].eventType).to.eql(\"FRIEND\");\r",
+									"    pm.expect(jsonData[0].operation).to.eql(\"ADD\");\r",
+									"    pm.expect(jsonData[0].timestamp).to.above(1655798323570);\r",
+									"\r",
+									"    pm.expect(jsonData[1].eventId).to.eql(2);\r",
+									"    pm.expect(jsonData[1].userId).to.eql(1);\r",
+									"    pm.expect(jsonData[1].entityId).to.eql(3);\r",
+									"    pm.expect(jsonData[1].eventType).to.eql(\"FRIEND\");\r",
+									"    pm.expect(jsonData[1].operation).to.eql(\"ADD\");\r",
+									"\r",
+									"    pm.expect(jsonData[2].eventId).to.eql(4);\r",
+									"    pm.expect(jsonData[2].userId).to.eql(1);\r",
+									"    pm.expect(jsonData[2].entityId).to.eql(2);\r",
+									"    pm.expect(jsonData[2].eventType).to.eql(\"FRIEND\");\r",
+									"    pm.expect(jsonData[2].operation).to.eql(\"REMOVE\");\r",
+									"\r",
+									"    pm.expect(jsonData[3].eventId).to.eql(5);\r",
+									"    pm.expect(jsonData[3].userId).to.eql(1);\r",
+									"    pm.expect(jsonData[3].entityId).to.eql(2);\r",
+									"    pm.expect(jsonData[3].eventType).to.eql(\"LIKE\");\r",
+									"    pm.expect(jsonData[3].operation).to.eql(\"ADD\");\r",
+									"\r",
+									"    pm.expect(jsonData[4].eventId).to.eql(6);\r",
+									"    pm.expect(jsonData[4].userId).to.eql(1);\r",
+									"    pm.expect(jsonData[4].entityId).to.eql(2);\r",
+									"    pm.expect(jsonData[4].eventType).to.eql(\"LIKE\");\r",
+									"    pm.expect(jsonData[4].operation).to.eql(\"REMOVE\");\r",
+									"\r",
+									"    pm.expect(jsonData[5].eventId).to.eql(7);\r",
+									"    pm.expect(jsonData[5].userId).to.eql(1);\r",
+									"    pm.expect(jsonData[5].entityId).to.eql(1);\r",
+									"    pm.expect(jsonData[5].eventType).to.eql(\"REVIEW\");\r",
+									"    pm.expect(jsonData[5].operation).to.eql(\"ADD\");\r",
+									"\r",
+									"    pm.expect(jsonData[6].eventId).to.eql(8);\r",
+									"    pm.expect(jsonData[6].userId).to.eql(1);\r",
+									"    pm.expect(jsonData[6].entityId).to.eql(1);\r",
+									"    pm.expect(jsonData[6].eventType).to.eql(\"REVIEW\");\r",
+									"    pm.expect(jsonData[6].operation).to.eql(\"UPDATE\");\r",
+									"\r",
+									"    pm.expect(jsonData[7].eventId).to.eql(10);\r",
+									"    pm.expect(jsonData[7].userId).to.eql(1);\r",
+									"    pm.expect(jsonData[7].entityId).to.eql(3);\r",
+									"    pm.expect(jsonData[7].eventType).to.eql(\"REVIEW\");\r",
+									"    pm.expect(jsonData[7].operation).to.eql(\"ADD\");\r",
+									"\r",
+									"    pm.expect(jsonData[8].eventId).to.eql(11);\r",
+									"    pm.expect(jsonData[8].userId).to.eql(1);\r",
+									"    pm.expect(jsonData[8].entityId).to.eql(1);\r",
+									"    pm.expect(jsonData[8].eventType).to.eql(\"REVIEW\");\r",
+									"    pm.expect(jsonData[8].operation).to.eql(\"REMOVE\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "*/*"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/users/:id/feed",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								":id",
+								"feed"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "OK",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/films/:id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"films",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "-29029902",
+											"description": "(Required) "
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "*/*"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "Not Found",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/films/:id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"films",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "-29029902",
+											"description": "(Required) "
+										}
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "*/*"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "Conflict",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/films/:id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"films",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "-29029902",
+											"description": "(Required) "
+										}
+									]
+								}
+							},
+							"status": "Conflict",
+							"code": 409,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "*/*"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "Internal Server Error",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/films/:id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"films",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "-29029902",
+											"description": "(Required) "
+										}
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "*/*"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						}
+					]
+				},
+				{
+					"name": "User 2 get feed",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Test get feed user 2\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.length).to.eql(2);\r",
+									"\r",
+									"    pm.expect(jsonData[0].eventId).to.eql(3);\r",
+									"    pm.expect(jsonData[0].userId).to.eql(2);\r",
+									"    pm.expect(jsonData[0].entityId).to.eql(3);\r",
+									"    pm.expect(jsonData[0].eventType).to.eql(\"FRIEND\");\r",
+									"    pm.expect(jsonData[0].operation).to.eql(\"ADD\");\r",
+									"    pm.expect(jsonData[0].timestamp).to.above(1655798323570);\r",
+									"\r",
+									"    pm.expect(jsonData[1].eventId).to.eql(9);\r",
+									"    pm.expect(jsonData[1].userId).to.eql(2);\r",
+									"    pm.expect(jsonData[1].entityId).to.eql(2);\r",
+									"    pm.expect(jsonData[1].eventType).to.eql(\"REVIEW\");\r",
+									"    pm.expect(jsonData[1].operation).to.eql(\"ADD\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "*/*"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/users/:id/feed",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								":id",
+								"feed"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "2"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "OK",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/films/:id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"films",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "-29029902",
+											"description": "(Required) "
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "*/*"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "Not Found",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/films/:id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"films",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "-29029902",
+											"description": "(Required) "
+										}
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "*/*"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "Conflict",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/films/:id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"films",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "-29029902",
+											"description": "(Required) "
+										}
+									]
+								}
+							},
+							"status": "Conflict",
+							"code": 409,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "*/*"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "Internal Server Error",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/films/:id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"films",
 										":id"
 									],
 									"variable": [

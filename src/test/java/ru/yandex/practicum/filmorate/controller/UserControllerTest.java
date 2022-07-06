@@ -151,4 +151,9 @@ class UserControllerTest extends AbstractControllerTest {
                                 "\"email\":\"validUser2@mail.ru\",\"login\":\"login\",\"name\":\"validUser2\"," +
                                 "\"birthday\":\"1981-05-16\"}]"));
     }
+
+    @Test
+    void shouldReturnAllFeedsByUserId() {
+//        userService.
+    }
 }

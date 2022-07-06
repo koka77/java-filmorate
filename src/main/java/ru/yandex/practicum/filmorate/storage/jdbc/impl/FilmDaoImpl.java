@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.exception.UnableToFindException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
@@ -93,6 +94,11 @@ public class FilmDaoImpl implements FilmStorage {
 
     @Override
     public Optional<Film> findById(Long id) {
+        final String sqlCnt = "SELECT COUNT(*) From FILMS WHERE FILM_ID=?";
+        if (jdbcTemplate.queryForObject(sqlCnt, Integer.class, id) == 0) {
+            throw new ObjectNotFoundException("No data found");
+        }
+
         Film film = null;
         SqlRowSet rs = jdbcTemplate.queryForRowSet(SELECT_BY_ID, id);
         if (rs.next()) {

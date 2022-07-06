@@ -4,6 +4,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
@@ -107,11 +108,8 @@ public class UserDaoImpl implements UserStorage {
 
     @Override
     public User updateUser(User user) {
-        final String sql = "update USERS set email = ?, login = ?, name = ?, " +
-                "birthday = ?   where user_id = ?";
-        jdbcTemplate.update(sql, user.getEmail(), user.getLogin(), user.getName()
-                , user.getBirthday()
-                , user.getId());
+        final String sql = "update USERS set email = ?, login = ?, name = ?, birthday = ?   where user_id = ?";
+        jdbcTemplate.update(sql, user.getEmail(), user.getLogin(), user.getName(), user.getBirthday(), user.getId());
 
         deleteFriends(user);
         insertFriends(user);
@@ -120,6 +118,11 @@ public class UserDaoImpl implements UserStorage {
 
     @Override
     public Collection<User> getUserFriends(Long id) {
+        final String sqlCnt = "SELECT COUNT(*) From USERS WHERE USER_ID=?";
+        if (jdbcTemplate.queryForObject(sqlCnt, Integer.class, id) == 0) {
+            throw new ObjectNotFoundException("No data found");
+        }
+
         final String sql = "SELECT * From USERS where USER_ID IN (SELECT FRIEND_ID FROM FRIENDS where USER_ID = ?)";
         Collection<User> friends = new HashSet<>();
         SqlRowSet rs = jdbcTemplate.queryForRowSet(sql, id);

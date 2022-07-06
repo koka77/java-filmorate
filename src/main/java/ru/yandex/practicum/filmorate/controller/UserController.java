@@ -84,7 +84,6 @@ public class UserController {
             throw new UnableToFindException();
         }
         return userService.updateUser(user);
-
     }
 
     @GetMapping

@@ -23,7 +23,7 @@ public class UserDaoImpl implements UserStorage {
     private static final String SEL_RECOMMENDATIONS = "SELECT L.FILM_ID FROM " +
             "(SELECT L2.USER_ID, COUNT(L2.FILM_ID) CNT FROM LIKES L1 " +
             "LEFT JOIN LIKES L2 ON L1.FILM_ID = L2.FILM_ID " +
-            "WHERE L1.USER_ID = ? AND L1.USER_ID <> L2.USER_ID AND L1.FILM_ID = L2.FILM_ID " +
+            "WHERE L1.USER_ID = ? AND L1.USER_ID <> L2.USER_ID " +
             "GROUP BY L2.USER_ID ORDER BY CNT DESC LIMIT 1) U " +
             "LEFT JOIN LIKES L ON U.USER_ID = L.USER_ID " +
             "WHERE L.FILM_ID NOT IN (SELECT FILM_ID FROM LIKES WHERE USER_ID = ?) LIMIT ? ";

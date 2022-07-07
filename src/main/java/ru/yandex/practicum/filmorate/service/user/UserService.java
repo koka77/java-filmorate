@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service.user;
 
+import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -13,7 +14,7 @@ public interface UserService {
 
     Optional<User> createUser(User user);
 
-    Optional<User> updateUser(User user);
+    User updateUser(User user);
 
     void addFriend(Long id, Long friendId);
 

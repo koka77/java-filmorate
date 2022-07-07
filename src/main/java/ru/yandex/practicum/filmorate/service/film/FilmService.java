@@ -20,7 +20,7 @@ public interface FilmService {
 
     void removeLike(Long filmId, Long userId);
 
-    List<Film> getMostPopular(Integer count);
+    List <Film> getMostPopular(Integer count, Integer genreId, Integer date);
 
     List<Film> getFilmsByDirector(Long directorId, String sortBy);
 

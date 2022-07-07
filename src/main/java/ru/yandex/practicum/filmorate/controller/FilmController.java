@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.InternalServerException;
 import ru.yandex.practicum.filmorate.exception.UnableToFindException;
@@ -36,8 +37,10 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public Collection<Film> getPopular(@RequestParam(required = false, defaultValue = "10") Integer count) {
-        return service.getMostPopular(count);
+    public Collection<Film> getPopular(@RequestParam(required = false, defaultValue = "10", name = "count") Integer count,
+                                       @RequestParam(required = false, name = "genreId") @Nullable Integer genreId,
+                                       @RequestParam(required = false, name = "year") @Nullable Integer date) {
+        return service.getMostPopular(count, genreId, date);
     }
 
     @GetMapping("{id}")

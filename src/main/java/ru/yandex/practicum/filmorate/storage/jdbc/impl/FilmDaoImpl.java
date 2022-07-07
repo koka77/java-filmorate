@@ -2,6 +2,9 @@ package ru.yandex.practicum.filmorate.storage.jdbc.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
@@ -13,10 +16,8 @@ import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.jdbc.DirectorFilmsDao;
 import ru.yandex.practicum.filmorate.storage.jdbc.FilmGenreDao;
 
+import java.sql.*;
 import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -182,13 +183,14 @@ public class FilmDaoImpl implements FilmStorage {
         }
         String sql = "insert into LIKES(USER_ID, FILM_ID) values (?, ?)";
 
-        try (PreparedStatement ps = jdbcTemplate.getDataSource().getConnection().prepareStatement(sql)) {
+        try (Connection connection = jdbcTemplate.getDataSource().getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql)) {
             for (Long like : film.getLikes()) {
                 ps.setLong(1, like);
                 ps.setLong(2, film.getId());
                 ps.addBatch();
-                ps.executeUpdate();
             }
+                ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -223,12 +225,47 @@ public class FilmDaoImpl implements FilmStorage {
     }
 
     @Override
-    public List<Film> getMostPopular(Integer count) {
+    public List<Film> getMostPopular(Integer count, Integer genreId, Integer date) {
         String sql = "select F.FILM_ID, F.NAME, F.DESCRIPTION, F.RELEASE_DATE,  F.DURATION, F.MPAA_ID, F.NAME as MPAA_NAME " +
                 "from FILMS  F LEFT JOIN  LIKES L on F.FILM_ID  = L.FILM_ID " +
-                "GROUP BY F.FILM_ID, L.USER_ID ORDER BY COUNT(L.USER_ID) DESC LIMIT ?";
+                "GROUP BY F.FILM_ID, L.USER_ID ORDER BY COUNT(L.USER_ID) DESC LIMIT :count";
 
-        List<Film> films = jdbcTemplate.query(sql, (rs, rowNum) ->
+        if (genreId == null && date != null) {
+            sql = "select F.FILM_ID, F.NAME, F.DESCRIPTION, F.RELEASE_DATE,  F.DURATION, F.MPAA_ID, F.NAME as MPAA_NAME " +
+                    "from FILMS  F LEFT JOIN  LIKES L on F.FILM_ID  = L.FILM_ID " +
+                    "WHERE EXTRACT(YEAR FROM RELEASE_DATE) = :date " +
+                    "GROUP BY F.FILM_ID, L.USER_ID ORDER BY COUNT(L.USER_ID) DESC LIMIT :count";
+        }
+
+        if (genreId != null && date == null) {
+            sql = "select F.FILM_ID, F.NAME, F.DESCRIPTION, F.RELEASE_DATE,  F.DURATION, F.MPAA_ID, F.NAME as MPAA_NAME" +
+                    ", FG.GENRE_ID " +
+                    "from FILMS  F " +
+                    "LEFT JOIN  LIKES L on F.FILM_ID  = L.FILM_ID " +
+                    "LEFT JOIN FILMS_GENRES FG on F.FILM_ID = FG.FILM_ID " +
+                    "WHERE FG.GENRE_ID = :genreId " +
+                    "GROUP BY F.FILM_ID, L.USER_ID ORDER BY COUNT(L.USER_ID) DESC LIMIT :count";
+        }
+
+        if (genreId != null && date != null) {
+            sql = "select F.FILM_ID, F.NAME, F.DESCRIPTION, F.RELEASE_DATE,  F.DURATION, F.MPAA_ID, F.NAME as MPAA_NAME " +
+                    "from FILMS  F " +
+                    "LEFT JOIN  LIKES L on F.FILM_ID  = L.FILM_ID " +
+                    "LEFT JOIN FILMS_GENRES FG on F.FILM_ID = FG.FILM_ID " +
+                    "WHERE FG.GENRE_ID = :genreId AND EXTRACT(YEAR FROM RELEASE_DATE) = :date " +
+                    "GROUP BY F.FILM_ID, L.USER_ID ORDER BY COUNT(L.USER_ID) DESC LIMIT :count";
+        }
+
+        SqlParameterSource namedParameters = new MapSqlParameterSource()
+                .addValue("count", count)
+                .addValue("genreId", genreId)
+                .addValue("date", date);
+
+        NamedParameterJdbcTemplate nPJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
+
+        List<Film> films = nPJdbcTemplate.query(sql,
+                namedParameters,
+                (rs, rowNum) ->
                 {
                     Film film = new Film(
                             rs.getLong("film_id"),
@@ -236,12 +273,17 @@ public class FilmDaoImpl implements FilmStorage {
                             rs.getString("description"),
                             rs.getDate("release_date").toLocalDate(),
                             (rs.getInt("duration")),
-                            new Mpa(rs.getInt("MPAA_ID"), rs.getString("MPAA_NAME")
-                            )
+                            new Mpa(rs.getInt("MPAA_ID"), rs.getString("MPAA_NAME"))
                     );
                     getLikesByFilm(film);
+                    if (filmGenreDao.findAllByFilmId(film.getId()).isEmpty())  {
+                        film.setGenres(null);
+                    } else {
+                        film.setGenres(new ArrayList<>(filmGenreDao.findAllByFilmId(film.getId())));
+                    }
+
                     return film;
-                }, count
+                }
         );
         return films;
     }
@@ -269,7 +311,7 @@ public class FilmDaoImpl implements FilmStorage {
             case "title,director":
                 return jdbcTemplate.query(searchTitleDirector, this::mapFilm, queryString, queryString);
             default:
-                return getMostPopular(10);
+                return getMostPopular(10, null, null);
         }
     }
 

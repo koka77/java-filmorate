@@ -5,7 +5,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Feed;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.Collection;
@@ -15,13 +17,16 @@ import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
+    private UserStorage storage;
+    private FilmStorage filmStorage;
 
     @Autowired
-    public UserServiceImpl(@Qualifier("UserDaoImpl") UserStorage storage) {
+    public UserServiceImpl(
+            @Qualifier("UserDaoImpl") UserStorage storage,
+            @Qualifier("FilmDaoImpl") FilmStorage filmStorage) {
         this.storage = storage;
+        this.filmStorage = filmStorage;
     }
-
-    private UserStorage storage;
 
     @Override
     public Collection<User> findAll() {
@@ -81,5 +86,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public void removeUser(Long id) {
         storage.deleteUser(id);
+    }
+
+    @Override
+    public Collection<Film> getRecommendations(Long id, Integer count) {
+        return storage.getRecommendations(id, count).stream()
+                .map(filmStorage::findById)
+                .map(Optional::get)
+                .collect(Collectors.toList());
     }
 }

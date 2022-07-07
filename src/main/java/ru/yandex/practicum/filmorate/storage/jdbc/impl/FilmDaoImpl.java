@@ -196,7 +196,7 @@ public class FilmDaoImpl implements FilmStorage {
                 ps.setLong(2, film.getId());
                 ps.addBatch();
             }
-                ps.executeUpdate();
+            ps.executeBatch();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -282,7 +282,7 @@ public class FilmDaoImpl implements FilmStorage {
                             new Mpa(rs.getInt("MPAA_ID"), rs.getString("MPAA_NAME"))
                     );
                     getLikesByFilm(film);
-                    if (filmGenreDao.findAllByFilmId(film.getId()).isEmpty())  {
+                    if (filmGenreDao.findAllByFilmId(film.getId()).isEmpty()) {
                         film.setGenres(null);
                     } else {
                         film.setGenres(new ArrayList<>(filmGenreDao.findAllByFilmId(film.getId())));
@@ -344,7 +344,7 @@ public class FilmDaoImpl implements FilmStorage {
     private Film setGenre(Film film) {
         String sql = "select G.GENRE_ID, G.NAME from GENRES AS G  join FILMS_GENRES GF on G.GENRE_ID = GF.GENRE_ID  where  GF.FILM_ID = ?  ORDER BY G.GENRE_ID ";
         List<Genre> genres = jdbcTemplate.queryForStream(sql, (gs, rowNum)
-                        -> new Genre(gs.getInt("genre_id"),gs.getString("name"))
+                        -> new Genre(gs.getInt("genre_id"), gs.getString("name"))
                 , film.getId()).collect(Collectors.toList());
 
         if (genres.isEmpty()) {

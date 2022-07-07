@@ -14,11 +14,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static ru.yandex.practicum.filmorate.TestUtil.*;
 
 class UserControllerTest extends AbstractControllerTest {
 
     @Autowired
     UserController userController;
+
+    @Autowired
+    private FilmController filmController;
 
     @AfterEach
     void clear() {
@@ -172,5 +176,35 @@ class UserControllerTest extends AbstractControllerTest {
     @Test
     void shouldReturnAllFeedsByUserId() {
 //        userService.
+    }
+
+    @Test
+    void shouldReturnRecommendationCorrectly() throws Exception {
+        userController.createUser(TestUtil.validUser1);
+        userController.createUser(TestUtil.validUser2);
+        filmController.addFilm(validFilm1);
+        filmController.addFilm(validFilm2);
+        filmController.addFilm(validFilm3);
+
+        filmController.addLike(1L, 1L);
+        mockMvc.perform(
+                        MockMvcRequestBuilders.get("/users/{id}/recommendations", 1l))
+                .andExpect(status().isOk());
+
+        filmController.addLike(2L, 2L);
+        mockMvc.perform(
+                        MockMvcRequestBuilders.get("/users/{id}/recommendations", 1l))
+                .andExpect(status().isOk());
+
+        filmController.addLike(3L, 1L);
+        filmController.addLike(3L, 2L);
+        mockMvc.perform(
+                        MockMvcRequestBuilders.get("/users/{id}/recommendations", 1l))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content()
+                        .json("[{\"genres\":null,\"directors\":[],\"rate\":null,\"id\":2" +
+                                ",\"likes\":[2],\"name\":\"validFilm2\",\"description\":\"validFilm2 description\"" +
+                                ",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"G\"}}]"));
     }
 }

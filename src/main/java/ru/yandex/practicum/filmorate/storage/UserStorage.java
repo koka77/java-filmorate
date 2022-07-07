@@ -20,5 +20,5 @@ public interface UserStorage {
 
     Collection<User> getUserCrossFriends(Long id, Long otherId);
 
-    Collection<Film> getRecommendations(Long id, Integer count);
+    Collection<Long> getRecommendations(Long id, Integer count);
 }

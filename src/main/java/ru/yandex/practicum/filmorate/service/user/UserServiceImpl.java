@@ -5,9 +5,12 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -15,11 +18,14 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     @Autowired
-    public UserServiceImpl(@Qualifier("UserDaoImpl") UserStorage storage) {
+    public UserServiceImpl(@Qualifier("UserDaoImpl") UserStorage storage,
+                           @Qualifier("FilmDaoImpl") FilmStorage filmStorage) {
         this.storage = storage;
+        this.filmStorage = filmStorage;
     }
 
     private UserStorage storage;
+    private FilmStorage filmStorage;
 
     @Override
     public Collection<User> findAll() {
@@ -78,6 +84,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Collection<Film> getRecommendations(Long id, Integer count) {
-        return storage.getRecommendations(id, count);
+        Collection<Film> recommendationsFilms = new HashSet<>();
+        Collection<Long> filmsId = storage.getRecommendations(id, count);
+        recommendationsFilms = filmsId.stream()
+                .map(filmId -> filmStorage.findById(filmId))
+                .map(Optional :: get)
+                .collect(Collectors.toSet());
+        return recommendationsFilms;
     }
 }

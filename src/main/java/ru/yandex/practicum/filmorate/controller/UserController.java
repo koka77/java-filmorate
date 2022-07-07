@@ -29,6 +29,11 @@ public class UserController {
         this.feedService = feedService;
     }
 
+    @DeleteMapping("{id}")
+    public void deleteUser(@PathVariable Long id) {
+        userService.removeUser(id);
+    }
+
     @GetMapping("{userId}/feed")
     public Collection<Feed> getAllFeedsByUserId(@PathVariable Long userId,
                                                 @RequestParam(required = false, defaultValue = "10") Integer limit) {
@@ -80,7 +85,6 @@ public class UserController {
             throw new UnableToFindException();
         }
         return userService.updateUser(user);
-
     }
 
     @GetMapping

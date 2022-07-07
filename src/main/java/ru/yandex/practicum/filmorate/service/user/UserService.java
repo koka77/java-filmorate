@@ -24,5 +24,7 @@ public interface UserService {
 
     Collection<User> getCrossFriends(Long id, Long otherId);
 
+    void removeUser(Long id);
+
     Collection<Film> getRecommendations(Long id, Integer count);
 }

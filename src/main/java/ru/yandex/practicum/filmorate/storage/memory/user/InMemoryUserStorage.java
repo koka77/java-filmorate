@@ -72,6 +72,11 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
+    public void deleteUser(Long id) {
+        throw  new UnsupportedOperationException("Метод не поддерживается в данной реализации хранилища");
+    }
+
+    @Override
     public Collection<Long> getRecommendations(Long id, Integer count) {
         throw new UnsupportedOperationException();
     }

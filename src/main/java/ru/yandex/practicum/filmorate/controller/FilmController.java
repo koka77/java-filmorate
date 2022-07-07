@@ -10,7 +10,6 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.film.FilmService;
 
 import javax.validation.Valid;
-import javax.validation.constraints.PositiveOrZero;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -24,6 +23,11 @@ public class FilmController {
     @Autowired
     public FilmController(FilmService service) {
         this.service = service;
+    }
+
+    @DeleteMapping("{filmId}")
+    public void deleteFilm(@PathVariable Long filmId) {
+        service.removeFilm(filmId);
     }
 
     @PutMapping("{id}/like/{userId}")

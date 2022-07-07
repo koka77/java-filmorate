@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.exception.UnableToFindException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
@@ -93,6 +94,11 @@ public class FilmDaoImpl implements FilmStorage {
 
     @Override
     public Optional<Film> findById(Long id) {
+        final String sqlCnt = "SELECT COUNT(*) From FILMS WHERE FILM_ID=?";
+        if (jdbcTemplate.queryForObject(sqlCnt, Integer.class, id) == 0) {
+            throw new ObjectNotFoundException("No data found");
+        }
+
         Film film = null;
         SqlRowSet rs = jdbcTemplate.queryForRowSet(SELECT_BY_ID, id);
         if (rs.next()) {
@@ -323,5 +329,28 @@ public class FilmDaoImpl implements FilmStorage {
     //Использовал существующую логику класса
     private Film mapFilm(ResultSet row, int rowNum) throws SQLException {
         return findById(row.getLong("film_id")).get();
+    }
+
+    @Override
+    public void deleteFilm(Long filmId) {
+        final String sql = "DELETE FROM FILMS where FILM_ID = ?";
+        jdbcTemplate.update(sql, filmId);
+        final String sql2 = "DELETE FROM LIKES where FILM_ID = ?";
+        jdbcTemplate.update(sql, filmId);/*
+        final String sql3 = "DELETE FROM FILMS where FILM_ID = ?";
+        jdbcTemplate.update(sql, filmId);*/
+    }
+
+    private Film setGenre(Film film) {
+        String sql = "select G.GENRE_ID, G.NAME from GENRES AS G  join FILMS_GENRES GF on G.GENRE_ID = GF.GENRE_ID  where  GF.FILM_ID = ?  ORDER BY G.GENRE_ID ";
+        List<Genre> genres = jdbcTemplate.queryForStream(sql, (gs, rowNum)
+                        -> new Genre(gs.getInt("genre_id"),gs.getString("name"))
+                , film.getId()).collect(Collectors.toList());
+
+        if (genres.isEmpty()) {
+            return film;
+        }
+        film.setGenres(genres);
+        return film;
     }
 }

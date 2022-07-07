@@ -196,7 +196,7 @@ public class FilmDaoImpl implements FilmStorage {
                 ps.setLong(2, film.getId());
                 ps.addBatch();
             }
-                ps.executeUpdate();
+                ps.executeBatch();
         } catch (SQLException e) {
             e.printStackTrace();
         }

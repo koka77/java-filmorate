@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import ru.yandex.practicum.filmorate.TestUtil;
+import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -170,7 +171,46 @@ class UserControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    void shouldReturnAllFeedsByUserId() {
-//        userService.
+    void shouldReturnAllFeedsByUserId() throws Exception {
+        userController.findAll();
+        userController.addFriend(2l, 3l);
+        userController.removeFriend(2l, 3l);
+        userController.getAllFeedsByUserId(2l, 10);
+        mockMvc.perform(
+                        MockMvcRequestBuilders.get("/users/{userId}/feed", 2l)
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content()
+                        .json("[{\"eventId\":1,\"userId\":2,\"eventType\":\"FRIEND\"" +
+                                ",\"operation\":\"ADD\",\"entityId\":3}" +
+                                ",{\"eventId\":2,\"userId\":2,\"eventType\":\"FRIEND\",\"operation\":\"REMOVE\"" +
+                                ",\"entityId\":3}]"))
+                .andDo(print());
+    }
+
+
+    // Этот тест не работает как надо
+    @Test
+    void getRecommendations() throws Exception {
+        //создал и сохранил 2 фильмма
+        Film film1 = TestUtil.validFilm1;
+        Film film2 = TestUtil.validFilm1;
+        filmService.addFilm(TestUtil.validFilm1);
+        filmService.addFilm(TestUtil.validFilm2);
+
+        //ставлю лайки двум фильмам от 2 юзера и одному фильму от другого
+        filmService.addLike(1l, 2l);
+        filmService.addLike(2l, 2l);
+        filmService.addLike(1l, 3l);
+        //тут получаю ноль
+        userController.getRecommendations(3l, 10);
+
+        mockMvc.perform(
+                        MockMvcRequestBuilders.get("/users/{id}/recommendations", 3l)
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content()
+                        .json("[{\"genres\":null,\"directors\":[],\"rate\":null,\"id\":2,\"likes\":[2],\"name\":\"validFilm2\",\"description\":\"validFilm2 description\",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"G\"}}]"))
+                .andDo(print());
     }
 }

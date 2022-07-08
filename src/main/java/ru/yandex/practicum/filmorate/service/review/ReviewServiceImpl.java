@@ -17,9 +17,9 @@ import java.util.Optional;
 @Service
 @Slf4j
 public class ReviewServiceImpl implements ReviewService {
-    ReviewDao reviewStorage;
-    UserStorage userStorage;
-    FilmStorage filmStorage;
+    private final ReviewDao reviewStorage;
+    private final UserStorage userStorage;
+    private final FilmStorage filmStorage;
 
     @Autowired
     public ReviewServiceImpl(ReviewDao reviewStorage,

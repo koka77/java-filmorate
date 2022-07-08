@@ -59,7 +59,6 @@ public class FeedServiceImpl implements FeedService {
     @Override
     public void addFeed(String methodName, Review r) {
         Feed feed = feedDao.findByReview(r);
-//        Feed feed = createFeed(methodName,  r.getReviewId(), r.getUserId() );
         feed.setOperation("UPDATE");
         feed.setEventType("REVIEW");
         feedDao.addFeed(feed);

@@ -4,6 +4,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import ru.yandex.practicum.filmorate.TestUtil;
 
@@ -15,7 +16,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static ru.yandex.practicum.filmorate.TestUtil.*;
-
+@DirtiesContext
 class UserControllerTest extends AbstractControllerTest {
 
     @Autowired
@@ -52,9 +53,9 @@ class UserControllerTest extends AbstractControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content()
-                        .json("[{\"id\":8,\"friends\":[],\"email\":\"validUser2@mail.ru\"" +
+                        .json("[{\"id\":9,\"friends\":[],\"email\":\"validUser2@mail.ru\"" +
                                 ",\"login\":\"login\",\"name\":\"validUser2\",\"birthday\":\"1981-05-16\"}" +
-                                ",{\"id\":7,\"friends\":[],\"email\":\"validUser2@mail.ru\",\"login\":\"login\"" +
+                                ",{\"id\":10,\"friends\":[],\"email\":\"validUser2@mail.ru\",\"login\":\"login\"" +
                                 ",\"name\":\"validUser2\",\"birthday\":\"1981-05-16\"}]")).andDo(print());
     }
 
@@ -67,11 +68,11 @@ class UserControllerTest extends AbstractControllerTest {
         userController.addFriend(TestUtil.validUser2.getId(), TestUtil.validUser3.getId());
 
         mockMvc.perform(
-                        MockMvcRequestBuilders.get("/users/{id}/friends/common/{otherId}", 10L, 11L)
+                        MockMvcRequestBuilders.get("/users/{id}/friends/common/{otherId}", 12L, 13L)
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content()
-                        .json("[{\"id\":12,\"friends\":[],\"email\":\"validUser2@mail.ru\"" +
+                        .json("[{\"id\":14,\"friends\":[],\"email\":\"validUser2@mail.ru\"" +
                                 ",\"login\":\"login\",\"name\":\"validUser2\",\"birthday\":\"1981-05-16\"}]"))
                 .andDo(print());
     }
@@ -122,7 +123,7 @@ class UserControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(content()
-                        .json("{\"id\":9,\"friends\":[],\"email\":\"mail@yandex.ru\"" +
+                        .json("{\"id\":11,\"friends\":[],\"email\":\"mail@yandex.ru\"" +
                                 ",\"login\":\"doloreUpdate\",\"name\":\"est adipisicing\"" +
                                 ",\"birthday\":\"1976-09-20\"}"));
     }
@@ -186,25 +187,29 @@ class UserControllerTest extends AbstractControllerTest {
         filmController.addFilm(validFilm2);
         filmController.addFilm(validFilm3);
 
-        filmController.addLike(1L, 1L);
+        filmController.addLike(1L, 2L);
         mockMvc.perform(
-                        MockMvcRequestBuilders.get("/users/{id}/recommendations", 1l))
+                        MockMvcRequestBuilders.get("/users/{id}/recommendations", 2l))
                 .andExpect(status().isOk());
 
         filmController.addLike(2L, 2L);
         mockMvc.perform(
-                        MockMvcRequestBuilders.get("/users/{id}/recommendations", 1l))
+                        MockMvcRequestBuilders.get("/users/{id}/recommendations", 2l))
                 .andExpect(status().isOk());
 
-        filmController.addLike(3L, 1L);
         filmController.addLike(3L, 2L);
+        filmController.addLike(3L, 3L);
         mockMvc.perform(
-                        MockMvcRequestBuilders.get("/users/{id}/recommendations", 1l))
+                        MockMvcRequestBuilders.get("/users/{id}/recommendations", 3l))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content()
-                        .json("[{\"genres\":null,\"directors\":[],\"rate\":null,\"id\":2" +
-                                ",\"likes\":[2],\"name\":\"validFilm2\",\"description\":\"validFilm2 description\"" +
-                                ",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"G\"}}]"));
+                        .json("[{\"genres\":null,\"directors\":[],\"rate\":null,\"id\":1,\"likes\":[2]" +
+                                ",\"name\":\"validFilm1\",\"description\":\"validFilm1 description\"" +
+                                ",\"releaseDate\":\"2020-10-10\",\"duration\":160,\"mpa\":{\"id\":1" +
+                                ",\"name\":\"G\"}},{\"genres\":null,\"directors\":[],\"rate\":null" +
+                                ",\"id\":2,\"likes\":[2],\"name\":\"validFilm2\"" +
+                                ",\"description\":\"validFilm2 description\",\"releaseDate\":\"2021-10-10\"" +
+                                ",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"G\"}}]"));
     }
 }

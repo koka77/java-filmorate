@@ -106,8 +106,8 @@ public class UserDaoImpl implements UserStorage {
                 ps.setLong(1, friend.getId());
                 ps.setLong(2, user.getId());
                 ps.addBatch();
-                ps.executeUpdate();
             }
+                ps.executeBatch();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -163,12 +163,12 @@ public class UserDaoImpl implements UserStorage {
 
     @Override
     public void deleteUser(Long id) {
-        final String sql = "DELETE FROM FRIENDS where USER_ID = ? ";
-        jdbcTemplate.update(sql, id);
-        final String sql2 = "DELETE FROM FRIENDS where FRIEND_ID = ? ";
-        jdbcTemplate.update(sql2, id);
-        final String sql3 = "DELETE FROM USERS  where USER_ID = ? ";
-        jdbcTemplate.update(sql3, id);
+        final String DELETE_FRIEND_BY_USER_ID = "DELETE FROM FRIENDS where USER_ID = ? ";
+        jdbcTemplate.update(DELETE_FRIEND_BY_USER_ID, id);
+        final String DELETE_FRIEND_BY_FRIEND_ID = "DELETE FROM FRIENDS where FRIEND_ID = ? ";
+        jdbcTemplate.update(DELETE_FRIEND_BY_FRIEND_ID, id);
+        final String DELETE_USER = "DELETE FROM USERS  where USER_ID = ? ";
+        jdbcTemplate.update(DELETE_USER, id);
     }
 
     @Override

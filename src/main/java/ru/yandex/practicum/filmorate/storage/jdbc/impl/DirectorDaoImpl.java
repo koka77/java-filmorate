@@ -21,10 +21,10 @@ import java.util.stream.Collectors;
 public class DirectorDaoImpl implements DirectorDao {
     private final JdbcTemplate jdbcTemplate;
     private final SimpleJdbcInsert jdbcInsert;
-    private static final String SEL_SQL = "SELECT director_id, name FROM directors WHERE director_id=?";
-    private static final String SEL_ALL_SQL = "SELECT director_id, name FROM directors";
-    private static final String UPD_SQL = "UPDATE directors SET name=? WHERE director_id=?";
-    private static final String DEL_SQL = "DELETE FROM directors WHERE director_id=?";
+    private static final String SELECT_BY_ID = "SELECT director_id, name FROM directors WHERE director_id=?";
+    private static final String SELECT_ALL = "SELECT director_id, name FROM directors";
+    private static final String UPDATE = "UPDATE directors SET name=? WHERE director_id=?";
+    private static final String DELETE = "DELETE FROM directors WHERE director_id=?";
 
     public DirectorDaoImpl(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -35,7 +35,7 @@ public class DirectorDaoImpl implements DirectorDao {
     @Override
     public Optional<Director> findById(Long directorId) {
         try {
-            return Optional.of(jdbcTemplate.queryForObject(SEL_SQL, this::mapRow, directorId));
+            return Optional.of(jdbcTemplate.queryForObject(SELECT_BY_ID, this::mapRow, directorId));
         } catch (EmptyResultDataAccessException e) {
             log.warn(String.format("findById exception for id: %s", directorId));
             return Optional.empty();
@@ -44,7 +44,7 @@ public class DirectorDaoImpl implements DirectorDao {
 
     @Override
     public Collection<Director> findAll() {
-        return jdbcTemplate.queryForStream(SEL_ALL_SQL, this::mapRow).collect(Collectors.toList());
+        return jdbcTemplate.queryForStream(SELECT_ALL, this::mapRow).collect(Collectors.toList());
     }
 
     @Override
@@ -61,14 +61,14 @@ public class DirectorDaoImpl implements DirectorDao {
 
     @Override
     public boolean update(Director director) {
-        if (jdbcTemplate.update(UPD_SQL, director.getName(), director.getId()) > 0) {
+        if (jdbcTemplate.update(UPDATE, director.getName(), director.getId()) > 0) {
             return true;
         } else return false;
     }
 
     @Override
     public boolean delete(Long directorId) {
-        if (jdbcTemplate.update(DEL_SQL, directorId) > 0) {
+        if (jdbcTemplate.update(DELETE, directorId) > 0) {
             return true;
         } else return false;
     }

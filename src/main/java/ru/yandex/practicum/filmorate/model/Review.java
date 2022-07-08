@@ -11,17 +11,17 @@ import java.util.Map;
 @AllArgsConstructor
 public class Review {
     @PositiveOrZero
-    long reviewId;
+    private long reviewId;
     @NotNull
     @NotBlank
-    String content;
+    private String content;
     @NotNull
-    Boolean isPositive;
+    private Boolean isPositive;
     @NotNull
-    Long userId;
+    private Long userId;
     @NotNull
-    Long filmId;
-    int useful;
+    private Long filmId;
+    private int useful;
 
     public Map<String, Object> toMap() {
         Map<String, Object> values = new HashMap<>();

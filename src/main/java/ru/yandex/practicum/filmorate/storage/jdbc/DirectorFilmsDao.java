@@ -8,9 +8,9 @@ import java.util.List;
 
 @Repository
 public interface DirectorFilmsDao {
-    public List<Director> getByFilm(Long filmId);
+    List<Director> getByFilm(Long filmId);
 
-    public void refresh(Film film);
+    void refresh(Film film);
 
-    public boolean delete(Long filmId);
+    boolean delete(Long filmId);
 }

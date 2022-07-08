@@ -5,9 +5,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.storage.jdbc.FilmGenreDao;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -16,11 +21,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static ru.yandex.practicum.filmorate.TestUtil.*;
-
+@DirtiesContext
 class FilmControllerTest extends AbstractControllerTest {
 
     @Autowired
     private FilmController filmController;
+
+    @Autowired
+    private FilmGenreDao filmGenreDao;
 
 
     @BeforeEach
@@ -83,7 +91,10 @@ class FilmControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content()
-                        .json("[{\"genres\":null,\"rate\":null,\"id\":1,\"likes\":[],\"name\":\"validFilm1\",\"description\":\"validFilm1 description\",\"releaseDate\":\"2020-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"validFilm1\"}}]"));
+                        .json("[{\"genres\":null,\"rate\":null,\"id\":1,\"likes\":[]" +
+                                ",\"name\":\"validFilm1\",\"description\":\"validFilm1 description\"" +
+                                ",\"releaseDate\":\"2020-10-10\",\"duration\":160,\"mpa\":{\"id\":1" +
+                                ",\"name\":\"validFilm1\"}}]"));
 
 
         mockMvc.perform(
@@ -91,7 +102,37 @@ class FilmControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content()
-                        .json("[{\"genres\":null,\"rate\":null,\"id\":1,\"likes\":[],\"name\":\"validFilm1\",\"description\":\"validFilm1 description\",\"releaseDate\":\"2020-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"validFilm1\"}},{\"genres\":null,\"rate\":null,\"id\":2,\"likes\":[],\"name\":\"validFilm2\",\"description\":\"validFilm2 description\",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"validFilm2\"}},{\"genres\":null,\"rate\":null,\"id\":3,\"likes\":[],\"name\":\"validFilm3\",\"description\":\"validFilm3 description\",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"validFilm3\"}},{\"genres\":null,\"rate\":null,\"id\":4,\"likes\":[],\"name\":\"validFilm3\",\"description\":\"validFilm3 description\",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"validFilm3\"}},{\"genres\":null,\"rate\":null,\"id\":5,\"likes\":[],\"name\":\"validFilm3\",\"description\":\"validFilm3 description\",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"validFilm3\"}},{\"genres\":null,\"rate\":null,\"id\":6,\"likes\":[],\"name\":\"validFilm3\",\"description\":\"validFilm3 description\",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"validFilm3\"}},{\"genres\":null,\"rate\":null,\"id\":7,\"likes\":[],\"name\":\"validFilm3\",\"description\":\"validFilm3 description\",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"validFilm3\"}},{\"genres\":null,\"rate\":null,\"id\":8,\"likes\":[],\"name\":\"validFilm3\",\"description\":\"validFilm3 description\",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"validFilm3\"}},{\"genres\":null,\"rate\":null,\"id\":9,\"likes\":[],\"name\":\"validFilm3\",\"description\":\"validFilm3 description\",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"validFilm3\"}},{\"genres\":null,\"rate\":null,\"id\":10,\"likes\":[],\"name\":\"validFilm3\",\"description\":\"validFilm3 description\",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"validFilm3\"}}]"));
+                        .json("[{\"genres\":null,\"rate\":null,\"id\":1,\"likes\":[]" +
+                                ",\"name\":\"validFilm1\",\"description\":\"validFilm1 description\"" +
+                                ",\"releaseDate\":\"2020-10-10\",\"duration\":160,\"mpa\":{\"id\":1" +
+                                ",\"name\":\"validFilm1\"}},{\"genres\":null,\"rate\":null,\"id\":2" +
+                                ",\"likes\":[],\"name\":\"validFilm2\",\"description\":\"validFilm2 description\"" +
+                                ",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1" +
+                                ",\"name\":\"validFilm2\"}},{\"genres\":null,\"rate\":null,\"id\":3" +
+                                ",\"likes\":[],\"name\":\"validFilm3\",\"description\":\"validFilm3 description\"" +
+                                ",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1" +
+                                ",\"name\":\"validFilm3\"}},{\"genres\":null,\"rate\":null,\"id\":4" +
+                                ",\"likes\":[],\"name\":\"validFilm3\",\"description\":\"validFilm3 description\"" +
+                                ",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1" +
+                                ",\"name\":\"validFilm3\"}},{\"genres\":null,\"rate\":null,\"id\":5" +
+                                ",\"likes\":[],\"name\":\"validFilm3\",\"description\":\"validFilm3 description\"" +
+                                ",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1" +
+                                ",\"name\":\"validFilm3\"}},{\"genres\":null,\"rate\":null,\"id\":6" +
+                                ",\"likes\":[],\"name\":\"validFilm3\",\"description\":\"validFilm3 description\"" +
+                                ",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1" +
+                                ",\"name\":\"validFilm3\"}},{\"genres\":null,\"rate\":null,\"id\":7" +
+                                ",\"likes\":[],\"name\":\"validFilm3\",\"description\":\"validFilm3 description\"" +
+                                ",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1" +
+                                ",\"name\":\"validFilm3\"}},{\"genres\":null,\"rate\":null,\"id\":8" +
+                                ",\"likes\":[],\"name\":\"validFilm3\",\"description\":\"validFilm3 description\"" +
+                                ",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1" +
+                                ",\"name\":\"validFilm3\"}},{\"genres\":null,\"rate\":null,\"id\":9" +
+                                ",\"likes\":[],\"name\":\"validFilm3\",\"description\":\"validFilm3 description\"" +
+                                ",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1" +
+                                ",\"name\":\"validFilm3\"}},{\"genres\":null,\"rate\":null,\"id\":10" +
+                                ",\"likes\":[],\"name\":\"validFilm3\",\"description\":\"validFilm3 description\"" +
+                                ",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1" +
+                                ",\"name\":\"validFilm3\"}}]"));
 
     }
 
@@ -105,27 +146,20 @@ class FilmControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content()
-                        .json("{\"genres\":null,\"rate\":null,\"id\":1,\"likes\":[2],\"name\":\"New Name\",\"description\":\"validFilm1 description\",\"releaseDate\":\"2020-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"G\"}}"));
+                        .json("{\"genres\":[{\"id\":1,\"name\":\"Комедия\"},{\"id\":3" +
+                                ",\"name\":\"Мультфильм\"}],\"directors\":[],\"rate\":null,\"id\":1" +
+                                ",\"likes\":[2],\"name\":\"New Name\",\"description\":\"validFilm1 description\"" +
+                                ",\"releaseDate\":\"2020-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"G\"}}"));
     }
 
     @Test
     void shouldReturnBadRequest() throws Exception {
-/*        mockMvc.perform(
-                        MockMvcRequestBuilders.put("/films")
-                                .content("[{\"genres\":null,\"rate\":null,\"id\":1,\"likes\":[],\"name\":\"validFilm1\",\"description\":\"validFilm1 description\",\"releaseDate\":\"2020-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"validFilm1\"}")
-                                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-
         mockMvc.perform(
                         MockMvcRequestBuilders.put("/films")
-                                .content("{\"id\":1,\"name\":\" \",\"description\":\"description\",\"releaseDate\":\"1895-12-29\",\"filmDuration\":\"PT2H40M\"}")
-                                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());*/
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders.put("/films")
-                                .content("[{\"genres\":null,\"rate\":null,\"id\":1,\"likes\":[],\"name\":\"validFilm1\",\"description\":\"validFilm1 description\",\"releaseDate\":\"2020-10-10\",\"duration\":-160,\"mpa\":{\"id\":1,\"name\":\"validFilm1\"}}")
-//                                .content("{\"id\":1,\"name\":\"New film\",\"description\":\"description\",\"releaseDate\":\"1895-12-27\",\"filmDuration\":\"PT2H40M\"}")
+                                .content("[{\"genres\":null,\"rate\":null,\"id\":1,\"likes\":[]" +
+                                        ",\"name\":\"validFilm1\",\"description\":\"validFilm1 description\"" +
+                                        ",\"releaseDate\":\"2020-10-10\",\"duration\":-160,\"mpa\":{\"id\":1" +
+                                        ",\"name\":\"validFilm1\"}}")
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
 
@@ -151,7 +185,9 @@ class FilmControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(content()
-                        .json("{\"genres\":null,\"rate\":null,\"id\":23,\"likes\":[1],\"name\":\"validFilm3\",\"description\":\"validFilm3 description\",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"\"}}"));
+                        .json("{\"genres\":null,\"rate\":null,\"id\":26,\"likes\":[1]" +
+                                ",\"name\":\"validFilm3\",\"description\":\"validFilm3 description\"" +
+                                ",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"\"}}"));
 
 
     }
@@ -184,7 +220,113 @@ class FilmControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(content()
-//                        .json("[{\"genres\":null,\"rate\":null,\"id\":1,\"likes\":[],\"name\":\"validFilm1\",\"description\":\"validFilm1 description\",\"releaseDate\":\"2020-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"G\"}},{\"genres\":null,\"rate\":null,\"id\":2,\"likes\":[],\"name\":\"validFilm2\",\"description\":\"validFilm2 description\",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"G\"}}]"));
-                        .json("[{\"genres\":null,\"rate\":null,\"id\":1,\"likes\":[],\"name\":\"New Name\",\"description\":\"validFilm1 description\",\"releaseDate\":\"2020-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"G\"}},{\"genres\":null,\"rate\":null,\"id\":2,\"likes\":[],\"name\":\"validFilm2\",\"description\":\"validFilm2 description\",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"G\"}},{\"genres\":null,\"rate\":null,\"id\":3,\"likes\":[],\"name\":\"validFilm3\",\"description\":\"validFilm3 description\",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"G\"}},{\"genres\":null,\"rate\":null,\"id\":4,\"likes\":[],\"name\":\"validFilm3\",\"description\":\"validFilm3 description\",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"G\"}},{\"genres\":null,\"rate\":null,\"id\":5,\"likes\":[],\"name\":\"validFilm3\",\"description\":\"validFilm3 description\",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"G\"}},{\"genres\":null,\"rate\":null,\"id\":6,\"likes\":[],\"name\":\"validFilm3\",\"description\":\"validFilm3 description\",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"G\"}},{\"genres\":null,\"rate\":null,\"id\":7,\"likes\":[],\"name\":\"validFilm3\",\"description\":\"validFilm3 description\",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"G\"}},{\"genres\":null,\"rate\":null,\"id\":8,\"likes\":[],\"name\":\"validFilm3\",\"description\":\"validFilm3 description\",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"G\"}},{\"genres\":null,\"rate\":null,\"id\":9,\"likes\":[],\"name\":\"validFilm3\",\"description\":\"validFilm3 description\",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"G\"}},{\"genres\":null,\"rate\":null,\"id\":10,\"likes\":[],\"name\":\"validFilm3\",\"description\":\"validFilm3 description\",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"G\"}},{\"genres\":null,\"rate\":null,\"id\":11,\"likes\":[],\"name\":\"validFilm1\",\"description\":\"validFilm1 description\",\"releaseDate\":\"2020-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"G\"}},{\"genres\":null,\"rate\":null,\"id\":12,\"likes\":[],\"name\":\"validFilm2\",\"description\":\"validFilm2 description\",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"G\"}},{\"genres\":null,\"rate\":null,\"id\":13,\"likes\":[],\"name\":\"validFilm1\",\"description\":\"validFilm1 description\",\"releaseDate\":\"2020-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"G\"}},{\"genres\":null,\"rate\":null,\"id\":14,\"likes\":[],\"name\":\"validFilm2\",\"description\":\"validFilm2 description\",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"G\"}},{\"genres\":null,\"rate\":null,\"id\":15,\"likes\":[],\"name\":\"validFilm1\",\"description\":\"validFilm1 description\",\"releaseDate\":\"2020-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"G\"}},{\"genres\":null,\"rate\":null,\"id\":16,\"likes\":[],\"name\":\"validFilm2\",\"description\":\"validFilm2 description\",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"G\"}}]"));
+                        .json("[{\"genres\":null,\"rate\":null,\"id\":1,\"likes\":[]" +
+                                ",\"name\":\"New Name\",\"description\":\"validFilm1 description\"" +
+                                ",\"releaseDate\":\"2020-10-10\",\"duration\":160,\"mpa\":{\"id\":1" +
+                                ",\"name\":\"G\"}},{\"genres\":null,\"rate\":null,\"id\":2,\"likes\":[]" +
+                                ",\"name\":\"validFilm2\",\"description\":\"validFilm2 description\"" +
+                                ",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1" +
+                                ",\"name\":\"G\"}},{\"genres\":null,\"rate\":null,\"id\":3,\"likes\":[]" +
+                                ",\"name\":\"validFilm3\",\"description\":\"validFilm3 description\"" +
+                                ",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1" +
+                                ",\"name\":\"G\"}},{\"genres\":null,\"rate\":null,\"id\":4,\"likes\":[]" +
+                                ",\"name\":\"validFilm3\",\"description\":\"validFilm3 description\"" +
+                                ",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1" +
+                                ",\"name\":\"G\"}},{\"genres\":null,\"rate\":null,\"id\":5,\"likes\":[]" +
+                                ",\"name\":\"validFilm3\",\"description\":\"validFilm3 description\"" +
+                                ",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1" +
+                                ",\"name\":\"G\"}},{\"genres\":null,\"rate\":null,\"id\":6,\"likes\":[]" +
+                                ",\"name\":\"validFilm3\",\"description\":\"validFilm3 description\"" +
+                                ",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1" +
+                                ",\"name\":\"G\"}},{\"genres\":null,\"rate\":null,\"id\":7,\"likes\":[]" +
+                                ",\"name\":\"validFilm3\",\"description\":\"validFilm3 description\"" +
+                                ",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1" +
+                                ",\"name\":\"G\"}},{\"genres\":null,\"rate\":null,\"id\":8,\"likes\":[]" +
+                                ",\"name\":\"validFilm3\",\"description\":\"validFilm3 description\"" +
+                                ",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1" +
+                                ",\"name\":\"G\"}},{\"genres\":null,\"rate\":null,\"id\":9,\"likes\":[]" +
+                                ",\"name\":\"validFilm3\",\"description\":\"validFilm3 description\"" +
+                                ",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1" +
+                                ",\"name\":\"G\"}},{\"genres\":null,\"rate\":null,\"id\":10,\"likes\":[]" +
+                                ",\"name\":\"validFilm3\",\"description\":\"validFilm3 description\"" +
+                                ",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1" +
+                                ",\"name\":\"G\"}},{\"genres\":null,\"rate\":null,\"id\":11,\"likes\":[]" +
+                                ",\"name\":\"validFilm1\",\"description\":\"validFilm1 description\"" +
+                                ",\"releaseDate\":\"2020-10-10\",\"duration\":160,\"mpa\":{\"id\":1" +
+                                ",\"name\":\"G\"}},{\"genres\":null,\"rate\":null,\"id\":12,\"likes\":[]" +
+                                ",\"name\":\"validFilm2\",\"description\":\"validFilm2 description\"" +
+                                ",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1" +
+                                ",\"name\":\"G\"}},{\"genres\":null,\"rate\":null,\"id\":13,\"likes\":[]" +
+                                ",\"name\":\"validFilm1\",\"description\":\"validFilm1 description\"" +
+                                ",\"releaseDate\":\"2020-10-10\",\"duration\":160,\"mpa\":{\"id\":1" +
+                                ",\"name\":\"G\"}},{\"genres\":null,\"rate\":null,\"id\":14,\"likes\":[]" +
+                                ",\"name\":\"validFilm2\",\"description\":\"validFilm2 description\"" +
+                                ",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1" +
+                                ",\"name\":\"G\"}},{\"genres\":null,\"rate\":null,\"id\":15,\"likes\":[]" +
+                                ",\"name\":\"validFilm1\",\"description\":\"validFilm1 description\"" +
+                                ",\"releaseDate\":\"2020-10-10\",\"duration\":160,\"mpa\":{\"id\":1" +
+                                ",\"name\":\"G\"}},{\"genres\":null,\"rate\":null,\"id\":16,\"likes\":[]" +
+                                ",\"name\":\"validFilm2\",\"description\":\"validFilm2 description\"" +
+                                ",\"releaseDate\":\"2021-10-10\",\"duration\":160,\"mpa\":{\"id\":1" +
+                                ",\"name\":\"G\"}}]"));
+    }
+
+    @Test
+    void shouldReturnPopularFilmsWithCorrectGenreAndYear() throws Exception {
+
+        filmController.addFilm(validFilm3);
+        filmGenreDao.addNewGenreToFilm(1l, new Genre(1, "Комедия"));
+        filmGenreDao.addNewGenreToFilm(1l, new Genre(3, "Мультфильм"));
+        filmGenreDao.addNewGenreToFilm(2l, new Genre(2, "Драма"));
+        filmGenreDao.addNewGenreToFilm(3l, new Genre(3, "Мультфильм"));
+
+        validFilm1.getLikes().add(1l);
+        validFilm1.getLikes().add(2l);
+
+        validFilm2.getLikes().add(1l);
+        validFilm2.getLikes().add(2l);
+
+        validFilm3.getLikes().add(1l);
+
+        mockMvc.perform(
+                        MockMvcRequestBuilders.get("/films/popular")
+                                .param("count", "2")
+                                .param("genreId", "3"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content()
+                        .json("[{\"genres\":[{\"id\":1,\"name\":\"Комедия\"},{\"id\":3" +
+                                ",\"name\":\"Мультфильм\"}],\"directors\":null,\"rate\":null,\"id\":1" +
+                                ",\"likes\":[2],\"name\":\"New Name\",\"description\":\"validFilm1 description\"" +
+                                ",\"releaseDate\":\"2020-10-10\",\"duration\":160,\"mpa\":{\"id\":1" +
+                                ",\"name\":\"New Name\"}},{\"genres\":[{\"id\":3,\"name\":\"Мультфильм\"}]" +
+                                ",\"directors\":null,\"rate\":null,\"id\":3,\"likes\":[],\"name\":\"validFilm3\"" +
+                                ",\"description\":\"validFilm3 description\",\"releaseDate\":\"2021-10-10\"" +
+                                ",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"validFilm3\"}}]"));
+        mockMvc.perform(
+                        MockMvcRequestBuilders.get("/films/popular")
+                                .param("count", "1")
+                                .param("date", "2020"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content()
+                        .json("[{\"genres\":[{\"id\":1,\"name\":\"Комедия\"},{\"id\":3" +
+                                ",\"name\":\"Мультфильм\"}],\"directors\":null,\"rate\":null,\"id\":1,\"likes\":[2]" +
+                                ",\"name\":\"New Name\",\"description\":\"validFilm1 description\"" +
+                                ",\"releaseDate\":\"2020-10-10\",\"duration\":160,\"mpa\":{\"id\":1" +
+                                ",\"name\":\"New Name\"}}]"));
+
+        mockMvc.perform(
+                        MockMvcRequestBuilders.get("/films/popular")
+                                .param("count", "1")
+                                .param("genreId", "2")
+                                .param("date", "2021"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content()
+                        .json("[{\"genres\":[{\"id\":2,\"name\":\"Драма\"}],\"directors\":null" +
+                                ",\"rate\":null,\"id\":2,\"likes\":[],\"name\":\"validFilm2\"" +
+                                ",\"description\":\"validFilm2 description\",\"releaseDate\":\"2021-10-10\"" +
+                                ",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"validFilm2\"}}]"));
     }
 }

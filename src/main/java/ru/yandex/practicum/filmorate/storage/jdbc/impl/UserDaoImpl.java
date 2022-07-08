@@ -4,17 +4,29 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
+import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component("UserDaoImpl")
 public class UserDaoImpl implements UserStorage {
 
     private final JdbcTemplate jdbcTemplate;
+    private static final String SEL_RECOMMENDATIONS = "SELECT L.FILM_ID FROM " +
+            "(SELECT L2.USER_ID, COUNT(L2.FILM_ID) CNT FROM LIKES L1 " +
+            "LEFT JOIN LIKES L2 ON L1.FILM_ID = L2.FILM_ID " +
+            "WHERE L1.USER_ID = ? AND L1.USER_ID <> L2.USER_ID " +
+            "GROUP BY L2.USER_ID ORDER BY CNT DESC LIMIT 1) U " +
+            "LEFT JOIN LIKES L ON U.USER_ID = L.USER_ID " +
+            "WHERE L.FILM_ID NOT IN (SELECT FILM_ID FROM LIKES WHERE USER_ID = ?) LIMIT ? ";
 
     public UserDaoImpl(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -88,33 +100,36 @@ public class UserDaoImpl implements UserStorage {
         }
         String sql = "insert into FRIENDS (FRIEND_ID, USER_ID) values (?, ?)";
 
-        try (PreparedStatement ps = jdbcTemplate.getDataSource().getConnection().prepareStatement(sql)) {
+        try (Connection connection = jdbcTemplate.getDataSource().getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql)) {
             for (User friend : user.getFriends()) {
                 ps.setLong(1, friend.getId());
                 ps.setLong(2, user.getId());
                 ps.addBatch();
-                ps.executeUpdate();
             }
+                ps.executeBatch();
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
     @Override
-    public Optional<User> updateUser(User user) {
-        final String sql = "update users set email = ?, login = ?, name = ?, " +
-                "birthday = ?   where user_id = ?";
-        jdbcTemplate.update(sql, user.getEmail(), user.getLogin(), user.getName()
-                , user.getBirthday()
-                , user.getId());
+    public User updateUser(User user) {
+        final String sql = "update USERS set email = ?, login = ?, name = ?, birthday = ?   where user_id = ?";
+        jdbcTemplate.update(sql, user.getEmail(), user.getLogin(), user.getName(), user.getBirthday(), user.getId());
 
         deleteFriends(user);
         insertFriends(user);
-        return Optional.of(user);
+        return user;
     }
 
     @Override
     public Collection<User> getUserFriends(Long id) {
+        final String sqlCnt = "SELECT COUNT(*) From USERS WHERE USER_ID=?";
+        if (jdbcTemplate.queryForObject(sqlCnt, Integer.class, id) == 0) {
+            throw new ObjectNotFoundException("No data found");
+        }
+
         final String sql = "SELECT * From USERS where USER_ID IN (SELECT FRIEND_ID FROM FRIENDS where USER_ID = ?)";
         Collection<User> friends = new HashSet<>();
         SqlRowSet rs = jdbcTemplate.queryForRowSet(sql, id);
@@ -144,5 +159,21 @@ public class UserDaoImpl implements UserStorage {
                 rs.getDate("BIRTHDAY").toLocalDate()));
 
         return users;
+    }
+
+    @Override
+    public void deleteUser(Long id) {
+        final String DELETE_FRIEND_BY_USER_ID = "DELETE FROM FRIENDS where USER_ID = ? ";
+        jdbcTemplate.update(DELETE_FRIEND_BY_USER_ID, id);
+        final String DELETE_FRIEND_BY_FRIEND_ID = "DELETE FROM FRIENDS where FRIEND_ID = ? ";
+        jdbcTemplate.update(DELETE_FRIEND_BY_FRIEND_ID, id);
+        final String DELETE_USER = "DELETE FROM USERS  where USER_ID = ? ";
+        jdbcTemplate.update(DELETE_USER, id);
+    }
+
+    @Override
+    public Collection<Long> getRecommendations(Long id, Integer count) {
+        return jdbcTemplate.query(SEL_RECOMMENDATIONS,
+                (rs, rowNum) -> rs.getLong("FILM_ID"), id, id, count);
     }
 }

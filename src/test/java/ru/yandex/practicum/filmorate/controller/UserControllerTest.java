@@ -4,24 +4,41 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import ru.yandex.practicum.filmorate.TestUtil;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
+import static ru.yandex.practicum.filmorate.TestUtil.*;
+@DirtiesContext
 class UserControllerTest extends AbstractControllerTest {
 
     @Autowired
     UserController userController;
 
+    @Autowired
+    private FilmController filmController;
+
     @AfterEach
     void clear() {
         userService = null;
+    }
+
+    @Test
+    void shouldRemoveUserByIdCorrectly() {
+        userService.createUser(TestUtil.validUser1);
+        userService.createUser(TestUtil.validUser2);
+
+
+        assertEquals(2, userService.findAll().size());
+        userController.deleteUser(1l);
+        assertEquals(1, userService.findAll().size());
     }
 
     @Test
@@ -32,14 +49,14 @@ class UserControllerTest extends AbstractControllerTest {
         userController.addFriend(TestUtil.validUser1.getId(), TestUtil.validUser2.getId());
         userController.addFriend(TestUtil.validUser1.getId(), TestUtil.validUser3.getId());
         mockMvc.perform(
-                        MockMvcRequestBuilders.get("/users/{id}/friends", 4l)
+                        MockMvcRequestBuilders.get("/users/{id}/friends", TestUtil.validUser1.getId())
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content()
-                        .json("[{\"id\":5,\"friends\":[],\"email\":\"validUser2@mail.ru\"," +
-                                "\"login\":\"login\",\"name\":\"validUser2\",\"birthday\":\"1981-05-16\"}," +
-                                "{\"id\":6,\"friends\":[],\"email\":\"validUser2@mail.ru\",\"login\":\"login\"," +
-                                "\"name\":\"validUser2\",\"birthday\":\"1981-05-16\"}]")).andDo(print());
+                        .json("[{\"id\":9,\"friends\":[],\"email\":\"validUser2@mail.ru\"" +
+                                ",\"login\":\"login\",\"name\":\"validUser2\",\"birthday\":\"1981-05-16\"}" +
+                                ",{\"id\":10,\"friends\":[],\"email\":\"validUser2@mail.ru\",\"login\":\"login\"" +
+                                ",\"name\":\"validUser2\",\"birthday\":\"1981-05-16\"}]")).andDo(print());
     }
 
     @Test
@@ -51,25 +68,26 @@ class UserControllerTest extends AbstractControllerTest {
         userController.addFriend(TestUtil.validUser2.getId(), TestUtil.validUser3.getId());
 
         mockMvc.perform(
-                        MockMvcRequestBuilders.get("/users/{id}/friends/common/{otherId}", 8L, 9L)
+                        MockMvcRequestBuilders.get("/users/{id}/friends/common/{otherId}", 12L, 13L)
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content()
-                        .json("[{\"id\":10,\"friends\":[],\"email\":\"validUser2@mail.ru\"," +
-                                "\"login\":\"login\",\"name\":\"validUser2\",\"birthday\":\"1981-05-16\"}]")).andDo(print());
+                        .json("[{\"id\":14,\"friends\":[],\"email\":\"validUser2@mail.ru\"" +
+                                ",\"login\":\"login\",\"name\":\"validUser2\",\"birthday\":\"1981-05-16\"}]"))
+                .andDo(print());
     }
 
     @Test
     void shouldReturnUserById() throws Exception {
         userController.createUser(TestUtil.validUser1);
         mockMvc.perform(
-                        MockMvcRequestBuilders.get("/users/{id}", 1l)
+                        MockMvcRequestBuilders.get("/users/{id}", 2l)
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content()
-                        .json("{\"id\":1,\"friends\":[],\"email\":\"mail@yandex.ru\"," +
-                                "\"login\":\"doloreUpdate\",\"name\":\"est adipisicing\"," +
-                                "\"birthday\":\"1976-09-20\"}")).andDo(print());
+                        .json("{\"id\":2,\"friends\":[],\"email\":\"validUser2@mail.ru\"" +
+                                ",\"login\":\"login\",\"name\":\"validUser2\",\"birthday\":\"1981-05-16\"}"))
+                .andDo(print());
     }
 
     @Test
@@ -98,14 +116,16 @@ class UserControllerTest extends AbstractControllerTest {
         mockMvc.perform(
                         MockMvcRequestBuilders.post("/users")
                                 .content("{\"id\":1,\"friends\":[],\"email\":\"mail@yandex.ru\"," +
-                                        "\"login\":\"doloreUpdate\",\"name\":\"est adipisicing\",\"birthday\":\"1976-09-20\"}")
+                                        "\"login\":\"doloreUpdate\",\"name\":\"est adipisicing\"" +
+                                        ",\"birthday\":\"1976-09-20\"}")
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(content()
-                        .json("{\"id\":7,\"friends\":[],\"email\":\"mail@yandex.ru\"," +
-                                "\"login\":\"doloreUpdate\",\"name\":\"est adipisicing\",\"birthday\":\"1976-09-20\"}"));
+                        .json("{\"id\":11,\"friends\":[],\"email\":\"mail@yandex.ru\"" +
+                                ",\"login\":\"doloreUpdate\",\"name\":\"est adipisicing\"" +
+                                ",\"birthday\":\"1976-09-20\"}"));
     }
 
     @Test
@@ -144,11 +164,52 @@ class UserControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(content()
-                        .json("[{\"id\":1,\"friends\":[],\"email\":\"mail@yandex.ru\"," +
-                                "\"login\":\"doloreUpdate\",\"name\":\"est adipisicing\",\"birthday\":\"1976-09-20\"}," +
-                                "{\"id\":2,\"friends\":[],\"email\":\"validUser1@mail.ru\",\"login\":\"login\"," +
-                                "\"name\":\"validUser1\",\"birthday\":\"1981-05-16\"},{\"id\":3,\"friends\":[]," +
-                                "\"email\":\"validUser2@mail.ru\",\"login\":\"login\",\"name\":\"validUser2\"," +
-                                "\"birthday\":\"1981-05-16\"}]"));
+                        .json("[{\"id\":2,\"friends\":[],\"email\":\"validUser2@mail.ru\"" +
+                                ",\"login\":\"login\",\"name\":\"validUser2\",\"birthday\":\"1981-05-16\"}" +
+                                ",{\"id\":3,\"friends\":[],\"email\":\"validUser1@mail.ru\",\"login\":\"login\"" +
+                                ",\"name\":\"validUser1\",\"birthday\":\"1981-05-16\"},{\"id\":4,\"friends\":[]" +
+                                ",\"email\":\"validUser1@mail.ru\",\"login\":\"login\",\"name\":\"validUser1\"" +
+                                ",\"birthday\":\"1981-05-16\"},{\"id\":5,\"friends\":[]" +
+                                ",\"email\":\"validUser2@mail.ru\",\"login\":\"login\"" +
+                                ",\"name\":\"validUser2\",\"birthday\":\"1981-05-16\"}]"));
+    }
+
+    @Test
+    void shouldReturnAllFeedsByUserId() {
+//        userService.
+    }
+
+    @Test
+    void shouldReturnRecommendationCorrectly() throws Exception {
+        userController.createUser(TestUtil.validUser1);
+        userController.createUser(TestUtil.validUser2);
+        filmController.addFilm(validFilm1);
+        filmController.addFilm(validFilm2);
+        filmController.addFilm(validFilm3);
+
+        filmController.addLike(1L, 2L);
+        mockMvc.perform(
+                        MockMvcRequestBuilders.get("/users/{id}/recommendations", 2l))
+                .andExpect(status().isOk());
+
+        filmController.addLike(2L, 2L);
+        mockMvc.perform(
+                        MockMvcRequestBuilders.get("/users/{id}/recommendations", 2l))
+                .andExpect(status().isOk());
+
+        filmController.addLike(3L, 2L);
+        filmController.addLike(3L, 3L);
+        mockMvc.perform(
+                        MockMvcRequestBuilders.get("/users/{id}/recommendations", 3l))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content()
+                        .json("[{\"genres\":null,\"directors\":[],\"rate\":null,\"id\":1,\"likes\":[2]" +
+                                ",\"name\":\"validFilm1\",\"description\":\"validFilm1 description\"" +
+                                ",\"releaseDate\":\"2020-10-10\",\"duration\":160,\"mpa\":{\"id\":1" +
+                                ",\"name\":\"G\"}},{\"genres\":null,\"directors\":[],\"rate\":null" +
+                                ",\"id\":2,\"likes\":[2],\"name\":\"validFilm2\"" +
+                                ",\"description\":\"validFilm2 description\",\"releaseDate\":\"2021-10-10\"" +
+                                ",\"duration\":160,\"mpa\":{\"id\":1,\"name\":\"G\"}}]"));
     }
 }

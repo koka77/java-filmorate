@@ -4,8 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.FindFilmException;
-import ru.yandex.practicum.filmorate.exception.NoUserException;
+import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
+import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
+import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exception.UnableToFindException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
@@ -60,7 +61,7 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public void addLike(Long filmId, Long userId) throws NoUserException, FindFilmException {
+    public void addLike(Long filmId, Long userId) throws UserNotFoundException, FilmNotFoundException {
         Film film = storage.findById(filmId).get();
         User user = userService.findById(userId).get();
 
@@ -70,18 +71,43 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public void remoteLike(Long filmId, Long userId) {
+    public void removeLike(Long filmId, Long userId) {
         if (filmId < 1 || userId < 1) {
             throw new UnableToFindException();
         }
         Film film = storage.findById(filmId).get();
         User user = userService.findById(userId).get();
         film.removeLike(userId);
+        storage.updateFilm(film);
         log.info("User: was like film: {}", user, film);
     }
 
     @Override
-    public List<Film> getMostPopular(Integer count) {
-        return storage.getMostPopular(count);
+    public List<Film> getMostPopular(Integer count, Integer genreId, Integer date) {
+        return storage.getMostPopular(count, genreId, date);
+    }
+
+    @Override
+    public List<Film> getFilmsByDirector(Long directorId, String sortBy) {
+        List<Film> films = storage.getByDirector(directorId, sortBy);
+        if (films.size() == 0) {
+            throw new ObjectNotFoundException(String.format("Films not found for director: %s", directorId));
+        }
+        return storage.getByDirector(directorId, sortBy);
+    }
+
+    @Override
+    public Collection<Film> searchFilms(String queryString, String searchBy) {
+        return storage.search(queryString, searchBy);
+    }
+
+    @Override
+    public Collection<Film> getCommonFilms(Long userId, Long friendId) {
+        return storage.getCommonFilms(userId, friendId);
+    }
+
+    @Override
+    public void removeFilm(Long filmId) {
+        storage.deleteFilm(filmId);
     }
 }
